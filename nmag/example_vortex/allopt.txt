@@ -1,0 +1,375 @@
+#########################################################################
+#
+# magpar configuration file: allopt.txt
+#
+# magpar version 0.5
+#
+# required options
+#
+#########################################################################
+
+# project name
+-simName nanodot
+
+# start in debugger (the debugger ddd must be in your path)
+#-ddd
+
+##### mesh type
+# 0: Patran: <simName>.out
+# 1: AVS:    <simName>.inp
+-meshtype 1
+
+##### initial magnetization
+#  negative values: select abs(init_mag), but reverse the magnetization
+#  0: magnetization from inp (set file number by -inp below)
+#  1: Mx=1
+#  2: My=1
+#  3: Mz=1
+#  4: Mx=My=Mz=sqrt(1/3)=0.57735027
+#  5: artificial flower state, center: x=y=z=init_magparm
+#  6: set magnetization in x-z plane to theta=init_magpar (from z-axis)
+#  7: vortex state: core radius = init_magparm, center in (x=0,y=0)
+#  8: random magnetization
+#  9: Bloch wall: center at x = init_magparm, width=x/10
+# 10: M // anisotropy axes
+-init_mag 1
+-init_magparm 0.6
+# number of first inp file (to be read or written)
+# full file name: <simName>.<inp>.inp
+-inp 0001
+
+##### regular mesh refinement
+# number of regular refinement steps
+# (every step generates 8x as many elements and about 8x as many nodes!!!)
+-refine 0
+
+##### mesh distortion parameter
+# 0: no distortion
+# 1: distort only interior mesh
+# 2: distort only boundary mesh
+# 3: distort whole mesh
+-meshdist 0
+# max. distortion = distpar*(min. edge length of all tetrahedra)
+-distpar 0.1
+
+##### modify element property ids
+# 0:    do not modify any
+# modify init/modifypropser.c or init/modifyproppar.c to your needs
+# and call them from init/serinit.c and init/parinit.c, respectively
+-nsliceprop 0
+
+##### definition of slice plane for PNG output
+# definition: nx*x+ny*y+nz*z = nx*vx+ny*vy+nz*vz
+# slice_n (nx,ny,nz): normal vector on slice plane
+# slice_p (vx,vy,vz): any point in the slice plane
+# Coordinates in (dimensionless) units of the finite element mesh.
+# The values must be separated with commas with no intervening spaces.
+-slice_n 0,0,1
+-slice_p 0,0,0.1
+# select area to be drawn in PNG files based on property id
+# (line number in krn file)
+# 0:  plot magnetization of grains with any property id
+# >0: only grain with given property id
+# <0: all grains except the one with the given property id
+-slice_g 0
+# image resolution:
+# number of pixels on longer edge
+# -> max. image size: res x res pixels
+-res 20
+
+##### definition of data sampling line
+# vector line_v (vx,vy,vz), point line_p (px,py,pz)
+# Coordinates in (dimensionless) units of the finite element mesh.
+# The values must be separated with commas with no intervening spaces.
+-line_v 1,0,0
+-line_p 0,0,0.1
+
+##### periodic boundary conditions (beware: incomplete/untested)
+-pbx 1e99,1e99
+-pby 1e99,1e99
+-pbz 1e99,1e99
+
+##### switch demagnetizing=magnetostatic field on/off
+# 0: demagnetizing field off
+# 1: demagnetizing field on
+-demag 1
+
+##### minimization method
+# 0: PVODE (LLG time integration) or
+# 1: TAO (energy minimization)
+-mode 0
+
+##### configure TAO options below!
+##### configure PVODE options below!
+
+##### set external field
+# 0: homogeneous external field
+# 1: rotating external field (sweeping phi: rotation in xy plane (z=0))
+# 2: custom external field defined in fields/hexternalcust.c
+-hextshape 0
+
+# /* mu0 = 4*M_PI*1e-7 = 12.566371e-7 Tm/A (=Vs/Am)*/
+# /* gamma = mu0*g*|e|/(2*me) [m/As]  (cf. Diplomarbeit Scholz S. 14) */
+# 795.77472 kA/m = 1 T
+
+# external field (kA/m)
+-hextini 12.0
+# direction of external field (rad)
+# theta measured from the z-axis
+# phi measured from the x-axis in the x-y-plane
+# Pi/4 = 0.7853981 rad = 45 deg
+# Pi/2 = 1.5707963 rad = 90 deg
+-htheta 1.5707963
+-hphi 0.0
+# change external field in these steps (kA/m)
+-hstep -5.0
+# change external field at this speed ( kA/(m*ns) ) or
+# GHz for hextshape==1 (rotating field)
+-hsweep 0.0
+# stop simulation if Hext < Hfinal (kA/m)
+-hfinal -200.0
+
+
+##### output of data files (inp, png, dat files)
+# write inp file in equilibrium (torque=max(|dM/dt|)<condinp_equil)
+# 0: off
+# 1: on
+-condinp_equil 1
+# set the following options to very high values (e.g. 1e99)
+# if output should be disabled:
+# write inp file if |M_current - M_lastinp| > condinp_j  (units of Ms // Hext)
+-condinp_j  0.1
+# write inp file if (t_current - t_lastinp) > condinp_t (nanoseconds)
+-condinp_t  0.1
+
+##### which data to color code in GeomView off file
+# 0: processor assignment (mesh partitioning)
+# 1: element volume
+# 2: element id
+# 3: element property
+# 4: element quality
+# 5: K1 (J/m^3)
+# 6: Js (T)
+# 7: A (J/m)
+# 8: 4*sqrt(A*K1) (J/m^2)
+# 100: vertex solid angle
+# 101: vertex volume
+# 102: bnd indicator
+# 103: vertex id
+# 104: Mx
+# 105: My
+# 106: Mz
+# 107: u1
+# 108: u2
+# 109: u1+u2
+# 110: vertex id (periodic boundary)
+-offdata 0
+
+##### tolerances
+# if (torque=max(|dM/dt|) < tol): equilibrium
+-tol 1e-4
+# max(|M|) > renormtol : renormalize all M on all nodes and restart PVODE
+-renormtol 1e-2
+
+##### distortion parameter for energy minimization
+# the magnetization on all nodes is randomly distorted
+# after equilibrium has been reached
+-magdist 0.001
+
+##### scaling parameters
+# size scaling of finite element mesh (unit: m)
+-size 100e-9
+
+##### dimensionless Landau-Lifshitz-Gilbert damping constant
+# define for every grain together with material parameters in *.krn
+
+##### exit condition
+# stop simulation if |J//Hext| < jfinal (1)
+-jfinal -0.9999
+
+#########################################################################
+#
+# options for solvers
+#
+#########################################################################
+
+#########################################################################
+# magnetostatic field solver:
+
+# Krylov subspace solver for linear systems
+# important for accuracy and speed of calculation of the demagnetizing field
+#
+# -ksp_type one of: (cf. PETSc manual chapter 4.3 Krylov Methods p. 63
+#    richardson chebychev cg gmres tcqmr bcgs cgs tfqmr cr lsqr
+#    preonly qcg bicg fgmres minres symmlq lgmres
+
+#   gmres:    good for small systems
+#   cg:       shows better convergence rate for large systems
+#   preonly:  for use with direct solvers (e.g. "-pc_type lu", see below)
+
+#-ksp_type gmres
+#-ksp_type preonly
+-ksp_type cg
+
+# monitor convergence (print residual at every iteration)
+#-ksp_monitor
+
+# Maximum number of iterations (KSPSetTolerances)
+# <10000>
+-ksp_max_it 1000
+# Relative decrease in residual norm (KSPSetTolerances)
+# <1e-05>
+-ksp_rtol 1e-5
+# Absolute value of residual norm (KSPSetTolerances)
+# <1e-50>
+-ksp_atol 1e-5
+# Residual norm increase cause divergence (KSPSetTolerances)
+#  <10000>
+-ksp_divtol 1000
+
+#Preconditioner (PC) Options for linear systems ------------------------------
+#  -pc_type Preconditioner:(one of) none jacobi pbjacobi bjacobi sor lu shell mg
+#      eisenstat ilu icc cholesky asm sles composite redundant nn mat milu jacobic multilevel schur (see manual page PCSetType)
+#
+# default on single proc: icc (good, even better for small systems: lu - i.e. direct solver)
+# default on multi-proc:  bjacobi
+# direct solver:          lu (use together with "-ksp_type preonly")
+#   (PETSc LU solver only available for single processor,
+#   use SuperLU_DIST as a direct parallel solver)
+
+#-pc_type icc
+# apply Manteuffel shift to diagonal to force positive definite preconditioner
+# (required by ICC, automatic default for PETSc >=2.2.1)
+#-pc_icc_shift
+
+#-pc_type lu
+#-pc_type bjacobi
+
+# default on multi-proc: icc
+-sub_pc_type icc
+# apply Manteuffel shift to diagonal to force positive definite preconditioner
+# (required by ICC, automatic default for PETSc >=2.2.1)
+-sub_pc_icc_shift
+
+# cf. PETSc manual chapter 13: Hints for Performance Tuning
+# section 13.7, p. 141: Tips for Efficient Use of Linear Solvers
+
+#########################################################################
+# Energy minimization
+
+##### TAO methods ------------------------------------------------------------
+# tao_nls - Newton's method with line search for unconstrained minimization
+# tao_ntr - Newton's method with trust region for unconstrained minimization
+# tao_lmvm - Limited memory variable metric method for unconstrained minimization
+# tao_cg_fr - Fletcher-Reeves Nonlinear conjugate gradient method for unconstrained minimization
+# tao_cg_pr - Polak-Ribiere Nonlinear conjugate gradient method for unconstrained minimization
+# tao_cg_prp - Polak-Ribiere-Plus Nonlinear conjugate gradient method for unconstrained minimization
+# tao_tron - Newton Trust Region method for bound constrained minimization
+# tao_gpcg - Newton Trust Region method for quadratic bound constrained minimization
+# tao_blmvm - Limited memory variable metric method for bound constrained minimization
+# tao_kt - Formulate a bound constrained problem as a complementarity problem
+# tao_bqpip - Interior point method for quadratic bound constrained minimization
+# tao_ssils - Infeasible semismooth method with a linesearch for complementarity problems
+# tao_ssfls - Feasible semismooth method with a linesearch for complementarity problems
+
+#TAO solver  -------------------------------------------------
+#  -tao_method Select TAO method:(one of) tao_lmvm tao_nls tao_cg_fr tao_cg_prp tao_cg_pr tao_bqpip tao_blmvm tao_tron
+#      tao_ntr tao_gpcg tao_ssils tao_ssfls tao_kt (see manual page TaoSetMethod)
+#  Limited Memory Variable Metric method for unconstrained optimization
+#  More-Thuente line line search options for unconstrained minimization
+-tao_method tao_lmvm
+#  -tao_ls_maxfev <30>: max function evals in line search ()
+#  -tao_ls_ftol <0.001>: tol for sufficient decrease ()
+#  -tao_ls_gtol <0.99>: tol for curvature condition ()
+#  -tao_ls_rtol <1e-10>: relative tol for acceptable step ()
+#  -tao_ls_stepmin <1e-20>: lower bound for step ()
+#  -tao_ls_stepmax <1e+20>: upper bound for step ()
+#  -tao_view: view TAO_SOLVER info after each minimization has completed (TaoView)
+-tao_view
+#  -tao_fatol <1e-4>: Stop if solution within (TaoSetTolerances)
+-tao_fatol 1e-10
+#  -tao_frtol <1e-4>: Stop if relative solution within (TaoSetTolerances)
+-tao_frtol 1e-10
+#  -tao_catol <0>: Stop if constraints violations within (TaoSetTolerances)
+#  -tao_crtol <0>: Stop if relative contraint violations within (TaoSetTolerances)
+#  -tao_gatol <0>: Stop if norm of gradient less than (TaoSetGradientTolerances)
+#  -tao_grtol <0>: Stop if norm of gradient divided by the function value is less than (TaoSetGradientTolerances)
+#  -tao_gttol <0>: Stop if the norm of the gradient is less than the norm of the initial gradient times (TaoSetGradientTolerances)
+#  -tao_max_its <2000>: Stop if iteration number exceeds (TaoSetMaximumIterates)
+#  -tao_max_funcs <4000>: Stop if number of function evaluations exceeds (TaoSetMaximumFunctionEvaluations)
+#  -tao_fmin <-1e+30>: Stop if function less than (TaoSetFunctionLowerBound)
+#  -tao_steptol <0>: Stop if step size or trust region radius less than (TaoSetTrustRegionRadius)
+#  -tao_trust0 <1e-06>: Initial trust region radius (TaoSetTrustRegionRadius)
+#  -tao_lmmax <5>: Maximum number of vector pairs to use in limited memory variable metric matrix (TaoSetLMVMSetSize)
+#  -tao_view_hessian: view Hessian after each evaluation (None)
+#  -tao_view_gradient: view gradient after each evaluation (None)
+#  -tao_view_jacobian: view jacobian after each evaluation (None)
+#  -tao_view_constraints: view constraint function after each evaluation (None)
+#  -tao_cancelmonitors: cancel all monitors hardwired in code (TaoClearMonitor)
+#  -tao_monitor: Use the default convergence monitor (TaoSetMonitor)
+#  -tao_smonitor: Use short monitor (None)
+#  -tao_vecmonitor: Plot solution vector at each iteration (TaoVecViewMonitor)
+#  -tao_vecmonitor_update: plots step direction at each iteration (TaoVecViewMonitorUpdate)
+#  -tao_fd: use finite differences for Hessian (TaoDefaultComputeHessian)
+#  -tao_xmonitor: Use graphics convergence (TaoPetscXMonitor)
+
+# more information about these options can be found in the TAO manual
+
+#########################################################################
+# LLG time integration
+
+#Time step options -------------------------------------------------
+#  -ts_max_steps <5000>: Maximum number of time steps (TSSetDuration)
+#ignored
+#  -ts_init_time <0>: Initial time (TSSetInitialTime) (unit: ns)
+-ts_init_time 0.0
+#  -ts_max_time <5>: Time to run to (TSSetDuration) (unit: ns)
+-ts_max_time 1e99
+#  -ts_dt <0.020944>: Initial time step (TSSetInitialTimeStep)
+#  -ts_monitor: Monitor timestep size (TSDefaultMonitor)
+#  -ts_xmonitor: Monitor timestep size graphically (TSLGMonitor)
+#  -ts_vecmonitor: Monitor solution graphically (TSVecViewMonitor)
+#  -ts_type TS method:(one of) euler beuler crank-nicholson pseudo pvode gbeuler (see manual page  TSSetType)
+
+#  PVODE ODE solver options
+#  -ts_pvode_type <bdf> (one of) bdf adams
+-ts_pvode_type bdf
+#  -ts_pvode_gramschmidt_type <unmodified> (one of) modified unmodified
+#ignored
+#  -ts_pvode_atol <1e-06>: Absolute tolerance for convergence (TSPVodeSetTolerance)
+-ts_pvode_atol 1e-6
+#  -ts_pvode_rtol <1e-06>: Relative tolerance for convergence (TSPVodeSetTolerance)
+-ts_pvode_rtol 1e-6
+#  -ts_pvode_linear_tolerance <0.05>: Convergence tolerance for linear solve (TSPVodeSetLinearTolerance)
+-ts_pvode_linear_tolerance 0.05
+#  -ts_pvode_gmres_restart <5>: Number of GMRES orthogonalization directions (TSPVodeSetGMRESRestart)
+#ignored
+#  -ts_pvode_not_exact_final_time: Allow PVODE to stop near the final time, not exactly on it (TSPVodeSetExactFinalTime)
+#ignored
+
+##### additional PVODE parameters
+
+# maxl: maximum Krylov dimension
+-maxl 300
+# minimum absolute value of step size allowed (ns)
+-mintimestep 0.0
+# maximum absolute value of step size allowed (ns)
+-maxtimestep 1e99
+# maximum lmm order to be used by the solver
+# Default (=max.) = 12 for ADAMS, 5 for BDF
+-maxorder 2
+# set preconditioning type
+# 0: none
+# 1: jacobi
+# 2: band-block-diagonal (not implemented, yet)
+-precon 0
+
+# choose linear solver and set tolerance for psolve
+# gmres and bcgs are usually a good choice
+
+-psolve_ksp_type gmres
+-psolve_ksp_atol 1e-7
+-psolve_ksp_rtol 0.01
+
+# more information about these options can be found in the PVODE manual
+

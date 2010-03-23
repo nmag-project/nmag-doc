@@ -1,0 +1,196 @@
+
+Every subdirectory of this directory contains a separate OCaml module.
+
+General notes:
+
+What we do here, we for now do with floatingpoint only. Eventually, we
+may want to module-abstract that out and also provide support for
+complex matrices.
+
+We have:
+
+--------------------
+snippets
+
+ A collection of generally useful functions that do not fit into a
+ more specific category, but are quite handy for a lot of
+ applications.
+
+Dependencies: extlib
+
+Notes:
+
+ - There is a lot of evolution going on in this catch-it-all module:
+
+   Typically, whenever a specialized module is implemented, one will
+   recognize the necessity for a collection of small, useful functions
+   that may have broader applicability than originally intended.
+
+   These should go into the snippets module first. Over time, it may
+   happen that a large enough collection of snippet functions can be
+   grouped under a more specific common theme so that moving them out
+   into a more specific library is justified. (All modules using the
+   corresponding functions from "Snippets" have to be adjusted afterwards
+   to use that new library. But this is not a problem, as failed linking
+   attempts will tell us where definitions of moved functions are missing.)
+
+--------------------
+mt19937
+
+ A known good random number generator.
+
+ This addresses two problems:
+
+ - (1) We do not know how good the built-in RNG of ocaml is.
+
+ - (2) We have no guarantee that ocaml's RNG will not change
+       in subtle ways between compiler versions, hence 
+       destroying reproducibility.
+
+Dependencies: None
+
+Notes: 
+
+ - improvements made on the original C code might be interesting
+   of their own (removed global state and such).
+
+ - it seems to be reasonably fast.
+
+ - There is more to say about the problem of reproducibility of large
+   numerical simulations. See the documentation of this module.
+
+--------------------
+algorithms
+
+ Various useful abstract algorithms and data structures in
+ OCaml, among them Priority Queues that allow dynamic rescheduling
+ of entries by name, and Proximity search.
+
+Dependencies: None
+
+Notes: Mostly unfinished - presumably does not work yet. Not needed right now.
+
+--------------------
+qhull
+
+ an interface to libqhull that provides means
+ to Delaunay triangulate a set of points
+
+Dependencies: libqhull-dev
+
+Notes: libqhull sucks. Eventually, qhull will have to go the way of
+the dodo, as it is not 64-bit safe, operates on global state, shows
+interface design flaws, uses preprocessor macros in bloodcurdling
+ways, and for more uglinesses.
+
+--------------------
+mesh
+
+ Creating meshes from geometry specifications
+
+ Depends: snippets, qhull, mt19937, extlib
+
+ Notes:
+
+ - Conceptually, it is loosely based on distmesh by Persson/Strang.
+   (http://www-math.mit.edu/~persson/mesh/)
+
+ - It does support variable density, but there still are quite some
+   things that have to be tweaked:
+
+    - A few elements close to concave boundaries occasionally turn out
+      to be of unacceptably low quality.
+
+    - Perhaps, Parameters of the heuristics have to be tweaked to make
+      mesh generation more efficient.
+
+--------------------
+meshphysics
+
+ Putting physics on a mesh: Stiffness matrix assembly
+
+ Depends: snippets delaunay extlib
+
+ The most important function in here is assemble_stiffness_matrix.
+
+ The general idea is: given a mesh, an element order N,
+ and two vectors D_L, D_R of differential operators,
+ a function to create an empty MxN matrix, and a function to increase
+ matrix elements, we can:
+
+ - Form N-th order element functions e_j,
+ - calculate <D_L e_j ; D_R e_k> for every pair of such functions e_j,e_k,
+ - and assemble a stiffness matrix out of the simplices in a given mesh.
+
+ As this is fully generic w.r.t. the matrix representation due to
+ abstracting out matrix creation and element update, it is easy to 
+ create e.g. a float array array matrix for debugging, as well as a
+ Petsc matrix for real parallel computations, or any other form of matrix.
+
+ Notes:
+
+ - Nothing about Boundary Conditions and getting the right-hand-side
+   done properly yet.
+
+ - In the end (far in the future), we may want this to also provide
+   support for a vector of degrees of freedom at every
+   node. (Electromagnetic vector potential, density and temperature,
+   spinor components, you name it.) Note that we furthermore may want
+   to use different degrees of freedom on element functions of
+   different type (e.g. one type of DOFs on simplex vertices, another
+   one on edge midpoints). No design decisions have been made about
+   this yet.
+
+--------------------
+pycaml
+
+ Here, we adopted (rather, kidnapped) and extended Art Yerkes' Pycaml
+ Python<->OCaml interface from 2002. 
+
+ This is sort of necessary, as the original Pycaml sources are
+ somewhat unhelpful when it comes to library installations.
+
+--------------------
+pyfem
+
+ Access to our finite element code from within python
+
+ Depends: pycaml XXX and virtually anything else.
+
+
+--------------------
+prototype-mumag
+
+  The purpose of this module is to get a first simple example to work
+  while the development process is still going on. 
+
+
+--------------------
+psmesh
+
+ Generate postscript images from a mesh
+
+ Note: for now, this is just a TODO project description with an
+ explanation of the underlying reasons and concepts.
+
+--------------------
+petsc-mpi
+
+ Interfaces to petsc and MPI
+
+Notes: this is just some example code, not yet a real library.
+
+--------------------
+putting-ocaml-into-a-shared-object
+
+ Example how to make a C-linkable .so that internally uses OCaml.
+
+Notes: this is just some example code, not yet a real library.
+
+
+------------------------------------
+
+Note: Changed frm cvs to svn at 19 April 2007 13:15.
+
+This first revision carries the revision 3276.
+

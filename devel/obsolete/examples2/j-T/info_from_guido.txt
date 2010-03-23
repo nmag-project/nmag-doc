@@ -1,0 +1,44 @@
+from nmag import SI
+Ohm = SI(1,"V / A")
+cm = SI(1e-2,'m')
+
+#specific electronic conductivicy
+rho_el = 15e-6*Ohm*cm 
+sigma_el= 1./rho_el
+
+#
+
+http://www.mathphysics.com/pde/kvalues.html
+
+Heat constants for common materials
+		s	 k
+units	 cal/(hr-cm-deg)	 gm/cm3	 cal/(gm-deg)	 cm2/hr
+glass	80	2.8	.2 (guess)	140
+iron	 6800	7.9	.1	 8600
+granite	 300	 2.7	.19 (orthoclase)	585
+water	5	1	 1 (or .5 for ice)	5
+wood	350	.7	.2 (guess)	2500
+air .	002	.0011	.25 (N2)	7
+
+
+http://www.mathphysics.com/pde/HEderiv.html
+
+Since the region  can be an arbitrary piece of the material under study, the integrands must be equal at almost every point. If the material under study is a slab of a homogeneous substance, then , s, and are independent of the position x, and we obtain the heat equation
+
+u_t = k \laplace u
+
+where k = sigma/rho c. the constant c is te specific heat capacity, rho is the density, sigma is the thermal conductivity. Ordinary substances have values of k ranging from about 5 to 9000 cm2/gm (see table).
+
+
+
+
+Thermal conductivity: 15 W/(m K) for Stainless steel (http://en.wikipedia.org/wiki/Thermal_conductivity#List_of_thermal_conductivities)
+
+
+
+Specific thermal conductivity:
+
+
+Iron: 0.450	J/( g* K)
+
+ 

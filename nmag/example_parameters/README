@@ -1,0 +1,21 @@
+This example (unfinished) shows how to change the abs_tol and rel_tol
+values as ude by sundials for the time integration.
+
+It basically shows that we have a longer execution time, and more
+iterations, the high we choose the tolerances.
+
+This needs to be complemented with an option of modifying the accuracy
+of the KSP solves as used to obtain the demag field. We still need to
+add the relevant example here.
+
+The timings for the three runs (on eta) were (only for the
+advance_time loop):
+
+bar_fast took 207 seconds
+bar_noraml.py took 457 seconds 
+bar_slow took 16194 seconds 
+
+(fangohr 18/10/2007)
+
+
+This is ticket:63

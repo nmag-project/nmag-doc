@@ -1,0 +1,154 @@
+.. _`Hysteresis example`:
+
+Example: Simple hysteresis loop
+-------------------------------
+
+This example computes the hysteresis loop of an ellipsoidal magnetic
+object. We use an ellipsoid whose x,y,z semi-axes
+have lengths 30 nm, 10 nm and 10 nm, respectively. (The mesh is contained
+in `ellipsoid.nmesh.h5 <../example_stoner_wohlfarth/ellipsoid.nmesh.h5>`__ 
+and produced with Netgen_ from `ellipsoid.geo 
+<../example_hysteresis_ellipsoid/ellipsoid.geo>`__):
+
+.. image:: ../example_hysteresis_ellipsoid/mesh.png
+  :align: center
+
+This picture has been obtained by converting the mesh to a vtk_ file using::
+
+  $ nmeshpp --vtk ellipsoid.nmesh.h5 mesh.vtk
+
+and subsequent visualisation with Mayavi_::
+
+  $ mayavi -d mesh.vtk -m SurfaceMap
+
+We have further added the axes within MayaVi
+(Visualize->Modules->Axes), and changed the display color from blue to
+red (Double lick on ``SurfaceMap`` in the selected Modules list, then
+uncheck the ``Scalar Coloring`` box, click on ``Change Object Color``
+and select a suitable color).
+
+We provide the mayavi file `mesh.mv
+<../example_hysteresis_ellipsoid/mesh.mv>`__ that shows the
+visulisation as in the figure above. (If you want to load this file
+into MayaVi, just use ``$ mayavi mesh.mv`` but make sure that
+``mesh.vtk`` is in the same directory as mayavi will need to read
+this.)
+
+Hysteresis simulation script
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To compute the hysteresis loop for the ellipsoid, we use the 
+script `ellipsoid.py <../example_hysteresis_ellipsoid/ellipsoid.py>`__:
+
+.. include:: ../example_hysteresis_ellipsoid/ellipsoid.py
+  :literal:
+
+As in the previous examples, we first need to import the modules
+necessary for the simulatiofgn. ``at('convergence')`` allows us to save
+the fields and the averages whenever convergence is reached. 
+We then define the material of the magnetic object, load the mesh and set
+the initial configuration of the magnetisation as well as the
+external field.
+
+Hysteresis loop computation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We apply the external magnetic fields in the x-direction with range of
+1e6 A/m down to -1e6 A/m in steps of ``0.05e6 A/m``.
+
+To convey this information efficiently to |nmag|, we use:
+
+1. a direction for the applied field (here just ``[1,0.01,0]``), (note
+   that we have a small y-component of 1% in the applied field to break
+   the symmetry)
+
+2. a list of magnitudes of the field that will be multiplied with the
+   direction vector,
+
+3. another multiplier that defines the physical dimension of the applied fields
+   (here ``1000kA/m``, given as ``1e6*SI('A/m')``).
+
+Putting all this together, we obtain this command::
+
+  Hs = nmag.vector_set(direction=[1., 0.01, 0],
+                       norm_list=[ 1.00,  0.95, [], -1.00,
+                                  -0.95, -0.90, [],  1.00],
+                       units=1e6*SI('A/m'))
+
+which computes a list of vectors ``Hs``. Each entry in the list
+corresponds to one applied field.
+
+The hysteresis_ command takes this list of applied fields ``Hs`` as
+one input parameter, and computes the hysteresis loop for these
+fields::
+
+  sim.hysteresis(Hs, save=[('restart', 'fields', at('convergence'))])
+
+The ``save`` parameter is used to tell the hysteresis command what
+data to save, and how often. We have come across this notation when
+explaining the ``relax`` command in the section `"Relaxing" the
+system`_ of the previous example. In the example shown here, we
+request that the *fields* and the *restart* data should be saved *at*
+the point in time where we reach *convergence*. (The spatially
+averaged data is saved automatically to the ndt_ file when the
+*fields* are saved.) This is done in a compact notation shown above
+which is equivalent to this more explicit version::
+
+  sim.hysteresis(Hs,
+                 save=[('restart', at('convergence')),
+                       ('fields',   at('convergence'))])
+
+The compact notation can be used because here we want to save
+*fields* and *restart* data at the same time.
+
+The hysteresis_ command computes the time development of the system
+for one applied field until a convergence criterion is met. It then
+proceeds to the next external field value provided in ``Hs``. 
+
+We run the simulation as usual using::
+
+ $ nsim ellipsoid.py
+
+If you have run the simulation before, we need to use the ``--clean``
+switch to enforce overriding of existing data files::
+
+ $ nsim ellipsoid.py --clean
+
+The simulation should take only a few minutes (for example 3 minutes
+on an Athlon64 3800+), and needs about 75MB of RAM.
+
+If the simulation has been interrupted, it can be continued using
+
+ $ nsim ellipsoid.py --restart
+
+
+Obtaining the hysteresis loop data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once the calculation has finished, we can plot the graph of the
+magnetisation (projected along the direction of the applied field) as a
+function of the applied field.
+
+We use the ncol_ command to extract the data into a text file named `plot.dat <../example_hysteresis_ellipsoid/plot.dat>`__::
+
+ $ ncol ellipsoid H_ext_0 m_Py_0 > plot.dat
+
+Plotting the hysteresis loop with Gnuplot
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In this example, rather than using xmgrace_, we show how to plot data
+using Gnuplot_::
+
+  $ gnuplot make_plot.gnu
+
+The contents of the gnuplot script `make_plot.gnu <../example_hysteresis_ellipsoid/make_plot.gnu>`__ are:
+
+.. include:: ../example_hysteresis_ellipsoid/make_plot.gnu
+  :literal:
+
+which generates the following hysteresis loop graph:
+
+.. image:: ../example_hysteresis_ellipsoid/hysteresis.png
+  :align: center
+
+

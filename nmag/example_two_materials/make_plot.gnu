@@ -1,0 +1,1 @@
+plot [0:30e-10][-1.2:1.2] 'averages.txt' u 1:2 ti 'Co_x'w l, 'averages.txt' u 1:3 ti 'Co_y' w l, 'averages.txt' u 1:4 ti 'Co_z' w l, 'averages.txt' u 1:5 ti 'Py_x' w l, 'averages.txt' u 1:6 ti 'Py_y' w l, 'averages.txt' u 1:7 ti 'Py_z' w l

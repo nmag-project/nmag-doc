@@ -1,0 +1,86 @@
+
+We have to pay more attention to the specification of how to deal with
+boundaries in differential operators.
+
+What actually is a boundary?
+
+Easy: for every DOF, we know across which simplex faces it will
+"vanish", so in order to get boundary dofs, we just select thse for
+which dof.dof_vanishes_across <> [].
+
+div M vs. Div M
+===============
+
+Notational suggestion:
+
+div M: "<rho || d/dxj M[any](j)>"  = "<rho || d/dxj M(j)>" 
+
+Div M: "<rho || D/Dxj M[bdy](j)>"
+
+
+rho = laplace phi
+=================
+
+Notational suggestion:
+
+"<d/dxj rho || d/dxj phi[any]> + <D/Dxj rho[bdy] || d/dxj phi>;(L||R)=(*||*) , j:3 "
+
+~~~~~~~~~~~~
+
+d/dxj = "normal 'volume' derivative"
+
+D/Dxj = "surface jump derivative"
+
+X[any]: synonymous to X
+X[vol]: volume nodes only (i.e. those that do not jump!)
+X[bdy]: boundary nodes only (i.e. do contribs only for 
+	those nodes and simplex faces that have a "dof vanishes" 
+	jump!)
+
+(L||R)=(*||*)
+
+Specification whether we want "short vector" 
+(boundary dofs only) or "long vector" indices.
+
+* = all
+otherwise, list materials, e.g. (L||R) = (*||m_Fe,m_Dy)
+
+--> left: full length, right: only jumping DOFs in Dy/Fe.
+
+Note: there is an issue here with boundaries for "middle" fields. 
+In my opinion, we should just not allow that... middle fields always
+will have to be "full" fields.
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Extensions:
+
+(1) (L||R)=... is to be made just one among a number of other similar
+"extra matrix amendments". These are given, in arbitrary order,
+after the semicolon.
+
+Others will include:
+
+ ( )  rho[bdy] = phi[bdy]
+
+Put 1s on the diagonal for corresponding rho/phi boundary/boundary DOFs.
+(Used to solve D.B.C. linear systems!)
+
+ ( ) gauge_fix:phi or gauge_fix:phi[body=2]
+
+Means to look at the components of connection and modify those for the
+given bodies (which should be just the ones which do not carry any
+Dirichlet B.C.) by adding Phi_j=0 somewhere in there. This will remove
+the gauge freedom from the Laplace operator and turn it into a
+solvable system.
+
+ ( ) periodic:H_demag_Fe
+
+Means to use mesh periodicity information on the corresponding field
+(as always, may include body specifiers!)
+
+
+(2) The specifiers [body] and [boundary] need further extension:
+    it should be possible to say [body=2] or [boundary=2/3]!
+

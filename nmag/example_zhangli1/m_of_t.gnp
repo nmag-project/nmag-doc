@@ -1,0 +1,9 @@
+set term postscript color eps enhanced
+set out "m_of_t.eps"
+
+set xlabel "time (ns)"
+set ylabel "average magnetisation (10^6 A/m)"
+plot [0:10] \
+  "m_of_t.dat" u ($1*1e9):($2/1e6) t "<M_x>" w lp, \
+  "" u ($1*1e9):($3/1e6) t "<M_y>" w lp, \
+  "" u ($1*1e9):($4/1e6) t "<M_z>" w lp

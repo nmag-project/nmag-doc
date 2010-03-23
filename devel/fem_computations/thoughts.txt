@@ -1,0 +1,54 @@
+
+The current meshgen controller <-> engine <-> driver approach seems unwieldy.
+
+Reason (and further thoughts):
+
+(1) We want to "peek into" the meshing process from a scripting language.
+
+(2) The generation of a composite mesh consists of individual "large"
+steps, which involve generating sub-meshes. So... how can we peek at
+the meshing steps contained within?
+
+(3) The original "split the intelligence into three pieces" approach
+is good if one wants to keep everything flexible, yet provide a "black
+box" to the outside, where one can just say "mesh-me-this-and-that".
+
+(4) Hence, the whole problem simply consists of: we allowed to peek
+into the thing, but the holes to access the interior are not the
+appropriate ones! They are covered by "outer casing".
+
+(5) What is in the controller should stay in the controller. We might
+eventually want to think about providing a scripting interface that
+allows one to sketch a controller in a scripting language. I do not
+think that this is a good idea, however, as this is too much "don't
+mess with the interna", and therefore, fundamental changes eventually
+are going to happen on that low level!
+
+(6) One might think about simplifying the entire thing by removing the
+"Meshing finished" controller command, and instead build a machine
+which can go on with meshing forever, where the user decides by
+external means when he is finished. I do not consider this as a good
+option, as it would mean that we go away from the idea of providing
+the end user with a "I-want this-and-that-meshed" function. The brain
+(=controller) has to know when it is finished!
+
+(7) So, what about our original approach? I think it may be worthwile
+to address this as follows:
+
+ a) Strictly speaking, all our trouble stems from a double use of the
+ scripting language:
+
+   - For end users
+
+   - To integrate further work which is important (as it has
+     consequences for engineering the mesher to be crisp and flexible)
+     but not directly specific/related to our underlying ML mesher code.
+
+ b) Another idea we so far have not talked about is to provide yet
+    another driver - the "python" driver - which will do a certain number
+    of mesh-generating steps, and feed data into a python function
+    in regular intervals.
+
+For now, I will pursue that latter approach. Let's see how well Python
+integrates if we try to maintain the property that our mesher is in
+control, but may act via callbacks...

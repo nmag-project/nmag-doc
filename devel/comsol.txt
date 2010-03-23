@@ -1,0 +1,55 @@
+
+On Nsim-based multiphysics vs. COMSOL(TM) Multiphysics:
+
+(NOTE: to be included in nsim paper!)
+
+* other frameworks for multiphysics applications available
+
+* Conceptually, the scope of these packages is different.
+
+
+Nsim's fundamental philosophy:
+
+ (a) Complete formalization of classical field theory
+     in a framework readable by both humans and computers.
+
+ (b) Providing a system that allows the direct compilation
+     of such abstract specifications to working simulations.
+ 
+ (c) Embeddable framework: free software library.
+
+ (d) targeted at: modeling in current research (i.e. highly
+     active areas where multiple different contending sets
+     of formulas may be around to describe different limiting
+     cases of a complex system).
+
+Comsol Multiphysics' fundamental philosophy:
+
+ Providing a marketable product that does well and is easy
+ to use for the most widespread day-to-day field theory
+ models in engineering, and can to a limited degree be
+ coerced into also simulating some more generic systems
+ where equations are defined by the user:
+
+ Not a tool designed for active model-building research,
+ but for application of established models!
+
+ Under these conditions, fully user-defined subsystems are
+ necessarily seen as a rare exception that nevertheless has
+ to be supported to some degree, as not being able to do some
+ particular unusual detail in a multiphysics application may
+ still seriously hinder applicability in the field. Hence,
+ support for the generic case uses a number of ad-hoc
+ approaches. XXX Example: no generic support for higher-rank
+ multi-group tensor dynamical variables.
+ (Elastomechanics tensors are represented as triplets of vectors;
+ all vectors are 3d.)
+
+ In Nsim's philsophy, the foundation is a stringent formalization of
+ classical field theory. XXX Directed at areas of active research.
+ Support for existing models "grows into" nsim as they are needed.
+
+ Uniform formalism that is strong enough to support a whole range of
+ field theory applications without having to introduce special ad-hoc
+ concepts as the defining idea.
+

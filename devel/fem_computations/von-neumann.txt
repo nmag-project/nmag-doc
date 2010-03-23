@@ -1,0 +1,71 @@
+
+Ad implementation of Von Neumann Boundary Conditions:
+
+Typical situation: a magnetic medium shares a boundary with a
+non-magnetic medium. The jump in magnetization across the interface
+enters as a magnetic surface charge contribution.
+
+Question: is this scenario generic enough to cover all relevant NBC
+cases via generalization?
+
+General pattern seems to be:
+
+When allocating DOFs, and going through all simplices, there may be
+some DOF types which could be subject to NBC "face splitting" - like
+magnetization. How to determine when face splitting has to happen?
+
+ * If a DOF candidate sits at a site such that the mother simplex and
+   one of the face-adjacent simplices(!) that would share this DOF
+   have regions (region1,region2), and that is a registered boundary,
+   the DOF has to be split into a region-1 and a region-2 part.
+
+ * DOFs that are eligible for NBC splitting follow a special convention
+   concerning their indices: the leading index they carry will always be the
+   body number they are associated to!
+
+   Hence, it will be ("M",[|2,0|]) for the x-component of the magnetization
+   associated to Body 2.
+
+   Note that a given DOF may want to be present only for certain simplex
+   regions: we should not allocate a magnetization for the outer space!
+
+ * If we do it this way, how are we supposed to know which faces and
+   DOFs make NBCs? Easy: when allocating DOFs, we need a post-processing
+   step that once more runs through all simplices, and all faces, and
+   checks for NBC interfaces.
+
+   What do we record for any NBC interface found?
+
+   - the simplex
+   - the face number (= number of the opposing vertex)
+   - All DOFs, together with their element functions
+     for the corresponding simplex, that contribute.
+
+
+================================================
+
+Actually, the idea of enforcing region-dependent names for DOFs of
+fields that have NBCs may not be so bright after all. Rationale:
+consider having a constant-potential and constant-surface-charge
+conductive ball. The electric potential will have DBC along some
+boundaries and NBC along others. Now, in such a situation we might get
+name splitting even for DBC regions(?). But maybe I'm just confused
+here.
+
+So, how to deal with this? Introducing name groups (i.e. making the
+mapping from DOF to name multi-valued) may come to one's mind. This
+presumably is not a good idea. Rather, we just need more flexibility
+with the dof-naming. Just let the user specify.
+
+The general treatment of NBCs for the Laplace problem is somewhat
+hairy. Note, however, that we only need something far more simpler in
+our case: surface divergencies of vector fields - e.g. the magnetism.
+
+So, we can handle this in a cavalier way by just
+
+(1) telling mesh_allocate_dof to do DOF splitting for boundaries with
+    surface charges.
+
+(2) Allowing an extra parameter in our div-matrix-maker that allows us
+    to scan for and handle surface charges.
+

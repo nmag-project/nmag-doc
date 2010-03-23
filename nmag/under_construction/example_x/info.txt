@@ -1,0 +1,4 @@
+Attempt to study a sphere in a cube, meshed with gmsh. 
+
+Unfinished. Currently, the vtk plot (try 'make mayavi' looks odd: I 
+wander whether the simplices are oriented randomly). HF Nov 2008

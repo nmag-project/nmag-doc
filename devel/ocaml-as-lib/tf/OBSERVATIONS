@@ -1,0 +1,32 @@
+
+Problem: How to make ocamlopt produce a C-linkable shared object that contains everything but not yet a main()?
+
+Observations:
+
+ - The problem lies in the transition from ML object files to C object files.
+
+ - When we call ocamlopt in such a way that we provide a C file containing main(),
+   it will use our main function.
+
+ - When we call ocamlopt in such a way that we do not provide a C file containing main(),
+   it will include an own main() function and link up everything in such a way that this 
+   main() just walks through the ml files.
+
+ * Big question: How to go from .ml to .o/.so in such a way that all the pieces we want
+   are present, yet the object file does not include a main function.
+
+ - strace -s 1000 -f -F ocamlopt -ccopt -fPIC example_main.c example_lib.c unix.cmxa example.ml 
+ tells us that the critical compiler call is this:
+
+[pid 24520] execve("/bin/sh", ["sh", "-c", "gcc   -o \'a.out\' -I\'/usr/lib/ocaml/3.10.2\' -fPIC \'/tmp/camlstartup82cebe.o\' \'/usr/lib/ocaml/3.10.2/std_exit.o\' \'example.o\' \'/usr/lib/ocaml/3.10.2/unix.a\' \'/usr/lib/ocaml/3.10.2/stdlib.a\'  \'-L/usr/lib/ocaml/3.10.2\' \'-lunix\' \'example_main.o\' \'example_lib.o\' \'/usr/lib/ocaml/3.10.2/libasmrun.a\' -lm  -ldl"], [/* 20 vars */]) = 0
+
+
+ - If we put a wrapper around the assembler 'as' (easy thanks to this being found via path lookup),
+   we can capture the camlstartup.s file. This is urgently needed, as it provides missing
+   symbols such as 'caml_globals' that are generated on a case-by-case basis for the specific
+   application.
+
+ - So, we basically manually interfere with the compilation process,
+   dissecting it (evil!) and using the body parts to build what we
+   want rather than what OCaml would like us to want!
+

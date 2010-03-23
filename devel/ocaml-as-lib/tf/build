@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# We first establish a perl wrapper around /usr/bin/as that allows us
+# to "steal" the camlstartup.s intermediate assembly file that is
+# desperately needed to build a caml-containing shared object:
+
+PATH=`pwd`/wrappers:$PATH
+export PATH
+
+rm -rf sub/*
+cp example_main.c example_lib.c example.ml sub
+cd sub
+# This works and produces a running standalone a.out file (-fPIC actually not necessary...):
+ocamlopt -ccopt -fPIC example_main.c example_lib.c unix.cmxa example.ml 
+
+# Now that we did this call, we have (thanks to our stealing 'as' wrapper) camlstartup.s
+# This we can next use to build a caml-containing linkable shared object.
+
+as -o camlstartup.o camlstartup.s 
+
+# We see that we get object files for all the other components as well:
+
+ocamlopt -output-obj -ccopt -fPIC example_main.c example_lib.c unix.cmxa example.ml 
+
+# Let's build a shared C object library which "secretly uses OCaml
+# internally without telling anybody":
+
+if [ `uname` = "Darwin" ]; then
+    echo "Running on some Mac OS X";
+    # if I compile from source (all from source), i.e. on a Mac:
+    OCAMLPATH=`pwd`/../../../../lib/ocaml
+    
+    gcc -shared -fPIC -o example.so  -I $OCAMLPATH -fPIC camlstartup.o $OCAMLPATH/std_exit.o example.o $OCAMLPATH/unix.a $OCAMLPATH/stdlib.a  -L$OCAMLPATH -lunix example_lib.o $OCAMLPATH/libasmrun.a -lm  -ldl
+    echo "WARNING: I think we have to modify this gcc call for Mac OS X. (Mac OS X gcc will not like '-shared' for example (fangohr 21/07/2008)"
+else
+    echo "Running on Linux";
+    OCAMLPATH=/usr/lib/ocaml/3.09.2
+    gcc -shared -fPIC -o example.so  -I $OCAMLPATH -fPIC camlstartup.o $OCAMLPATH/std_exit.o example.o $OCAMLPATH/unix.a $OCAMLPATH/stdlib.a  -L$OCAMLPATH -lunix example_lib.o $OCAMLPATH/libasmrun.a -lm  -ldl
+fi
+
+
+
+
+# Now... can we use this to build an executable?
+
+gcc  -o example  example_main.o ./example.so
+
+
+# Please note that the call above hard-coded the ./ in the library path to example.so
+# into the executable. We normally would not want to do that. For nsim, we rather would
+# build libnsim.so and install this as part of a Debian module in some proper place,
+# and then link against it.
+
+echo "=== ldd example ==="
+
+ldd example
+
+echo "=== executing example ==="
+./example

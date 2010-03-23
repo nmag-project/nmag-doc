@@ -1,0 +1,70 @@
+.. comment:
+  .. _`Example ipython`:
+
+Example: IPython
+----------------
+
+The basics of this file are as in `Example: Demag field in uniformly
+magnetised sphere`_: a ferromagnetic sphere is studied, and initially
+configured to have homogeneous magnetisation. 
+
+Here is the source code of `sphere_ipython.py
+<../example_ipython/sphere_ipython.py>`__
+
+.. include:: ../example_ipython/sphere_ipython.py
+  :literal:
+
+To execute this script, we have to give its name to the nsim_
+executable, for example (on linux)::
+
+  $ nsim sphere_ipython.py
+
+The new command appearing here is:: 
+
+  nmag.ipython()
+
+This calls an interactive python interpreter (this is like the
+standard ``ipython`` interpreter called from the command prompt).
+
+Once we are "inside" this ipython interpreter, we can interactively work with
+the simulation object. We demonstrate this with the transcript of such
+a session::
+
+  $ nsim sphere_ipython.py
+
+  <snip>
+
+
+  In [1]: sim.get_subfield("H_demag")
+  Out[1]:
+  array([[ -3.30028671e+05,  -2.57073101e+01,  -4.63461085e+01],
+         [ -3.30518650e+05,  -2.65364907e+01,   2.12323921e+02],
+         [ -3.30380750e+05,  -1.34382835e+02,   1.94635283e+01],
+         ...,
+         [ -3.30063839e+05,   4.56312711e+01,  -1.31204248e+02],
+         [ -3.30056243e+05,  -3.23341645e+01,  -2.26732582e+02],
+         [ -3.29950815e+05,   4.44150291e+01,  -5.41700794e+01]])
+  
+  In [2]: sim.set_m([0,0,1])
+  
+  In [3]: sim.get_subfield("H_demag")
+  Out[3]: 
+  array([[ -6.86773473e+01,   4.44496808e+01,  -3.30084368e+05],
+         [ -2.83792944e+02,   1.78935681e+02,  -3.30268314e+05],
+         [ -2.04396266e+02,   2.48374212e+02,  -3.30180923e+05],
+         ..., 
+         [ -1.02055030e+02,  -9.53215211e+01,  -3.30239401e+05],
+         [  1.94875407e+02,   1.22757584e+02,  -3.29771010e+05],
+         [  6.16259262e+01,   1.66071597e+02,  -3.29848851e+05]])
+
+
+Note that within ipython, one can just press the TAB key to
+autocomplete object names, functions and commands.
+
+You can leave the ipython environment by pressing CTRL+D. For the
+script shown here, this will print ``Back in main code`` before the
+end of the script is reached. The ``ipython()`` command is
+occasionally a handy debugging feature: in order to investigate the
+behaviour of the system "on the spot", one can insert an ``ipython`` call
+into the script which will open an interactive command line.
+

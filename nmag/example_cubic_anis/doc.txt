@@ -1,0 +1,62 @@
+Example: Cubic Anisotropy
+-------------------------
+
+In this example we will study the behaviour of a 10 x 10 x 10 nm iron
+cube with cubic anisotropy in an external field.
+
+
+Cubic anisotropy simulation script
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. include:: cube.py
+  :literal:
+
+We will now discuss the `cube.py <../example_cubic_anis/cube.py>`__ script step-by-step:
+
+After creating the simulation object we define a magnetic material ``Fe``
+with cubic anisotropy representing iron::
+
+  Fe = nmag.MagMaterial(name="Fe",
+                        Ms=SI(1700e3, "A/m"),
+                        exchange_coupling=SI(21e-12, "J/m"),
+                        anisotropy=nmag.cubic_anisotropy(axis1=[1,0,0],
+                                                         axis2=[0,1,0],
+                                                         K1=SI(48e3, "J/m^3")))
+
+We load the mesh and set initial magnetisation pointing in +z direction
+(that is, in a local minimum of anisotropy energy density).
+
+Finally, we use hysteresis_ to apply gradually stronger fields in +x direction (up to 50 mT)::
+
+  Hs = nmag.vector_set(direction=[1.0, 0, 0.0001],
+                       norm_list=[0, 1, [], 19, 19.1, [], 21, 22, [], 50],
+                       units=0.001*si.Tesla/si.mu0)
+
+Note that we sample more often the region between 19 and 21 mT where
+magnetisation direction changes rapidly due to having crossed the anisotropy
+energy "barrier" between +z and +x (as can be seen in the graph below).
+
+
+Analyzing the result
+~~~~~~~~~~~~~~~~~~~~
+
+First, we extract the magnitude of the applied field and the x component of
+magnetisation::
+
+  ncol cube H_ext_0 M_Fe_0 > cube_hext_vs_m.txt
+
+Then we compare the result with OOMMF's result (generated from the
+equivalent scene description `oommf/cube.mif <../example_cubic_anis/oommf/cube.mif>`__)
+using the following Gnuplot_ script:
+
+.. include:: cube_hext_vs_m.gnu
+  :literal:
+
+which gives the following result:
+
+.. image:: ../example_cubic_anis/cube_hext_vs_m.png
+  :align: center
+
+|Nmag| provides advanced capabilities to conveniently handle
+arbitrary-order anisotropy energy functions. Details can be found in
+the documentation of the MagMaterial_ class.

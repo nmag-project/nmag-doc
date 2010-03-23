@@ -1,0 +1,72 @@
+
+Note to nmag users: please read carefully through this list of
+presently unresolved issues. If you plan to use nmag for exotic
+applications, you may run into these problems, possibly without
+noticing.
+
+=== Periodic Boundary Conditions ===
+
+Bugs:
+
+[ ] probing H_demag in exterior space seems to produce bad results if the
+    probe is in the plane of a triangle (I suppose the Lindholm formula
+    somewhere produces NAN in the computation of the space angle associated
+    to the triangle.)
+
+[ ] probing H_demag in exterior space: does not work in any satisfactory
+    way for periodic systems yet!
+
+Open issues:
+
+[ ] We presumably should re-check the mathematics in bem_stubs.c: are
+    the positions of displaced objects/displaced observers and the
+    linear transformations applied to the displaced object's coordinates
+    done right?
+
+=== Langevin dynamics related ===
+
+When we simulate thermal effects, advance_time() cannot use sundials'
+CVODE, as this will get badly confused by a random field. So, we use
+Heun's method (in effect, Runge-Kutta RK2) instead, with a fixed
+time-step.
+
+Bugs:
+
+[ ] If the final time given cannot be reached with an integer number 
+    of time steps, final time will not be the given one, but the
+    largest time that is smaller than the given final time and an
+    integer multiple of the thermal dt.
+
+[ ] When we use thermal effects in conjunction with periodic boundary
+    conditions that require identification of degrees of freedom
+    (i.e. the magnetic material wraps around a topological circle),
+    we can be sure that dm_dt will be the same at periodically
+    identified sites. However, we cannot exclude with 100% confidence
+    that numerical drift, say, produced because numbers are added in
+    different order for periodically identified sites, will not cause
+    mirror-image magnetizations to eventually drift apart. When using
+    sundials for time integration (i.e. when we do the simulation
+    without taking care of thermal effects), this is not a problem, 
+    because then, make sure that mirage dofs are properly removed in
+    an additional intermediate wrapping step.
+
+    Suggested proper resolution: reducing and expanding mirage DOFs
+    presumably should not be part of sundials, but be handled at the
+    level of the linalg_machine (LAM).
+
+=== Grammar related ===
+
+Problems:
+
+[ ] At present, we internally use two different grammars/internal
+representations to specify boundary degrees of freedom. The underlying
+problem is that the issue of dealing with boundaries appeared in two
+different contexts which warranted slightly different approaches, but
+eventually these grew together. At present, we use boundary
+specification conversion functions which unfortunately are not
+faithful (i.e. there are situations when we have to map specs from one
+form to another form which is unable to express as much detail!)
+
+What we will need (in the long run) is an unified way to specify what
+boundaries a degree of freedom belongs to.
+

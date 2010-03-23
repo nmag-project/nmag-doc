@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+my($filename,$formula)=@ARGV;
+
+mkdir "/tmp/latex-formula-$$", 0755; # may fail
+
+open F, ">/tmp/latex-formula-$$/formula.tex" or die "Fatal: could not create TeX file: $!\n";
+
+print F qq^\\documentclass{article}
+\\pagestyle{empty}
+\\begin{document}
+\\begin{eqnarray}
+$formula
+\\nonumber
+\\end{eqnarray}
+\\end{document}
+^;
+
+system("cd /tmp/latex-formula-$$; latex formula.tex; dvips -f <formula.dvi >formula.ps; ps2epsi formula.ps formula.eps; convert -density 131 formula.eps formula.png");
+
+system("cp /tmp/latex-formula-$$/formula.png $filename");
+
+system("rm -rf /tmp/latex-formula-$$");

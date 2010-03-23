@@ -1,0 +1,93 @@
+
+Playing around with an early version of our code, we found that we
+have to pay closer attention to boundaries. I spent some thought on
+these issues, and perhaps should fix some ideas in written form.
+
+There are actually a few slightly different, but related issues:
+
+* How to deal with boundaries when solving an operator (especially,
+  the laplace) equation?
+
+* How to include boundary jumps in differential operators?
+
+An actual example: If we want to compute the magnetic exchange field
+in such a configuration:
+
+----------------------------------------
+|                   |                  |
+|                   |                  |
+|     M1            |   M2             |
+|                   |                  |
+|                   |                  |
+----------------------------------------
+
+where two different magnetic materials share a boundary, how do we
+proceed? Especially, what happens if the boundary is an artificial
+construct of mind, and we actually really deal with the same material
+on both sides?
+
+Actually, the right answer seems to be to just compute the Laplace
+operator separately for every region, and combine these laplacians,
+enforcing identity of the simultaneous magnetic degrees of freedom on
+the boundary sites. Miraculously, everything will work out fine.
+
+Why so? The key is to consider the Laplace operator in the
+one-dimensional case at the boundary,
+
+
+      End of the world boundary
+      v
+  /\  |
+ /  \ |  left-hand side
+/    \|
+------|
+      |
+      |
+     /|
+    / |  right-hand side
+   /  |
+------|
+      
+The case above is not overly interesting...
+
+...but the situation below is (i.e. what happens with the
+boundary-diagonal entries?)
+
+      End of the world boundary
+      v
+     /|
+    / |  left-hand side
+   /  |
+------|
+      |
+      |
+     /|
+    / |  right-hand side
+   /  |
+------|
+
+Think about how this looks like if you let both derivatives act on the
+right-hand side, or if you move one to the left and one to the right
+shape function. It seems as if we just could fuse partial matrices
+across boundaries and be fine, if we drop any "surface charge"
+contributions. (This corresponds to building the operator in the
+appropriate way for Dirichlet boundary conditions.)
+
+Note that this formalism as a matter of principle could not handle
+well the delta(x)*delta(x) contribution that we would obtain from
+properly including surface contributions - distributions cannot be
+multiplied. 
+
+
+Now, on the other hand, we may want to deal with "surface charges",
+say, in a divergence operator that takes into account that a vanishing
+degree of freedom corresponds to a hard jump to zero. The perhaps best
+solution is to leave as much flexibility as possible and include all
+the data available on such jumps in the prematrix. When we then form a
+proper sparse matrix for the linear solver from the prematrix, we can
+decide upon the question what other modifications to introduce. These
+may include the handling of boundary jumps in one or another way, or
+Dirichlet Boundary Condition modifications, (or cohomology-related and
+similar modifications which sometimes may seem Dirichlet-like, but
+actually are not. Example: dealing with the Phi -> Phi+c symmetry...)
+

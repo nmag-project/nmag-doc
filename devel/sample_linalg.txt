@@ -1,0 +1,45 @@
+
+%%MWES
+  mwe_sigma: sigma;
+
+  mwe_J: J[3]@(1,2,3);
+
+  mwe_X: dM[3,3]@1 , dX[3,3,3]@2;
+
+  mwe_K: mwe_J[K/J,N/M]
+
+(* These are MWE specifications. Note the @region notation.
+*)
+
+%%FIELDS
+
+sigma: mwe_sigma
+
+%%OPERATORS
+
+j=<d/dxj rho||d/dxj rho>, gauge_fix=rho
+b=BEM (???)
+
+%%KSPS
+
+ksp_Z: matrix=Z, precond=Z, rtol=1e-8
+
+%%EQN
+
+eom_m: dmdt(j) = eps(i,j,k)*m(j)*h_total(k)
+
+%%JACOBI
+
+eom_m
+
+%%SEQS
+
+compute_H_exch(arg_m,arg_H_exch):
+ m <- arg_m
+ H_exch <- laplace_m m
+ H_exch <- inv_volumes * H_exch
+ arg_H_exch <- H_exch
+
+compute_H_demag(arg_m,arg_H_demag):
+ (...)
+

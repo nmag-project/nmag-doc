@@ -1,0 +1,268 @@
+28/05/2008 09:02 Hans Fangohr (while travelling to Bath):
+
+Some observations on saving data in _dat.h5 files. Using the
+tests/regression/nmag/bigbar/nmag4/bigbar.py as the base, copy to
+mybigbar.py and run interactively.
+
+The mesh file size is: 112097
+
+Add pinning field, and metadata only for pining field (should compress
+well): 
+
+The datafile file (mybigbar_dat.h5) size is 134763 
+
+Actually, adding the pinning field 5 more times does not
+change the file size of the h5-file. Presumably good compression! (No
+surprise as the pinning field only contains 1. in this example.) But
+the lesson is that h5 saves data in chunks.
+
+Let's study the file interactively (from nsim_i):
+
+import tables
+
+f=tables.openFile('mybigbar_dat.h5')
+
+
+f.root.etc.metadatafields:
+
+/etc/metadatafields (Table(1L,), shuffle, zlib(5)) 'Metadatafields on fields and dofs'
+  description := {
+  "dofname": StringCol(length=128, dflt=CharArray(['']), shape=1, pos=0, indexed=False),
+  "fieldname": StringCol(length=128, dflt=CharArray(['']), shape=1, pos=1, indexed=False),
+  "maxind": StringCol(length=64, dflt=CharArray(['']), shape=1, pos=2, indexed=False),
+  "unit": StringCol(length=128, dflt=CharArray(['']), shape=1, pos=3, indexed=False)}
+  byteorder := little
+
+In this example we have only saved the pinning field, i.e. this table has only one row:
+In [14]: f.root.etc.metadatafields[0]
+Out[14]: ('pin', 'pin', '[]', 'SI(1,[])')
+
+The theoretical memory consumption is 128+128+64+128=448 Bytes
+
+The we have the dofsites data:
+
+In [17]: f.root.mesh.dofsites
+Out[17]: 
+/mesh/dofsites (Table(1L,), shuffle, zlib(5)) 'Sites for all degrees of freedom'
+  description := {
+  "pin": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=0, indexed=False)}
+  byteorder := little
+
+Here we have only one row and each subfield is one column. (One would
+think that it would be easier to have subfields as rows, but as the
+length of the entries per subfield may vary (materials defined over
+different parts of the mesh, or using different shape function
+orders), this is not straightforward. This way, we should get the best
+possible compression.
+
+
+In [21]: f.root.mesh.dofsites.colnames
+Out[21]: ('pin',)
+
+In [22]: f.root.mesh.dofsites[:]      
+Out[22]: 
+array(
+[(array([[   0],
+       [   1],
+       [   2],
+       ..., 
+       [2114],
+       [2115],
+       [2116]]))],
+descr=[('pin', '(2117, 1)i4')],
+shape=1)
+
+
+The theoretical memory consumption is 4 byte per integer times 2117 entries = 8468
+
+
+
+The total metadata we add is just only 8468+448 \approx 9kb in this example. 
+
+The raw data from the pinning field is 
+
+n [25]: f.root.data.fields
+Out[25]: 
+/data/fields (Group) 'nsim fields'
+  children := ['pin' (Table)]
+
+In [26]: f.root.data.fields.pin
+Out[26]: 
+/data/fields/pin (Table(5L,), shuffle, zlib(5)) 'Field pin'
+  description := {
+  "id": Col(dtype='Int64', shape=1, dflt=0L, pos=0, indexed=False),
+  "pin": Col(dtype='Float32', shape=(2117,), dflt=0.0, pos=1, indexed=False),
+  "stage": Col(dtype='Int64', shape=1, dflt=0L, pos=2, indexed=False),
+  "step": Col(dtype='Int64', shape=1, dflt=0L, pos=3, indexed=False),
+  "time": Col(dtype='Float64', shape=1, dflt=0.0, pos=4, indexed=False)}
+  byteorder := little
+
+so we have 8 + 4*2117+8+8+8 = 8500
+
+In total, we have written about 17.5kB to the file. It did actually
+increase in size by 22 kB, so this is roughly right. However, we
+expect that the pinning field compresses quite well, so that it is
+possible that most of this increased file size is due to hdf5 internal
+metadata. This is confirmed by the observation, that I have added the
+pinning field 5 more times (i.e. adding an uncompressed amout of data
+of 5*8.5kB=42.5kB without the file growing a single byte).
+
+
+
+Alternative test:
+
+Save 'm' once:
+
+-rw-r--r-- 1 fangohr fangohr 112097 May 19 14:34 ../bar30_30_100.nmesh.h5
+-rw-r--r-- 1 fangohr fangohr 157335 May 28 08:39 mybigbar_dat.h5
+
+The amount of raw data added is metadata (as above, i.e. 9kB) plus
+2117*4*3=25kB, so a total of 34kB. The actual file size increases by
+45kB; so we have 9kB overhead (although the raw data is
+compressed). We now save a few more timesteps (and advance the
+simulation in between to make sure that the data is not trivially the
+same as in past time steps). This adds 25kB and the file grows by 23kB (to 180,000)
+
+rw-r--r-- 1 fangohr fangohr 112097 May 19 14:34 ../bar30_30_100.nmesh.h5
+-rw-r--r-- 1 fangohr fangohr 179944 May 28 08:41 mybigbar_dat.h5
+
+Do this again:
+
+-rw-r--r-- 1 fangohr fangohr 112097 May 19 14:34 ../bar30_30_100.nmesh.h5
+-rw-r--r-- 1 fangohr fangohr 202562 May 28 08:43 mybigbar_dat.h5
+
+Now we only increased by less than 3kB to save effectively 24kB. Try again:
+
+rw-r--r-- 1 fangohr fangohr 112097 May 19 14:34 ../bar30_30_100.nmesh.h5
+-rw-r--r-- 1 fangohr fangohr 225165 May 28 08:43 mybigbar_dat.h5
+
+This time we grew by 23kB. So there is some 'chunking' gowing on. Again:
+
+-rw-r--r-- 1 fangohr fangohr 112097 May 19 14:34 ../bar30_30_100.nmesh.h5
+-rw-r--r-- 1 fangohr fangohr 247912 May 28 08:44 mybigbar_dat.h5
+
+This time we are up by 23 kB. Again:
+
+-rw-r--r-- 1 fangohr fangohr 112097 May 19 14:34 ../bar30_30_100.nmesh.h5
+-rw-r--r-- 1 fangohr fangohr 270942 May 28 08:44 mybigbar_dat.h5
+
+Up by 20kB.
+
+So we see that, on average, we save slightly less than the raw data measures.
+
+
+
+Now, let's see how expensive it is to save all the dofsites metadata in the beginning. 
+We use the 'pin' field which compresses well. 
+
+File size is 
+-rw-r--r-- 1 fangohr fangohr 112097 May 19 14:34 ../bar30_30_100.nmesh.h5
+-rw-r--r-- 1 fangohr fangohr 138471 May 28 08:57 mybigbar_dat.h5
+
+In other words, this is about 4kB more than just saving the metadata for one field. It is thus well worth doing.
+
+
+What is the actual raw_data we have added?
+
+In [3]: f.root.etc.metadatafields
+Out[3]: 
+/etc/metadatafields (Table(16L,), shuffle, zlib(5)) 'Metadatafields on fields and dofs'
+  description := {
+  "dofname": StringCol(length=128, dflt=CharArray(['']), shape=1, pos=0, indexed=False),
+  "fieldname": StringCol(length=128, dflt=CharArray(['']), shape=1, pos=1, indexed=False),
+  "maxind": StringCol(length=64, dflt=CharArray(['']), shape=1, pos=2, indexed=False),
+  "unit": StringCol(length=128, dflt=CharArray(['']), shape=1, pos=3, indexed=False)}
+  byteorder := little
+
+In [4]: f.root.etc.metadatafields[:]
+Out[4]: 
+array(
+[('E_demag_Py', 'E_demag', '[]', "SI(1,['m',-1.0,'kg',1.0,'s',-2.0])"),
+('phi', 'phi', '[]', "SI(1,['A',1.0])"),
+('rho', 'rho', '[]', "SI(1,['m',-2.0,'A',1.0])"),
+('E_ext_Py', 'E_ext', '[]', "SI(1,['m',-1.0,'kg',1.0,'s',-2.0])"),
+('dmdt_Py', 'dmdt', '[3]', "SI(1,['m',-1.0,'s',-1.0,'A',1.0])"),
+('pin', 'pin', '[]', 'SI(1,[])'),
+('H_anis_Py', 'H_anis', '[3]', "SI(1,['m',-1.0,'A',1.0])"),
+('E_total_Py', 'E_total', '[]', "SI(1,['m',-1.0,'kg',1.0,'s',-2.0])"),
+('M_Py', 'M', '[3]', "SI(1,['m',-1.0,'A',1.0])"),
+('m_Py', 'm', '[3]', 'SI(1,[])'),
+('E_anis_Py', 'E_anis', '[]', "SI(1,['m',-1.0,'kg',1.0,'s',-2.0])"),
+('E_exch_Py', 'E_exch', '[]', "SI(1,['m',-1.0,'kg',1.0,'s',-2.0])"),
+('H_ext', 'H_ext', '[3]', "SI(1,['m',-1.0,'A',1.0])"),
+('H_total_Py', 'H_total', '[3]', "SI(1,['m',-1.0,'A',1.0])"),
+('H_demag', 'H_demag', '[3]', "SI(1,['m',-1.0,'A',1.0])"),
+('H_exch_Py', 'H_exch', '[3]', "SI(1,['m',-1.0,'A',1.0])")],
+descr=[('dofname', '1a128'), ('fieldname', '1a128'), ('maxind', '1a64'), ('unit', '1a128')],
+shape=16)
+
+In [5]: 
+
+
+That means we have (128+128+64+128)*16=7168 bytes.
+
+Much more data is coming from the dofsites:
+
+In [8]: f.root.mesh.dofsites
+Out[8]: 
+/mesh/dofsites (Table(1L,), shuffle, zlib(5)) 'Sites for all degrees of freedom'
+  description := {
+  "E_anis_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=0, indexed=False),
+  "E_demag_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=1, indexed=False),
+  "E_exch_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=2, indexed=False),
+  "E_ext_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=3, indexed=False),
+  "E_total_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=4, indexed=False),
+  "H_anis_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=5, indexed=False),
+  "H_demag": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=6, indexed=False),
+  "H_exch_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=7, indexed=False),
+  "H_ext": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=8, indexed=False),
+  "H_total_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=9, indexed=False),
+  "M_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=10, indexed=False),
+  "dmdt_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=11, indexed=False),
+  "m_Py": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=12, indexed=False),
+  "phi": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=13, indexed=False),
+  "pin": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=14, indexed=False),
+  "rho": Col(dtype='Int32', shape=(2117, 1), dflt=0, pos=15, indexed=False)}
+  byteorder := little
+
+So we have 16*2117*4=135kB. In this case (and in all other simulations
+where there is only one material and the same shape function order)
+all the fields are identical, and thus compress well.
+
+
+So, the difference between saving only metadata and dofsites for one
+field and saving it for all fields is of the order of 4kB whereas the
+raw data we have to store additionally is of the order of 135kB.
+
+It seems well worth storing all the metadata initially, giving us the
+freedom to add any fields in any order at a later stage.
+
+
+
+
+For fun, let's add the pinning field again and again until the file
+size actually increases. This happens when we have saved it 28 more
+times. The file size increases to
+
+ rw-r--r-- 1 fangohr fangohr 112097 May 19 14:34 ../bar30_30_100.nmesh.h5
+-rw-r--r-- 1 fangohr fangohr 138589 May 28 08:49 mybigbar_dat.h5
+
+so by only 118 bytes! Shocking.
+
+
+Now let's save the magnetisation data (raw amount of 25kB), this doesn't compress as well, of course:
+
+-rw-r--r-- 1 fangohr fangohr 112097 May 19 14:34 ../bar30_30_100.nmesh.h5
+-rw-r--r-- 1 fangohr fangohr 165176 May 28 08:51 mybigbar_dat.h5
+
+and again:
+
+-rw-r--r-- 1 fangohr fangohr 112097 May 19 14:34 ../bar30_30_100.nmesh.h5
+-rw-r--r-- 1 fangohr fangohr 187619 May 28 08:51 mybigbar_dat.h5
+
+etc.
+
+
+
+
+

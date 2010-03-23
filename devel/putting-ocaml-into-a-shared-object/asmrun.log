@@ -1,0 +1,605 @@
+ls
+a.out	       caml-init.o	    from_libasmrun.a  from_str.a   main.c
+caml-init.cmi  caml-startup.c	    from_libstr.a     from_unix.a
+caml-init.cmx  camlcode.o	    from_libunix.a    libcaml.so
+caml-init.ml   camlstartupf1d6c9.s  from_stdlib.a     main-dl.c
+tf@ouija:/tmp/camlasm$ rm *.o
+tf@ouija:/tmp/camlasm$ ls
+a.out	       caml-init.ml	    from_libasmrun.a  from_stdlib.a  libcaml.so
+caml-init.cmi  caml-startup.c	    from_libstr.a     from_str.a     main-dl.c
+caml-init.cmx  camlstartupf1d6c9.s  from_libunix.a    from_unix.a    main.c
+tf@ouija:/tmp/camlasm$ rm a.out
+tf@ouija:/tmp/camlasm$ ls
+caml-init.cmi  caml-startup.c	    from_libstr.a   from_str.a	 main-dl.c
+caml-init.cmx  camlstartupf1d6c9.s  from_libunix.a  from_unix.a  main.c
+caml-init.ml   from_libasmrun.a     from_stdlib.a   libcaml.so
+tf@ouija:/tmp/camlasm$ ocamlopt -output-obj -o caml-init.ml
+tf@ouija:/tmp/camlasm$ ocamlopt -output-obj -o caml-init.o caml-init.ml
+caml-init.o: file not recognized: File truncated
+Error during linking
+tf@ouija:/tmp/camlasm$ ocamlopt -c -output-obj -o caml-init.o caml-init.ml
+tf@ouija:/tmp/camlasm$ ls -la
+total 984
+drwxr-xr-x   8 tf   tf     4096 Sep 27 15:01 .
+drwxrwxrwt  20 root root 163840 Sep 27 15:01 ..
+-rw-r--r--   1 tf   tf      176 Sep 27 15:01 caml-init.cmi
+-rw-r--r--   1 tf   tf      204 Sep 27 15:01 caml-init.cmx
+-rw-r--r--   1 tf   tf      213 Sep 27 14:27 caml-init.ml
+-rw-r--r--   1 tf   tf     1088 Sep 27 15:01 caml-init.o
+-rw-r--r--   1 tf   tf     3300 Sep 27 14:27 caml-startup.c
+-rw-------   1 tf   tf    16272 Sep 27 14:36 camlstartupf1d6c9.s
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libasmrun.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libstr.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libunix.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_stdlib.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_str.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_unix.a
+-rwxr-xr-x   1 tf   tf   758682 Sep 27 14:40 libcaml.so
+-rw-r--r--   1 tf   tf      673 Sep 27 14:27 main-dl.c
+-rw-r--r--   1 tf   tf      268 Sep 27 14:27 main.c
+tf@ouija:/tmp/camlasm$ gcc main.c caml-init.o caml-startup.c -L/usr/lib/ocaml/3.08.3 -lasmrun  -lstdlib
+/usr/bin/ld: cannot find -lstdlib
+collect2: ld returned 1 exit status
+tf@ouija:/tmp/camlasm$ ocamlopt -o main main.c caml-init.o caml-startup.c /usr/lib/ocaml/3.08.3/std_exit.o -ccopt -L/usr/lib/ocaml/3.08.3 -ccopt -L/tmp -ccopt -lasmrun  -ccopt -lstdlib -ccopt -ldl
+tf@ouija:/tmp/camlasm$ ./main
+bash: ./main: No such file or directory
+tf@ouija:/tmp/camlasm$ ls
+caml-init.cmi  caml-startup.c	    from_libstr.a   from_unix.a  main.o
+caml-init.cmx  caml-startup.o	    from_libunix.a  libcaml.so
+caml-init.ml   camlstartupf1d6c9.s  from_stdlib.a   main-dl.c
+caml-init.o    from_libasmrun.a     from_str.a	    main.c
+tf@ouija:/tmp/camlasm$ ocamlopt  -o main main.c caml-init.o caml-startup.c /usr/lib/ocaml/3.08.3/std_exit.o -ccopt -L/usr/lib/ocaml/3.08.3 -ccopt -L/tmp -ccopt -lasmrun  -ccopt -lstdlib -ccopt -ldl
+tf@ouija:/tmp/camlasm$ ls -la
+total 992
+drwxr-xr-x   8 tf   tf     4096 Sep 27 15:07 .
+drwxrwxrwt  20 root root 163840 Sep 27 15:07 ..
+-rw-r--r--   1 tf   tf      176 Sep 27 15:01 caml-init.cmi
+-rw-r--r--   1 tf   tf      204 Sep 27 15:01 caml-init.cmx
+-rw-r--r--   1 tf   tf      213 Sep 27 14:27 caml-init.ml
+-rw-r--r--   1 tf   tf     1088 Sep 27 15:01 caml-init.o
+-rw-r--r--   1 tf   tf     3300 Sep 27 14:27 caml-startup.c
+-rw-r--r--   1 tf   tf     2424 Sep 27 15:07 caml-startup.o
+-rw-------   1 tf   tf    16272 Sep 27 14:36 camlstartupf1d6c9.s
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libasmrun.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libstr.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libunix.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_stdlib.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_str.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_unix.a
+-rwxr-xr-x   1 tf   tf   758682 Sep 27 14:40 libcaml.so
+-rw-r--r--   1 tf   tf      673 Sep 27 14:27 main-dl.c
+-rw-r--r--   1 tf   tf      268 Sep 27 14:27 main.c
+-rw-r--r--   1 tf   tf     1048 Sep 27 15:07 main.o
+tf@ouija:/tmp/camlasm$ date
+Tue Sep 27 15:07:39 BST 2005
+tf@ouija:/tmp/camlasm$ file main.o
+main.o: ELF 32-bit LSB relocatable, Intel 80386, version 1 (SYSV), not stripped
+tf@ouija:/tmp/camlasm$ gcc  -o main main.c caml-init.o caml-startup.c /usr/lib/ocaml/3.08.3/std_exit.o -L/usr/lib/ocaml/3.08.3 -L/tmp -lasmrun  -lstdlib -ldl
+/usr/lib/ocaml/3.08.3/libasmrun.a(startup.o)(.text+0x6e): In function `init_atoms':
+: undefined reference to `caml_data_segments'
+/usr/lib/ocaml/3.08.3/libasmrun.a(startup.o)(.text+0x8a): In function `init_atoms':
+: undefined reference to `caml_code_segments'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x2d9): In function `caml_exp_float':
+: undefined reference to `exp'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x424): In function `caml_log_float':
+: undefined reference to `log'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x443): In function `caml_log10_float':
+: undefined reference to `log10'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x531): In function `caml_sqrt_float':
+: undefined reference to `sqrt'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x55d): In function `caml_power_float':
+: undefined reference to `pow'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x57c): In function `caml_sin_float':
+: undefined reference to `sin'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x59b): In function `caml_sinh_float':
+: undefined reference to `sinh'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x5ba): In function `caml_cos_float':
+: undefined reference to `cos'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x5d9): In function `caml_cosh_float':
+: undefined reference to `cosh'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x5f8): In function `caml_tan_float':
+: undefined reference to `tan'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x617): In function `caml_tanh_float':
+: undefined reference to `tanh'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x636): In function `caml_asin_float':
+: undefined reference to `asin'
+/usr/lib/ocaml/3.08.3/libasmrun.a(floats.o)(.text+0x655): In function `caml_acos_float':
+: undefined reference to `acos'
+/usr/lib/ocaml/3.08.3/libasmrun.a(i386.o)(.text+0x129): In function `caml_start_program':
+: undefined reference to `caml_program'
+/usr/lib/ocaml/3.08.3/libasmrun.a(i386.o)(.text+0x1b1): In function `caml_callback2_exn':
+: undefined reference to `caml_apply2'
+/usr/lib/ocaml/3.08.3/libasmrun.a(i386.o)(.text+0x1d1): In function `caml_callback3_exn':
+: undefined reference to `caml_apply3'
+/usr/lib/ocaml/3.08.3/libasmrun.a(fail.o)(.text+0x186): In function `caml_failwith':
+: undefined reference to `caml_exn_Failure'
+/usr/lib/ocaml/3.08.3/libasmrun.a(fail.o)(.text+0x19f): In function `caml_invalid_argument':
+: undefined reference to `caml_exn_Invalid_argument'
+/usr/lib/ocaml/3.08.3/libasmrun.a(fail.o)(.text+0x1b1): In function `caml_raise_out_of_memory':
+: undefined reference to `caml_bucket_Out_of_memory'
+/usr/lib/ocaml/3.08.3/libasmrun.a(fail.o)(.text+0x1c3): In function `caml_raise_stack_overflow':
+: undefined reference to `caml_bucket_Stack_overflow'
+/usr/lib/ocaml/3.08.3/libasmrun.a(fail.o)(.text+0x1dc): In function `caml_raise_sys_error':
+: undefined reference to `caml_exn_Sys_error'
+/usr/lib/ocaml/3.08.3/libasmrun.a(fail.o)(.text+0x1ee): In function `caml_raise_end_of_file':
+: undefined reference to `caml_exn_End_of_file'
+/usr/lib/ocaml/3.08.3/libasmrun.a(fail.o)(.text+0x200): In function `caml_raise_zero_divide':
+: undefined reference to `caml_exn_Division_by_zero'
+/usr/lib/ocaml/3.08.3/libasmrun.a(fail.o)(.text+0x212): In function `caml_raise_not_found':
+: undefined reference to `caml_exn_Not_found'
+/usr/lib/ocaml/3.08.3/libasmrun.a(fail.o)(.text+0x224): In function `caml_raise_sys_blocked_io':
+: undefined reference to `caml_exn_Sys_blocked_io'
+/usr/lib/ocaml/3.08.3/libasmrun.a(fail.o)(.text+0x254): In function `caml_array_bound_error':
+: undefined reference to `caml_exn_Invalid_argument'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x17): In function `init_frame_descriptors':
+: undefined reference to `caml_frametable'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x1f): In function `init_frame_descriptors':
+: undefined reference to `caml_frametable'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x91): In function `init_frame_descriptors':
+: undefined reference to `caml_frametable'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x9c): In function `init_frame_descriptors':
+: undefined reference to `caml_frametable'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x103): In function `init_frame_descriptors':
+: undefined reference to `caml_frametable'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x12f): In function `caml_oldify_local_roots':
+: undefined reference to `caml_globals'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x139): In function `caml_oldify_local_roots':
+: undefined reference to `caml_globals'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x18a): In function `caml_oldify_local_roots':
+: undefined reference to `caml_globals'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x34d): In function `caml_do_roots':
+: undefined reference to `caml_globals'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x357): In function `caml_do_roots':
+: undefined reference to `caml_globals'
+/usr/lib/ocaml/3.08.3/libasmrun.a(roots.o)(.text+0x389): more undefined references to `caml_globals' follow
+/tmp/libstdlib.a(pervasives.o)(.text+0x1b5): In function `camlPervasives__scan_272':
+: undefined reference to `caml_exn_End_of_file'
+/tmp/libstdlib.a(pervasives.o)(.text+0x4a3): In function `camlPervasives__failwith_37':
+: undefined reference to `caml_exn_Failure'
+/tmp/libstdlib.a(pervasives.o)(.text+0x4e3): In function `camlPervasives__invalid_arg_39':
+: undefined reference to `caml_exn_Invalid_argument'
+/tmp/libstdlib.a(pervasives.o)(.text+0x50e): In function `camlPervasives__min_49':
+: undefined reference to `caml_lessequal'
+/tmp/libstdlib.a(pervasives.o)(.text+0x54e): In function `camlPervasives__max_52':
+: undefined reference to `caml_greaterequal'
+/tmp/libstdlib.a(pervasives.o)(.text+0xac7): In function `camlPervasives__unsafe_really_input_252':
+: undefined reference to `caml_exn_End_of_file'
+/tmp/libstdlib.a(pervasives.o)(.text+0xb78): In function `camlPervasives__input_line_264':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x184): In function `camlPervasives__6':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x194): In function `camlPervasives__7':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x1bc): In function `camlPervasives__10':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x2b0): In function `camlPervasives__31':
+: undefined reference to `caml_curry4'
+/tmp/libstdlib.a(pervasives.o)(.data+0x2c0): In function `camlPervasives__32':
+: undefined reference to `caml_curry4'
+/tmp/libstdlib.a(pervasives.o)(.data+0x2d0): In function `camlPervasives__33':
+: undefined reference to `caml_curry4'
+/tmp/libstdlib.a(pervasives.o)(.data+0x2f8): In function `camlPervasives__36':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(pervasives.o)(.data+0x320): In function `camlPervasives__39':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x330): In function `camlPervasives__40':
+: undefined reference to `caml_curry4'
+/tmp/libstdlib.a(pervasives.o)(.data+0x340): In function `camlPervasives__41':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x374): In function `camlPervasives__45':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(pervasives.o)(.data+0x384): In function `camlPervasives__46':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x3dc): In function `camlPervasives__54':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x404): In function `camlPervasives__63':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x414): In function `camlPervasives__64':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x448): In function `camlPervasives__69':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(pervasives.o)(.data+0x458): more undefined references to `caml_curry2' follow
+/tmp/libstdlib.a(pervasives.o)(.data+0x524): In function `camlPervasives__85':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(printf.o)(.text+0x685): In function `camlPrintf__scan_conv_107':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0xb53): In function `camlPrintf__cont_a_138':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0xc95): In function `camlPrintf__cont_a_169':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0xe03): In function `camlPrintf__cont_a_193':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0xf3a): In function `camlPrintf__parse_format_65':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0xf55): In function `camlPrintf__parse_format_65':
+: undefined reference to `caml_exn_Failure'
+/tmp/libstdlib.a(printf.o)(.text+0x10fb): In function `camlPrintf__extract_format_83':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0x1209): In function `camlPrintf__scan_format_99':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0x1225): In function `camlPrintf__scan_format_99':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0x12d1): In function `camlPrintf__fprintf_131':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0x12ed): In function `camlPrintf__fprintf_131':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(printf.o)(.text+0x1309): In function `camlPrintf__fprintf_131':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0x1403): In function `camlPrintf__kprintf_161':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0x141f): In function `camlPrintf__kprintf_161':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(printf.o)(.text+0x143b): In function `camlPrintf__kprintf_161':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0x1521): In function `camlPrintf__bprintf_186':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0x153d): In function `camlPrintf__bprintf_186':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(printf.o)(.text+0x1559): In function `camlPrintf__bprintf_186':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.text+0xa): In function `camlPrintf__fun_294':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0x4f): In function `camlPrintf__fun_288':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0xa5): In function `camlPrintf__fun_291':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0xf5): In function `camlPrintf__fun_285':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0x10a): In function `camlPrintf__fun_282':
+: undefined reference to `caml_apply3'
+/tmp/libstdlib.a(printf.o)(.text+0x155): In function `camlPrintf__fun_279':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0x1b9): In function `camlPrintf__fun_297':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0x1f3): In function `camlPrintf__fun_297':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0x230): In function `camlPrintf__fun_300':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0x26e): In function `camlPrintf__fun_300':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(printf.o)(.text+0x2c1): more undefined references to `caml_apply2' follow
+/tmp/libstdlib.a(printf.o)(.data+0x3c): In function `camlPrintf__1':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.data+0x58): In function `camlPrintf__3':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.data+0x80): In function `camlPrintf__6':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.data+0x90): In function `camlPrintf__7':
+: undefined reference to `caml_curry6'
+/tmp/libstdlib.a(printf.o)(.data+0xa0): In function `camlPrintf__8':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(printf.o)(.data+0xb0): In function `camlPrintf__9':
+: undefined reference to `caml_curry4'
+/tmp/libstdlib.a(printf.o)(.data+0xc0): In function `camlPrintf__10':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(printf.o)(.data+0xd0): In function `camlPrintf__11':
+: undefined reference to `caml_curry6'
+/tmp/libstdlib.a(printf.o)(.data+0xec): In function `camlPrintf__13':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.text+0x99): In function `camlList__rmap2_f_127':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x305): In function `camlList__rev_merge_275':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x3f5): In function `camlList__rev_merge_rev_285':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x509): In function `camlList__rev_sort_296':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x526): In function `camlList__rev_sort_296':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x5a0): more undefined references to `caml_apply2' follow
+/tmp/libstdlib.a(list.o)(.text+0x1073): In function `camlList__rev_map_91':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.text+0x10fb): In function `camlList__fold_left_102':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x1188): In function `camlList__map2_114':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x1233): In function `camlList__rev_map2_123':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.text+0x1284): In function `camlList__iter2_135':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x12e8): In function `camlList__fold_left2_143':
+: undefined reference to `caml_apply3'
+/tmp/libstdlib.a(list.o)(.text+0x1454): In function `camlList__for_all2_169':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x14d4): In function `camlList__exists2_177':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x1544): In function `camlList__mem_185':
+: undefined reference to `caml_compare'
+/tmp/libstdlib.a(list.o)(.text+0x15da): In function `camlList__assoc_193':
+: undefined reference to `caml_compare'
+/tmp/libstdlib.a(list.o)(.text+0x1631): In function `camlList__assoc_193':
+: undefined reference to `caml_exn_Not_found'
+/tmp/libstdlib.a(list.o)(.text+0x16a1): In function `camlList__assq_198':
+: undefined reference to `caml_exn_Not_found'
+/tmp/libstdlib.a(list.o)(.text+0x16d6): In function `camlList__mem_assoc_203':
+: undefined reference to `caml_compare'
+/tmp/libstdlib.a(list.o)(.text+0x176d): In function `camlList__remove_assoc_213':
+: undefined reference to `caml_compare'
+/tmp/libstdlib.a(list.o)(.text+0x18b1): In function `camlList__find_225':
+: undefined reference to `caml_exn_Not_found'
+/tmp/libstdlib.a(list.o)(.text+0x18f3): In function `camlList__find_all_229':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.text+0x1945): In function `camlList__partition_236':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.text+0x1ac4): In function `camlList__merge_257':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x1be1): In function `camlList__chop_267':
+: undefined reference to `caml_exn_Assert_failure'
+/tmp/libstdlib.a(list.o)(.text+0x1c2e): In function `camlList__stable_sort_272':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.text+0x1c4f): In function `camlList__stable_sort_272':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.text+0x1c70): In function `camlList__stable_sort_272':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.text+0x1c8c): In function `camlList__stable_sort_272':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.text+0x1148): In function `camlList__fold_right_108':
+: undefined reference to `caml_apply2'
+/tmp/libstdlib.a(list.o)(.text+0x136a): In function `camlList__fold_right2_152':
+: undefined reference to `caml_apply3'
+/tmp/libstdlib.a(list.o)(.data+0xb4): In function `camlList__1':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0xc4): In function `camlList__2':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0xd4): In function `camlList__3':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.data+0xe4): In function `camlList__4':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x100): In function `camlList__6':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x11c): In function `camlList__8':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x12c): In function `camlList__9':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x13c): In function `camlList__10':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x14c): more undefined references to `caml_curry2' follow
+/tmp/libstdlib.a(list.o)(.data+0x1ac): In function `camlList__17':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.data+0x1bc): In function `camlList__18':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.data+0x1cc): In function `camlList__19':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x1dc): In function `camlList__20':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x1ec): In function `camlList__21':
+: undefined reference to `caml_curry4'
+/tmp/libstdlib.a(list.o)(.data+0x1fc): In function `camlList__22':
+: undefined reference to `caml_curry4'
+/tmp/libstdlib.a(list.o)(.data+0x20c): In function `camlList__23':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.data+0x21c): In function `camlList__24':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.data+0x22c): In function `camlList__25':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.data+0x23c): In function `camlList__26':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.data+0x24c): In function `camlList__27':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(list.o)(.data+0x25c): In function `camlList__28':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x26c): In function `camlList__29':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x27c): In function `camlList__30':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x2a4): In function `camlList__33':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x2b4): In function `camlList__34':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(list.o)(.data+0x2e8): more undefined references to `caml_curry2' follow
+/tmp/libstdlib.a(string.o)(.text+0x8f5): In function `camlString__index_rec_141':
+: undefined reference to `caml_exn_Not_found'
+/tmp/libstdlib.a(string.o)(.text+0x9f6): In function `camlString__rindex_rec_153':
+: undefined reference to `caml_exn_Not_found'
+/tmp/libstdlib.a(string.o)(.text+0xace): In function `camlString__contains_from_164':
+: undefined reference to `caml_exn_Not_found'
+/tmp/libstdlib.a(string.o)(.text+0xb66): In function `camlString__rcontains_from_168':
+: undefined reference to `caml_exn_Not_found'
+/tmp/libstdlib.a(string.o)(.text+0xbd3): In function `camlString__compare_176':
+: undefined reference to `caml_compare'
+/tmp/libstdlib.a(string.o)(.data+0x68): In function `camlString__1':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(string.o)(.data+0x78): In function `camlString__2':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(string.o)(.data+0x88): In function `camlString__3':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(string.o)(.data+0x98): In function `camlString__4':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(string.o)(.data+0xa8): In function `camlString__5':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(string.o)(.data+0xb8): In function `camlString__6':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(string.o)(.data+0xc8): In function `camlString__7':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(string.o)(.data+0xd8): In function `camlString__8':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(string.o)(.data+0xe8): In function `camlString__9':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(string.o)(.data+0xf8): In function `camlString__10':
+: undefined reference to `caml_curry4'
+/tmp/libstdlib.a(string.o)(.data+0x120): In function `camlString__13':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(string.o)(.data+0x148): In function `camlString__16':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(string.o)(.data+0x164): In function `camlString__18':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(string.o)(.data+0x174): In function `camlString__19':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(string.o)(.data+0x184): In function `camlString__20':
+: undefined reference to `caml_curry5'
+/tmp/libstdlib.a(string.o)(.data+0x194): In function `camlString__21':
+: undefined reference to `caml_curry4'
+/tmp/libstdlib.a(string.o)(.data+0x1a4): In function `camlString__22':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(string.o)(.data+0x1c0): In function `camlString__24':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.text+0x2c): In function `camlBuffer__advance_131':
+: undefined reference to `caml_exn_Not_found'
+/tmp/libstdlib.a(buffer.o)(.text+0x7ed): In function `camlBuffer__closing_124':
+: undefined reference to `caml_exn_Assert_failure'
+/tmp/libstdlib.a(buffer.o)(.text+0x855): In function `camlBuffer__advance_to_closing_125':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(buffer.o)(.text+0x8c3): In function `camlBuffer__advance_to_non_alpha_135':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.text+0xa6a): In function `camlBuffer__add_substitute_148':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.data+0x54): In function `camlBuffer__1':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(buffer.o)(.data+0x64): In function `camlBuffer__2':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.data+0x74): In function `camlBuffer__3':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.data+0x84): In function `camlBuffer__4':
+: undefined reference to `caml_curry5'
+/tmp/libstdlib.a(buffer.o)(.data+0xa0): In function `camlBuffer__6':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.data+0xb0): In function `camlBuffer__7':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(buffer.o)(.data+0xc0): In function `camlBuffer__8':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.data+0xd0): In function `camlBuffer__9':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.data+0xe0): In function `camlBuffer__10':
+: undefined reference to `caml_curry4'
+/tmp/libstdlib.a(buffer.o)(.data+0xf0): In function `camlBuffer__11':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.data+0x100): In function `camlBuffer__12':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.data+0x134): In function `camlBuffer__16':
+: undefined reference to `caml_curry2'
+/tmp/libstdlib.a(buffer.o)(.data+0x144): In function `camlBuffer__17':
+: undefined reference to `caml_curry3'
+/tmp/libstdlib.a(sys.o)(.data+0x94): In function `camlSys__4':
+: undefined reference to `caml_curry2'
+collect2: ld returned 1 exit status
+tf@ouija:/tmp/camlasm$ ocamlopt -o main main.c caml-init.o caml-startup.c /usr/lib/ocaml/3.08.3/std_exit.o -ccopt -L/usr/lib/ocaml/3.08.3 -ccopt -L/tmp -ccopt -lasmrun  -ccopt -lstdlib -ccopt -ldl
+tf@ouija:/tmp/camlasm$ ocamlopt main.c caml-init.o caml-startup.c /usr/lib/ocaml/3.08.3/std_exit.o -ccopt -L/usr/lib/ocaml/3.08.3 -ccopt -L/tmp -ccopt -lasmrun  -ccopt -lstdlib -ccopt -ldl
+tf@ouija:/tmp/camlasm$ ocamlopt main.c caml-init.o caml-startup.c
+tf@ouija:/tmp/camlasm$ ls
+caml-init.cmi  caml-startup.c	 from_libunix.a  libcaml.so
+caml-init.cmx  caml-startup.o	 from_stdlib.a	 main-dl.c
+caml-init.ml   from_libasmrun.a  from_str.a	 main.c
+caml-init.o    from_libstr.a	 from_unix.a	 main.o
+tf@ouija:/tmp/camlasm$ rm main.o
+tf@ouija:/tmp/camlasm$ ocamlopt -o main -dstartup main.c caml-init.o caml-startup.c
+tf@ouija:/tmp/camlasm$ ocamlopt -o main -dstartup main.c caml-init.o caml-startup.c
+tf@ouija:/tmp/camlasm$ ls -la
+total 976
+drwxr-xr-x   8 tf   tf     4096 Sep 27 15:12 .
+drwxrwxrwt  20 root root 163840 Sep 27 15:12 ..
+-rw-r--r--   1 tf   tf      176 Sep 27 15:01 caml-init.cmi
+-rw-r--r--   1 tf   tf      204 Sep 27 15:01 caml-init.cmx
+-rw-r--r--   1 tf   tf      213 Sep 27 14:27 caml-init.ml
+-rw-r--r--   1 tf   tf     1088 Sep 27 15:01 caml-init.o
+-rw-r--r--   1 tf   tf     3300 Sep 27 14:27 caml-startup.c
+-rw-r--r--   1 tf   tf     2424 Sep 27 15:12 caml-startup.o
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libasmrun.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libstr.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libunix.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_stdlib.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_str.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_unix.a
+-rwxr-xr-x   1 tf   tf   758682 Sep 27 14:40 libcaml.so
+-rw-r--r--   1 tf   tf      673 Sep 27 14:27 main-dl.c
+-rw-r--r--   1 tf   tf      268 Sep 27 14:27 main.c
+-rw-r--r--   1 tf   tf     1048 Sep 27 15:12 main.o
+tf@ouija:/tmp/camlasm$ ocamlopt -dstartup caml-init.o
+tf@ouija:/tmp/camlasm$ ocamlopt -dstartup -o caml-init caml-init.o
+tf@ouija:/tmp/camlasm$ ös
+bash: ös: command not found
+tf@ouija:/tmp/camlasm$ ls
+caml-init.cmi  caml-startup.c	 from_libunix.a  libcaml.so
+caml-init.cmx  caml-startup.o	 from_stdlib.a	 main-dl.c
+caml-init.ml   from_libasmrun.a  from_str.a	 main.c
+caml-init.o    from_libstr.a	 from_unix.a	 main.o
+tf@ouija:/tmp/camlasm$ ls -la
+total 976
+drwxr-xr-x   8 tf   tf     4096 Sep 27 15:12 .
+drwxrwxrwt  20 root root 163840 Sep 27 15:12 ..
+-rw-r--r--   1 tf   tf      176 Sep 27 15:01 caml-init.cmi
+-rw-r--r--   1 tf   tf      204 Sep 27 15:01 caml-init.cmx
+-rw-r--r--   1 tf   tf      213 Sep 27 14:27 caml-init.ml
+-rw-r--r--   1 tf   tf     1088 Sep 27 15:01 caml-init.o
+-rw-r--r--   1 tf   tf     3300 Sep 27 14:27 caml-startup.c
+-rw-r--r--   1 tf   tf     2424 Sep 27 15:12 caml-startup.o
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libasmrun.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libstr.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libunix.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_stdlib.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_str.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_unix.a
+-rwxr-xr-x   1 tf   tf   758682 Sep 27 14:40 libcaml.so
+-rw-r--r--   1 tf   tf      673 Sep 27 14:27 main-dl.c
+-rw-r--r--   1 tf   tf      268 Sep 27 14:27 main.c
+-rw-r--r--   1 tf   tf     1048 Sep 27 15:12 main.o
+tf@ouija:/tmp/camlasm$ ocamlopt caml-init.ml
+tf@ouija:/tmp/camlasm$ ocamlopt -dstartup caml-init.ml
+tf@ouija:/tmp/camlasm$ cp /tmp/*.s camlstart.s
+tf@ouija:/tmp/camlasm$ gcc  -o main main.c caml-init.o caml-startup.c camlstart.s /usr/lib/ocaml/3.08.3/std_exit.o -L/usr/lib/ocaml/3.08.3 -L/tmp -lstdlib -lasmrun -ldl -lm
+tf@ouija:/tmp/camlasm$ ./main
+
+Before the initialization of OCaml.
+OCaml was initialized correctly and 2+2=4
+After the initialization of OCaml.
+
+tf@ouija:/tmp/camlasm$ # Note that stdlib.a was copied to /tmp/libstdlib.a for this example!
+tf@ouija:/tmp/camlasm$ gcc -fPIC -shared -o libtf.so caml-init.o caml-startup.c camlstart.s /usr/lib/ocaml/3.08.3/std_exit.o -L/usr/lib/ocaml/3.08.3 -L/tmp -lstdlib -lasmrun -ldl -lm
+tf@ouija:/tmp/camlasm$ ls -la libtf.so
+-rwxr-xr-x  1 tf tf 233016 Sep 27 15:17 libtf.so
+tf@ouija:/tmp/camlasm$ gcc -L. -o main-dl main-dl.c -ltf
+tf@ouija:/tmp/camlasm$ ls
+a.out	       caml-init.o     from_libasmrun.a  from_str.a   main	 main.o
+caml-init.cmi  caml-startup.c  from_libstr.a	 from_unix.a  main-dl
+caml-init.cmx  caml-startup.o  from_libunix.a	 libcaml.so   main-dl.c
+caml-init.ml   camlstart.s     from_stdlib.a	 libtf.so     main.c
+tf@ouija:/tmp/camlasm$ ls -la
+total 1572
+drwxr-xr-x   8 tf   tf     4096 Sep 27 15:18 .
+drwxrwxrwt  20 root root 163840 Sep 27 15:18 ..
+-rwxr-xr-x   1 tf   tf   159840 Sep 27 15:13 a.out
+-rw-r--r--   1 tf   tf      176 Sep 27 15:13 caml-init.cmi
+-rw-r--r--   1 tf   tf      204 Sep 27 15:13 caml-init.cmx
+-rw-r--r--   1 tf   tf      213 Sep 27 14:27 caml-init.ml
+-rw-r--r--   1 tf   tf     1088 Sep 27 15:13 caml-init.o
+-rw-r--r--   1 tf   tf     3300 Sep 27 14:27 caml-startup.c
+-rw-r--r--   1 tf   tf     2424 Sep 27 15:12 caml-startup.o
+-rw-------   1 tf   tf    16634 Sep 27 15:13 camlstart.s
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libasmrun.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libstr.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_libunix.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_stdlib.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_str.a
+drwxr-xr-x   2 tf   tf     4096 Sep 27 14:35 from_unix.a
+-rwxr-xr-x   1 tf   tf   758682 Sep 27 14:40 libcaml.so
+-rwxr-xr-x   1 tf   tf   233016 Sep 27 15:17 libtf.so
+-rwxr-xr-x   1 tf   tf   161645 Sep 27 15:16 main
+-rwxr-xr-x   1 tf   tf    12777 Sep 27 15:18 main-dl
+-rw-r--r--   1 tf   tf      673 Sep 27 14:27 main-dl.c
+-rw-r--r--   1 tf   tf      268 Sep 27 14:27 main.c
+-rw-r--r--   1 tf   tf     1048 Sep 27 15:12 main.o
+tf@ouija:/tmp/camlasm$ ldd main-dl
+	libtf.so => not found
+	libc.so.6 => /lib/libc.so.6 (0x20028000)
+	libdl.so.2 => /lib/libdl.so.2 (0x2015b000)
+	/lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x20000000)
+tf@ouija:/tmp/camlasm$ LD_LIBRARY_PATH=. ldd main-dl
+	libtf.so => ./libtf.so (0x20018000)
+	libc.so.6 => /lib/libc.so.6 (0x20059000)
+	libdl.so.2 => /lib/libdl.so.2 (0x2018d000)
+	libm.so.6 => /lib/libm.so.6 (0x20190000)
+	/lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x20000000)
+tf@ouija:/tmp/camlasm$ LD_LIBRARY_PATH=. ./main-dl
+AIEE: ./caml-in-lib.so: cannot open shared object file: No such file or directory
+tf@ouija:/tmp/camlasm$ mv libtf.so caml-in-lib.so
+tf@ouija:/tmp/camlasm$ ls -la caml-in-lib.so
+-rwxr-xr-x  1 tf tf 233016 Sep 27 15:17 caml-in-lib.so
+tf@ouija:/tmp/camlasm$ ./main-dl
+./main-dl: error while loading shared libraries: libtf.so: cannot open shared object file: No such file or directory
+tf@ouija:/tmp/camlasm$ gcc -o main-dl main-dl.c -ldl
+tf@ouija:/tmp/camlasm$ ./main-dl
+
+Before the initialization of OCaml.
+OCaml was initialized correctly and 2+2=4
+After the initialization of OCaml.
+
+tf@ouija:/tmp/camlasm$ 

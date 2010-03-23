@@ -1,0 +1,18 @@
+
+Roadmap for bringing parallelization up-to-date & including time-stepping:
+
+[ ] Sundials Problem/Bug: When we rebuild the Jacobian (which may be distributed),
+    we presently zero it only on the master! Not right!
+
+[ ] Need to re-include intensive parameters (for thermal effects: time!)
+
+[ ] Jacobi preconditioning has to be wrapped into the linalg_machine
+    for parallelization. (Otherwise, we can only parallelize the computation
+    of the RHS, not the equally time-consuming preconditioner computation!)
+
+[ ] Timing and other new opcodes must be parallelized (they actually are
+    executed only on master though. On slaves, they are a NOP.)
+
+[ ] Every machine must have a "local copy" of the primary field vectors, 
+    as we need this for distributed re-setup of the Jacobian.
+

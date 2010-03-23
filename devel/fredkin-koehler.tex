@@ -1,0 +1,186 @@
+\documentclass{article}
+\newcommand{\Laplace}{\Delta}
+
+\begin{document}
+
+
+
+{\large On the Fredkin-Koehler Finite Element / Boundary Element Method}
+
+\section{Introduction}
+
+Applications of field theory to systems with complicated geometries
+are common especially in the engineering disciplines. The usual
+approach is to choose a finite selection of field degrees of freedom
+such that the truncation of the physics to these degrees of freedom
+gives a sufficiently accurate quantitative description of the
+behaviour of the system which is computationally manageable.
+
+Usually, the finitely many degrees of freedom to which the system is
+truncated are chosen in such a way that they model spatially localized
+contributions to fields. A widespread approach is to decompose space
+into a mesh of polyhedral cells and associate a set of support points
+with these cells. Base functions usually are then chosen in such a way
+that they satisfy certain smoothness requirements, have compact
+support, and have value one at a single support point and zero at all
+others. (Note that it is easy to relax some of these requirements
+which leads to generalizations that also include meshless methods.)
+
+One of the nice aspects of this `Finite Element Method' is that
+polyhedral decompositions allow one to model most material boundaries
+quite nicely if the mesh is chosen in such a way that material
+boundaries are approximated by cell boundaries.
+
+There are situations where all the interesting physical information is
+contained in just a small fraction of the numerical values that are
+needed to describe the system in a finite element approach. Evidently,
+it would be very desirable to maximize the ratio of actually useful
+data to additional bookkeeping data. One particularly interesting case
+is the simulation of magnetzation dynamics. As magnetic moments
+interact over large distances via the magnetic fields which they
+carry, one might consider it necessary to mesh-discretize a large
+enough portion of space which not only contains all the magnetic
+bodies, but also enough of the surrounding space so that all magnetic
+fields can `spread out' without running into artificial boundary
+conditions that were imposed by choosing too small a simulation
+region. However, as the most interesting questions one would like to
+ask about such a system do not involve the fields outside the magnetic
+bodies, but only the dynamics of the magnetization, it would be highly
+desirable to get rid of the necessity to compute the magnetic field
+throughout the surrounding space. This would correspond to
+`integrating out' the `outer space degrees of freedom', leaving us
+with a densely occupied coupling matrix that contains all the
+information about how the surface magnetization at one point of the
+material surface influences the magnetic field at some other point of
+the surface.
+
+\section{The Boundary Element Matrix}
+
+For the sake of definiteness, we will constrain the subsequent
+discussion to the case of unstructured simplicial (tetrahedral) meshes
+in three dimensions and use common electrodynamical terminology --
+even though it may be considered inferior to the differential forms
+approach from both the conceptual and aesthetic point of view.
+
+In the absence of currents, the demagnetization field $\vec H_{\rm
+demag}$ is a rotation-free vector field whose sources (divergence)
+just cancel the divergence of the magnetization, such that
+\begin{equation}
+\vec{\nabla} \cdot \vec{B} = \vec{\nabla}\left(\vec{H}_{\rm demag}+4\pi\vec{M}\right)=0.
+\end{equation}
+
+
+So, if we mesh-discretize the magnetic bodies as well as a large chunk
+of the surrounding space, we can compute $\vec H_{\rm demag}$ from the
+gradient of a magnetic scalar potential $\phi_m$ -- since $\vec H_{\rm
+demag}$ is rotation-free. The divergence of $\vec H_{\rm demag}$ --
+which hence is just $\Laplace\phi_m$ -- must then cancel the
+divergence of $4\pi\,\vec M$. Talking in wave-number ($\vec k$-)space
+language, $\vec H_{\rm demag}$ serves the purpose to remove to remove
+the longitudinally polarized components of $\vec M$. We can hence
+obtain $\vec H_{\rm demag}$ by the following procedure:
+%
+%\begin{equation}
+
+\begin{tabular}{ll}
+1. & Compute $\rho_m = \vec\nabla\cdot\vec M$\\
+2. & Solve $\Laplace\phi_m = \rho_m$ with zero Dirichlet boundary conditions far away.\\
+3. & Compute $H_{\rm demag}=\vec\nabla \phi_m$.
+\end{tabular}
+
+%\end{equation}
+%
+This is easily implemented using the finite element method. However,
+some care has to be taken in order to get the surface divergencies
+from the boundaries of magnetic materials right.
+
+Evidently, step (1) and (3) above can be constrained to the magnetic
+material and its boundary. What can we do in order to also constrain
+the computation of the magnetic scalar potential -- step (2) -- to
+that region? The key to that question is a simple observation from
+potential theory: if we take a surface $\Omega$, then a surface charge
+density located at $\Omega$ will cause a kink in the (continuous)
+potential, that is, a jump in the derivative. A surface dipole
+density, however, can be regarded as the limit of the distribution of
+charge densities of opposite magnitude over two surfaces $\Omega^+$
+and $\Omega^-$ close to $\Omega$, where the limit is taken in such a
+way that at the same time as the separation of the $\Omega^\pm$
+surfaces is taken to zero and these surfaces are made to coincide with
+$\Omega$, the charge densities are increased just in the same way. In
+effect, we get a kink in the potential at $\Omega^+$ which is
+compensated by an anti-kink at $\Omega^-$, so that the derivatives of
+the potential (and hence the field strengths) to the left and to the
+right of the dipole layer are the same. We do however get a jump in
+the potential -- the smaller we make the gap, the steeper the
+potential changes inside the gap, so that the total magnitude of the
+jump remains constant.
+
+[Diagrams!]
+
+This means that we can associate the effects of jumps in the potential
+to surface dipole densities. In other words, if we decompose a
+continuous potential into two pieces $\phi=\phi_1+\phi_2$, such that
+each of these pieces has jumps, we can interpret these jumps as the
+effects of two artificially introduced opposite (cancelling) surface
+dipole densities. The idea now is to decompose the magnetic potential
+$\phi_m$ into a piece $\phi_1$ whose sources are given by the
+divergencies and surface divergencies inside the magnetic material,
+and whic jumps to zero outside, and a remainder $\phi_2$, which has
+the opposite jump at the magnetic material boundaries, and is
+source-free everywhere, up to the dipole density responsible for the
+jump.
+
+Once we found an arbitrary solution for the inhomogeneous potential
+equation governing $\phi_1$ inside the magnetic region (which may be
+determined only up to the addition of a source-free (homogeneus)
+solution(???)), we can then take the jump of $\phi_1$ from its value
+at the inner side of the material boundaries to zero at the outer side
+as dipole occupation density source and compute $\phi_2$ at an
+arbitrary point in space by integrating the field of a dipole source
+distribution over the surface. The field of a localized dipole source
+of unit strength is just given by the directional derivative of the
+Green's function, or propagator, $G(x,y)=1/|\vec x-\vec y|$.
+
+As it would be costly to determine $\phi_2$ in this way all over the
+magnetic body, we rather make use of the property $\Laplace \phi_2=0$
+and determine $\phi_2$ just at the magnetic material boundary, and
+solve the Laplace equation with Dirichlet boundary conditions for the
+interior.
+
+XXX what about the ($\Omega(x)/4pi-1)\phi_1$ term?
+
+XXX we get phi2 as a cofield?!?
+
+XXX factors 4pi are not yet right everywhere?!
+
+\section{Some random notes on the Fredkin-Koehler formula for $\phi2$}
+
+\begin{itemize}
+
+\item $\phi_2$ is just a function of $\phi_1$ -- therefore,
+we do not expect any problems concerning forgotten normalization factors
+or differences in conventions on factors of $4\pi$.
+
+\item The first term is just the potential of a dipole surface at some point
+outside the surface, which furthermore is constructed in such a way that it
+vanishes at infinity. The ``minus-one'' term implements the surface jump
+in the potential by $\phi_1$ (that's what $\phi_2$ is supposed to be good for!)
+
+\item note that $\phi_1+\phi_2$ is continuous at the boundary. $\phi_1$ will have
+zero derivative at the boundary due to open Neumann B.C.s.
+
+\item the $\Omega/4\pi$ term is the jump across the surface.
+One should try to make this plausible by first considering a flat surface.
+The potential induced by a surface homogeneously occupied with dipoles is
+just proportional to the spatial angle under which this surface appears.
+If we come close to the surface, the immediate vicinity of the surface point
+directly under the observer occupies the whole Gesichtsfeld(translation?),
+so this gives us the local contribution to the potential.
+
+\item\dots but this means that we {\em must not} try to include the diagonal part from
+the $\partial G/\partial n$ term. If we did, we would have this contribution twice!
+
+\end{itemize}
+
+
+\end{document}

@@ -1,0 +1,163 @@
+
+:date: 26/02/2009 10:00
+
+:location: B25, 2009, Uni Southampton, UK
+
+:present: Thomas, Matteo, Andreas, Jacek, Hans
+
+===========================================
+ Thomas talks about the fastfields module.
+===========================================
+
+.. contents::
+
+Why do we need it?
+==================
+
+Requirements:
+
+* allow user to specify physics
+* allow high-level interface (here Python)
+* but want code that is executed to be executed fast (-> compiled)
+* Could use weave, etc, but this would limit us to using Python
+
+
+What does fastfields do?
+========================
+
+Given a piece of C-code in a string, it converts it into a compiled
+code that -- in our case -- can be called by a CAML function.
+
+Type of functions
+-----------------
+
+::
+  Maths          OCaml                                C
+ 
+  R^m -> R^n     float array -> float array -> bool   int (double*, double*)
+      	 	 <bigarray>  -> <bigarray>  -> bool
+ 
+
+In reality, we have to have a function for every mesh site. The C interface than looks like this ::
+
+???? int (array double*, array double*) ????
+
+
+Side question: Why do we support bigarrays?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Because float arrays can float around in memory, but bigarrays
+cannot. Important if we need to access this memory from C.
+
+
+Particular requirements of multi-physics FE simulations
+=======================================================
+
+Have many sites, equations from site to site may vary (due to
+different physics and different materials in different regions of the
+mesh).
+
+Example: Compute H_total on site j from other fields at site j ::
+
+  H_total,j = H_exch,j + H_demag,j
+
+Because the field may have different lengths, we need an extra level
+of indirection.
+
+
+What is in fastfields?
+======================
+
+50% of c-code is md5 hashing which is abused as a random number
+generator for thermal field integration (because the fastfields c-code
+cannot easily link to user-written libraries). 
+
+30% File system "stuff": deleting directory trees such as /tmp/ocaml-fastfields/...
+
+We need these temporary directories (which complex structure) so that
+the c-compiler can write its object files before creating the shared
+library. The compilation process may create subdirectories even though
+gcc doesn't.
+
+20% "proper fastfields" (about 5k)
+
+
+Fastfields core
+---------------
+
+Worst behaviour situation we have to be able to deal with::
+
+  1  for n1 in range (1000):
+  2      funs = [ <fastfields>(fun_n(n1,n2)): #where fun_n() returns as string
+  3                                           #and <fastfields> converts the string into callable code
+  4               for n2 in range(1000)]      
+  5
+  6      #do something with funs
+
+Issues here:
+
+* Line 2: try to avoid calling the c-compiler 1000 times (which would
+  be slow), but compile all functions at the same time
+
+* when n1 changes form 0 to 1, make sure we forget (and garbage
+  collect) all the ``funs`` defined for n1==0
+
+How is this addressed:
+ 
+* fastfields only ever uses one dynamically loaded file
+
+* if I add a new function to dynamically created and linked in file, we need to 
+
+  - compile the new dynamic library
+  - remove all pointers to the currently used functions in open dlib
+  - unload old dlib
+  - reload new dlib
+  - update all pointers to currently used functions
+
+  Need triplets (function_name_tag,code,fun_ptr-object) for this.
+
+
+How does each R^m-R^n function work?
+
+ - is everything set up right / do I have a pointer to just call the c object
+
+   if yes -> do so
+
+   if no -> rebuild, set up everything and try again
+
+So the C-compiler will be called at the latest possible stage.
+
+
+
+Garbage collection
+==================
+
+Every ff-generated dynamic function has a finalizer that removes it
+from the hash* table active_functions.
+
+How does the finaliser know what 'it' is? (Finalizer will not release
+itself).
+
+The hash* table needs to be a weak hash table. 
+
+However, we can work without the weak hash table by generating the
+triplet twice:
+
+ - one in active_functions as the value (the key is the symbol)
+
+ - one  XXXX (out of time here)
+
+
+
+
+
+
+
+Functions provided by the module
+================================
+
+Are documented in fastfields/fastfields.mli
+
+
+
+   

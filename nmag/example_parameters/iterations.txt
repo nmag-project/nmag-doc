@@ -1,0 +1,6 @@
+ncol bar_fast step | tail -1
+          512 
+ncol bar_normal step | tail -1
+         2909 
+ncol bar_slow step | tail -1
+        85945 

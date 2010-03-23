@@ -1,0 +1,218 @@
+.. _`example tolerances`:
+
+.. _`example timestepper tolerances`:
+
+
+Example: Timestepper tolerances
+-------------------------------
+
+The tolerance settings of a simulation can greatly affect the
+performance, the accuracy and the usefulness of a simulation. Section
+`Solvers and tolerance settings`_ provides an overview. In this
+example, we demonstrate
+
+- how the time integrator's tolerances can be set and 
+
+- how these tolerances affect the simulation results and performance.
+
+The time integrator we use is the PVODE solver from the SUNDIALS_
+package. It is optimised to deal with stiff systems of ordinary
+differential equations and is therefore very suited for micromagnetic
+simulations. It can also execute in parallel (i.e. across several CPUs
+at the same time using MPI). The computational challenge of the time
+integration lies in the different time scales associated with the
+(fast) exchange field and the (slower) demagnetisation field.
+
+Sundials provides two parameters ``rtol`` and ``atol`` (see `sundials
+documentation
+<https://computation.llnl.gov/casc/sundials/documentation/cv_guide.pdf>`__)
+to control the required accuracy of the calculations. Sundials uses
+these parameters to determine the number of iterations required to
+simulate a given amount of real time (for example one pico
+second). Equivalently, these parameters determine the amount of real
+time that can be simulated per iteration. 
+
+It is common that the amount of time simulated per iteration varies
+throughout a simulation as different time step sizes are required to
+resolve the physics to the same accuracy level. (The ndt_ data file
+contains one column ``last_step_dt`` which provides the size of the
+time step. Use ncol_ to extract this data conveniently.)
+
+The sundials tolerance parameters ``rtol`` and ``atol`` can be set in
+|nmag| using the ``ts_rel_tol`` and ``ts_abs_tol`` arguments in the
+set_params_ function. (The letters ``ts`` in ``ts_rel_tol`` and
+``ts_abs_tol`` stand for Time Stepper).
+
+The integration of the Landau Lifshitz and Gilbert equation is carried
+out on the *normalised* magnetisation, and the corresponding field
+(see `Fields and Subfields in nmag`_) is called ``m`` (the magnetisation with the saturation magnetisation magnitude is called capital ``M`` in nmag). Because this
+field is normalised, we set ``rtol`` and ``atol`` to the same value in
+this example, and refer to the value just as ``tol``.
+
+We use the program `bar_tol.py <../example_tolerances/bar_tol.py>`__ that:
+
+* re-uses the bar studied in `example 2`_ but 
+
+* carries out the time integration for a number of different tolerance values.
+
+
+.. include:: bar_tol.py
+  :literal:
+
+
+From a conceptual point of view, we see something new here: the section of the code that starts with::
+
+  def run_sim(tol):
+
+``def``\ ines a function with name ``run_sim`` which will carry out a
+complete simulation every time it is called. It takes one argument:
+the parameter ``tol``. The simulation name (which is re-used in the
+name of the ndt_ data file) contains the value of ``tol``. For
+example, if the ``tol=0.1``, then the name of the simulation is
+``bar_0.100000`` and the name of the ndt data file is
+``bar_0.100000_dat.ndt``. We can thus call this function repeatedly
+for different values of ``tol``, and each time a complete simulation
+will be run and new data files created. [#]_
+
+The main loop of the script::
+  
+  #main program
+  tols = [1e-1,1e-2,1e-3,1e-4,1e-5,1e-6,1.0]
+  
+  for tol in tols:
+      run_sim(tol)
+
+simply iterates over values ``0.1, 0.01, 0.001, 0.0001, 0.00001`` and
+``0.000001`` and calls the function ``run_sim`` with a different
+tolerance value in every iteration of the for-loop.
+
+Once the program has finished, we have data files
+``bar_0.000001_dat.ndt, bar_0.000010_dat.ndt, ...`` and
+``bar_0.100000_dat.ndt`` that can be analysed and plotted in the usual
+way.
+
+We show a plot of the x, y and z components of the magnetisation
+against time (as in `example 2`_) for each of the tolerance
+values. The run with ``tol=1e-6`` is the most accurate, and the
+corresponding black line has been tagged with little ``+`` characters.
+
+.. image:: ../example_tolerances/plot1.png
+   :align: center
+
+We can see that curves seem to coincide (at this scale) apart from the
+red ``tol=1e-1`` curve which deviates somewhat.
+We zoom in to region between 1.2e-10 seconds and 2e-10 seconds and
+focus on the lowers curves in the main plot:
+
+.. image:: ../example_tolerances/plot2.png
+   :align: center
+
+The better resolution reveals that there is a clear deviation of the
+various curves: the red (0.1), indigo (0.01) and yellow (1e-3) curves
+approach the black (1e-6) curve in this order. The blue (1e-4) and
+green (1e-5) curves appear to coincide with the black reference curve.
+
+Another zoom at the z-component of the magnetisation towards the end
+of the simulated time interval (time>1.8e-10 seconds) shows that the
+less accurate curves (red, and then indigo and yellow) show a large
+amount of jitter (although following the reference curve *on
+average*). 
+
+.. image:: ../example_tolerances/plot3.png
+   :align: center
+
+We conclude that we should use a tolerance of at most 1e-3 for this
+simulation; better 1e-4 or smaller.
+
+In simulation work, we are of course interested to get the most
+accurate simulation results. However, in reality this is conflicting
+with the increased run time that is associated with more accurate
+simulations. In this example, we have written some performance data
+into `resultssummary.txt
+<../example_tolerances/resultsummary.txt>`__. Reformatted,
+postprocessed and the rows re-ordered, this is the data complete with
+table headings:
+
+.. include:: ../example_tolerances/resultsummary_rst.txt
+   :literal:
+
+The accuracy of the simulation results decreases from the top of the
+table downwards. We know from the graphs above that we should use a
+tolerance setting of 1e-4 or smaller to obtain fairly accurate results
+(assuming that the 1e-6 curve is used as a reference). 
+
+The number of iterations required increases from the tolerance 1e-4 to
+tolerance 1e-6 by a factor of 4 while the total CPU time increases by
+a factor of 2.6.
+
+Looking at the greater tolerances 1e-3 and 0.01, we see that while the
+number of iterations required decreases, the CPU time is
+increasing. This is the first indication that at this tolerance level
+the system becomes difficult to treat efficiently by sundials (it
+basically appears to be noisy and stochastic equations are hard to
+integrate). 
+
+In summary,
+
+- to minimise the simulation time, we need to choose a tolerance value
+  as large as "possible".
+
+- The definition of "possible" will depend on the context. A good way
+  of obtaining a suitable tolerance value is to run the same simulation
+  repeatedly with decreasing tolerance values. Once the resulting curves
+  converge (as a function of decreasing tolerance settings), a good tolerance level 
+  has been found. (This would be 1e-4 for the example shown here.)
+
+- Choosing the tolerance values to be too large, can be counter
+  productive (and take much more CPU time than the lower accuracy
+  level).
+
+- The default value for the sundials tolerances is shown in the
+  documentation of set_params_. A simulation can often be accelerated
+  significantly by increasing this value.
+
+- A change of the tolerances has to be considered together with the
+  convergence criterion for hysterises loop calculations (see next
+  section: `Hysteris loop calculation not converging? A word of warning ...`_)
+
+
+Hysteris loop calculation not converging? A word of warning ...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The hysteresis_ and the relax_ command need to have a criterion how to
+decide when the simulation has reached a (meta)stable state and when
+the relaxation (at a given applied field) should be considered to have
+been reached. A common approach (which is used by OOMMF and nmag, for
+example) is to monitor the change of the (normalised) magnetisation
+with respect to time (i.e. dm/dt). If the absolute value of this drops
+below a given threshold, then one considers the system as converged
+(the relax_ command will return at this point, while the hysteresis_
+command will move to the next field). This threshold can be changed
+from its default value with the set_params_ simulation method (the
+attribute is `stopping_dm_dt`).
+
+The choice of the tolerances (`ts_rel_tol` and `ts_abs_tol`) *must*
+respect the chosen `stopping_dm_dt` value (or conversely
+the `stopping_dm_dt` needs to be adapted to work with
+the chosen tolerances):
+large values for the tolerances correspond to lower accuracy
+and to larger random fluctuations of dm/dt,
+which consequently may never become lower than `stopping_dm_dt`.
+In such a case the simulation never returns from the relax_ command,
+because the convergence criterion is never satisfied.
+
+In all the examples we have studied, we have found that the default
+parameters work fine. However, if you find that a simulation never
+returns from the hysteresis_ or relax_ command, it is worth reducing
+the tolerances for the time stepper (on increasing `stopping_dm_dt`)
+to see whether this resolves the problem).
+
+
+--------------
+
+.. [#] We could, in fact, avoid re-creating all the operator matrices
+  and the BEM, and just repeat the simulation with varying values of the
+  ``tol`` parameter. However, this would mean that the data is written
+  into the same file (so is slightly less convenient here).  It would
+  also be a less pedagogical example in this guided tour.
+

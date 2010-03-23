@@ -1,0 +1,97 @@
+.. _`Spin-waves example`:
+
+Example: Spin-waves in periodic system
+--------------------------------------
+
+Starting from a magnetisation out of equilibrium, we study the time
+development of the magnetisation, and track -visually- the spin waves.
+
+The geometry is a thin film with dimensions 30 nm x 9 nm x 0.2 nm along 
+the x,y and z axes, respectively. The mesh is centered at (0,0,0)
+and periodic along the x direction, so that the nodes with coordinates 
+(15.0,y,z) will be considered as equivalent to the nodes with coordinates (-15.0,y,z).
+
+.. image:: ../example_periodic_spinwaves/periodic_mesh.png
+  :align: center
+
+The mesh is contained in `periodic.nmesh <../example_periodic_spinwaves/periodic.nmesh>`__ and 
+has been produced using Netgen_ (from  `periodic.geo <../example_periodic_spinwaves/periodic.geo>`__) and the nmeshmirror_ command to create required periodic structure ::
+
+  $ nmeshmirror netgen.nmesh 1e-6 1e-6 -1,0,0 periodic.nmesh
+
+Relaxation script
+~~~~~~~~~~~~~~~~~
+To see how the system relaxes, we use the following
+script (`spinwaves.py <../example_periodic_spinwaves/spinwaves.py>`__):
+
+.. include:: ../example_periodic_spinwaves/spinwaves.py
+  :literal:
+
+To execute this script, we call the nsim_ executable, for example (on linux)::
+
+  $ nsim spinwaves.py
+
+As in the previous examples, we first need to import the modules
+necessary for the simulation, define the material of the magnetic
+object, load the mesh and set the initial configuration of the
+magnetisation. Here, we start from a spatially non-homogeneous
+configuration in order to excite spin waves. |Nmag| allows us to provide a
+function to be sampled on the mesh that defines a particular
+magnetisation configuration.
+
+.. image:: ../example_periodic_spinwaves/initial_magn.png
+  :align: center
+
+In our case, we use the function ::
+
+  def perturbed_magnetisation(pos):
+      x,y,z = pos
+      newx = x*1e9
+      newy = y*1e9
+      if 8<newx<14 and -3<newy<3:
+          # the magnetisation is twisted a bit
+          return [1.0, 5.*(math.cos(math.pi*((newx-11)/6.)))**3 *\
+                          (math.cos(math.pi*(newy/6.)))**3, 0.0]
+      else:
+          return [1.0, 0.0, 0.0]
+
+which is then passed on to set_m_ ::
+ 
+  # set initial magnetisation
+  sim.set_m(perturbed_magnetisation)
+
+
+Visualising the magnetisation evolution
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once the calculation has finished, we can see how the system relaxed
+by means of snapshots of the magnetisation evolution.
+
+The nmagpp_ command allows us to create vtk files
+from the data saved with the ``save`` option in the ``relax`` method::
+
+  nmagpp --vtk=fields spinwaves
+
+The first few frames that show the evolution of the magnetic
+configuration are shown below.
+
+.. figure:: ../example_periodic_spinwaves/evolution-1.png
+  :align: center
+  :alt: evolution-1
+
+  Initial magnetisation configuration.
+
+.. figure:: ../example_periodic_spinwaves/evolution-2.png
+  :align: center
+  :alt: evolution-2
+
+  Magnetisation configuration after 0.15 ps. It is clearly visible
+  that the spin waves travel from the center of the disturbance to the
+  right and penetrate the system immediately from the left (due to the
+  periodic boundary conditions in the x-direction).
+
+.. figure:: ../example_periodic_spinwaves/evolution-3.png
+  :align: center
+  :alt: evolution-3
+
+  Magnetisation configuration after 0.25 ps.

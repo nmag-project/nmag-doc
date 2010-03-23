@@ -1,0 +1,486 @@
+NOTE: Obsolete - In the end, I resolved this in such a way:
+
+* There are only four levels:
+
+ - FEM geometry (not really a level of its own)
+ - FEM mesh
+ - FEM elements (also deals with interim points and such)
+ - FEM solver
+
+
+
+On Meshing
+----------
+
+One observes that all the questions one would want to ask about a
+given mesh that is to be used for FEM naturally can be grouped into a
+number of different classes, depending on how detailed the
+specification of the mesh has to be and much bookkeeping information
+has to be available in order to efficiently answer those questions. On
+the way from a given mesh to an actual answer to a physical question,
+a number of design decisions has to be answered, each of them
+providing more raw input from which the forementioned internal
+bookkeeping information is derived. As it evidently is highly
+desirable to be able to study each of those design steps individually,
+the information associated to a given mesh most naturally is organized
+in multiple layers. The following exposition describes one particular
+suggestion for such a layered organization of data, which seems
+reasonable to the author but might turn out to be too coarse or too
+detailed for some applications. For every layer, we list the key
+questions which can be answered efficiently with this amount of
+knowledge and briefly discuss the rationale for introducing this
+layer. Furthermore, we briefly mention some fundamental limitations,
+i.e. problems which might be interesting to study by themselves, but
+cannot be done due to simplifying assumptions, as well as ideas how
+they might be overcome.
+
+Evidently, it would be highly desirable to give meaningful names to
+the individual layers. However, it turns out that some layers are
+crucial even though the extra amount of information they add mostly
+consists of technicalities for which it is difficult to come up with a
+striking and down-to-the-point term. We therefore resort to using a
+simple numbering scheme, and as we furthermore expect that future
+investigations may exhibit flaws in this classification that should be
+amended, we also introduce a `version label' for classification schemes,
+with the first one that is presented here being labeled as scheme `A'.
+
+In what follows, we will restrict ourselves to simplicial meshes,
+which furthermore ("up to a few exceptions") try to satisfy a weak
+Delaunay condition as good as possible: no mesh vertex lies in the
+open interior of the circumsphere of any of the simplices in the mesh.
+
+Level 0A mesh:
+---------------
+
+We start counting layers at 0, as there is some geometrical
+information which must be present even before a mesh can be generated,
+but which as well is relevant for all higher levels. (Note that one
+may be tempted to start counting at -1, but this is not a good idea,
+as one cannot put "-1" into a symbol name.)
+
+Questions:
+ 1. What is the dimension of the space?
+ 2. Where is the object we want to mesh located in space?
+ 3. What is the shape of the object?
+ 4. In which regions do we want the mesh to be finer / more coarse
+    than on average?
+ (5.) How do we deal with nontrivial topology?
+
+Discussion:
+
+Question 2 is relevant for the synthesis of complex physical scenarios
+from individual building blocks. One reasonably simple and useful way
+to answer it is to specify a coordinate-axis-parallel bounding box.
+
+Question 3 has two very different but equally important aspects to it:
+
+ a) How can we make the task of specifying a particular shape
+    as easy and convenient as possible for the end user?
+
+ b) How can the machine perform the simple tasks of
+     - finding out whether a point lies inside the region to be meshed
+     - finding a random point in that region
+     - finding a fast approximate to the answer which point in the region
+       lies closest to a given point that is "just outside" that region.
+
+Question 4 introduces an extra refinement: we want to be able to have
+maximum control over the local density of a mesh. For some
+applications, it may be appropriate to refine meshes in regions close
+to a highly curved surface, but there are others where there is no
+direct connection between geometry and refinement. One example is
+given by dynamical mesh refinement of solitons. So, mesh density
+should be specifiable in a simple and mostly unrestricted way.
+
+Note that mesh density information can be translated to an average
+local vertex distance.
+
+The presumably most direct and adaequate way to answer questions (3)
+and (4) is to let the user specify boundary condition functions, as
+well as a density function. Hence, it clearly would be desirable if
+the implementation language provided a nice and direct way to specify,
+process, and combine functions, making functionally-inspired languages
+very attractive. 
+
+As one often wants to know the direction perpendicular to a surface,
+e.g. to approximately answer the "closest point inside" question, the
+boundary condition function should be able to provide this information
+as well. A simple and powerful ansatz is to specify a closed boundary
+B via a continuous everywhere differentiable function f_B with nonzero
+gradient at the boundary. The boundary itself is then taken as the set
+of zeroes of f_B. One may then either take supp(theta(f_B)) or
+supp(theta(-f_B)) as the interior. We will adopt the former convention
+in the following, but explicitly point out that this means that at the
+boundary, grad(f_B) points to the inside!
+
+Thinking of systems like spherical shells, it may be desirable to be
+able to specify more than one boundary condition function: even though
+CSG concepts such as "union" and "intersection" can be defined easily
+on functions, it is sometimes important to know which boundary a given
+point is close to, which is difficult to answer if there is only
+provision for a single boundary condition.
+
+While we have to support CSG intersections, it may not be essential to
+support CSG unions at that level. Fusion of partial meshes and
+generation of meshes containing a pre-defined set of (boundary or
+non-boundary) points must be supported anyway for a variety of
+reasons, and CSG union problems can then (typically) be addressed by
+using this method.
+
+As it is expected that boundary and density functions have to be
+evaluated very often throughout the mesh generating process, these
+should be as fast as possible. This might pose a problem with
+functions defined in a high-level end user interpreter language, such
+as Python. While it must be possible to specify these functions
+directly in the end user's application language, there are various
+ways to address the performance issue:
+
+  - provide a pre-defined set of (parametrized) fast (compiled machine-code)
+    boundary functions that model the most common geometries (box, sphere,
+    convex hull of a set of points, etc.), and means to combine them.
+
+  - use a shared object library which "makes an expression given as a string
+    executable by using the compiler as well as dlopen(3) at run time".
+
+There is a slight technicality that may make it important to require
+that the mesh density function be continuous and positive over the
+entire bounding box:
+
+For a broad class of meshing algorithms, especially ones that work by
+moving nodes, the density function has to be evaluated so often that
+this can take a noticeable amount of time. In order to keep this
+effort down, it may be appropriate to evaluate the density function on
+the locations of the nodes only in every step, translate this to a
+node distance, and interpolate when necessary. In general, it cannot
+be avoided with reasonable effort to occasionally have a node slightly
+outside of a boundary during the node movement phase. This would then
+yield zero local density, corresponding to infinite node distance. As
+this value is used in further processing, infinite or not-a-number
+values for averaged distances and node coordinates would then spread
+like a disease from a single slightly misplaced node. This is easily
+avoided with density functions that do not go to zero. 
+
+
+Note that mesh generater may want to start by randomly placing a
+certain number of points inside the region allowed by the boundaries,
+respecting relative density. Here, one will either want to specify a
+node distance length scale, or a desired number of points in the mesh.
+Quite in general (with a few exceptions), the one piece of information
+can be translated to the other only if the mesher knows an estimate of
+the integral of the density over the object to be meshed. Even with a
+density function that does not go to zero in the `outside' region,
+this is easy to obtain via monte carlo integration, as one can combine
+the boundary and density functions to a density function with
+restricted support.
+
+Concerning question 5 - topological issues - one might want to specify
+how to identify points on surfaces. An important application that
+immediately comes to one's mind is implementing periodic boundary
+conditions, e.g. by identifying opposing sides of a rectangle to get a
+torus. Another intriguing idea may be to mesh a `wedge' of a sphere
+and identify faces in such a way that one obtains a model of a
+spherical system up to structures of low angular momentum with respect
+to the axis of the system singled out by the wedge. In order to make
+this work, one should be able to introduce some notion of
+"identification surfaces" that not only allows one to identify pairs
+of points with one another, but also specifies the mapping from one
+local coordinate system to the other. While a decent software
+implementation of this idea would have many interesting applications,
+some of the most simple ones being the study of systems with helical
+symmetry, this means that a mesh generator capable of such magic
+cannot rely on any of the known widely used efficient libraries to
+solve sub-problems such as Delaunay triangulation, as these do not
+provide the amount of flexibility required here.
+
+Another, also very interesting issue is that of "large" gauge
+transformations. It is typically not enough to specify how to
+associate overlapping regions to one another, one also may have to
+specify corresponding gauge transformations. The simplest example
+would be a 1d mesh of a circle on which a nonzero spatially constant
+1-form field lives: on every simply connected region, this can be
+regarded as the gradient of a scalar potential, but globally, this is
+not possible.
+
+Therefore, we for now ignore the issue of nontrivial topologies and
+address the most important cases where such ideas become relevant in
+other ways: for periodic boundary conditions, we can just provide the
+mesher with a pre-computed set of opposite-identifiable surface points
+of a box that are to be considered as fixed, mesh the interior and
+identify points later on - hoping that the result does not violate any
+of the properties one would like the mesh to have too badly.
+
+For very similar reasons, we do not try to support meshing on curved
+spaces. This may be possible with technology very similar to what one
+has to employ for arbitrary topology, and also requires a custom
+triangulator.
+
+Problems:
+
+One cannot expect that the functions used to define boundaries (hence,
+holes) as well as density can be serialized (i.e. written to disk).
+So, as we do want to be able to write at least one higher level mesh
+to disk, we have a problem if we want higher layers to just contain
+layer 0A meshes. Maybe this means that for the first stages of the
+system discretization process, one should pass in additional
+information seperately, and thus not treat 0A meshes as meshes at
+all, maybe one should keep them in the hierarchy and just change the
+name slightly, as 0A meshes are not in any way meshes - maybe one
+should talk not about meshes, but rather rename this to layer 0B
+continuum physics discretization data structures. It might also just
+be okay to provide the layer 0A data structure as an 'a option entry
+in the higher layers, so that it is just forgotten under serialization
+- hoping that it will hardly be needed for the higher levels
+anyway. This assumption may, however, turn out not to be maintainable
+when it comes to dynamical meshing.
+
+Level 1A mesh:
+--------------
+
+Questions:
+ What points are there in the mesh?
+ How many points are there?
+ How can we name individual points in the mesh?
+
+Data structure:
+ Array of points (where a point is an array of double-precision coordinates)
+ (+ 0A mesh)
+
+Discussion:
+
+This is the most bare-bones form of mesh data. Note that the
+representation of points in an array (rather than, say, some "set"
+data structure) serves the additional purpose of giving names
+(indices) to mesh points.
+
+One might want to use a representation that is defined down to the
+level of memory layout, so that it can efficiently be manipulated from
+a variety of platforms (machines, languages) and use specialized
+efficient methods to be read in and written to permanent storage
+(e.g. mmap(2)). However, as the memory size of the layer 1A mesh as
+well as the data structures' complexity both are hardly an issue (the
+"stiffness matrix" will be much larger, for example), this is not a
+major concern (maybe up to questions of cache and prefetch efficiency
+of data manipulations).
+
+Note that there may be too few points to form even a single
+simplex. This is not a problem.
+
+For any of the data structures that are built on top of or referring
+to a 1A mesh, points should be referred to by giving an index into the
+1A vector of points, rather than duplicating coordinates.
+
+XXX Note: BBgeom abstraction has to be changed - at least the
+name. Perhaps it is reasonable to treat 1A meshes as separate, and
+use pairs of (0A,1A) or an extra function parameter where necessary.
+Simplicity of the data structure would suggest this, on the other
+hand, for virtually anything we want to do on top of this, we at least
+need information about "holes", encoded in the boundary conditions.
+
+
+Level 2A mesh:
+--------------
+
+Questions:
+ What simplices are there in the mesh?
+ How many of them are there?
+ How can we name individual simplices?
+ What regions do simplices belong to?
+
+ Which simplices belong to the object's mesh, and which ones
+  just belong to the mesh of the convex hull?
+  (An important distinction for objects with holes - we can make good use
+  of the mesh of the convex hull as well, so we should know about this
+  as well.)
+
+Data structure:
+ 1A mesh + vector of vectors of point indices, each describing
+ the vertices of a simplex
+
+Discussion:
+
+This structure is typically formed by delaunay triangulating the
+points in a 1A mesh, where one has to take care of a few subtleties:
+
+ - If the meshed object has holes in it, some simplices will have to
+ be removed after "triangulation". This can be implemented by using
+ reasonable heuristics that evaluate 0A boundary functions. Note,
+ however, that we still have to keep information about the "simplices
+ in holes", as this will be used for answering the point-location
+ question efficiently for higher level meshes: we do need convex, or
+ at least star-shaped regions for some algorithms.
+
+
+ - The case of "circumcircular" points has to be addressed. If qhull
+   is used for triangulation, one can use a special flag to ensure that
+   a decision is made even for degenerate cases. 
+   (Note: This may be irreproducible, due to qhull using an own
+    random number generator, which might be seen as a strong incentive to
+    replace qhull by something more flexible - maybe, one should just
+    "hack libqhull" appropriately so that it behaves deterministically.
+    Maybe, deterministic numerics is an illusion anyway.)
+
+ - Especially for planar surfaces, the ambiguity resolution described above
+   will presumably generate extremely slim spurious surface simplices
+   which also have to be eliminated using some kind of heuristical approach.
+
+    Note: it makes sense to implement at least the latter heuristics -
+    which checks the slim-ness of a simplex - in a way that allows one
+    to easily implement a broad category of methods that depend on a
+    simple notion of "simplex shape".
+
+One should note that there is more geometrical information which one
+would like to derive from this data. Examples include:
+
+ - Information about all edges in the mesh in form of a vector of 
+    vectors of two point indices (especially for plotting)
+
+ - Information about all surfaces (= simplex faces that only appear once in the mesh,
+   so that "entering"/"leaving" the body does not cancel for that face).
+   This is needed in particular for stiffness matrix assembly!
+
+XXX Suggestion: use a record, have mutable int array array option slots
+for that pieces of information, and memoize it when it is needed
+for the first time.
+
+
+Level 3A mesh:
+--------------
+
+ Questions:
+  Given a point in space, what simplex does it belong to?
+  What other vertices does this simplex have?
+  What are the neighbouring simplices?
+  If I leave a simplex through one face, what simplex do I land in?
+  What are the equations of all the simplex faces?
+
+XXX
+
+Notes:
+
+ - Important: for origin-path-following point location methods,
+   we may have to use simplices that do NOT belong to the meshed
+   object. Think of a disc with a hole in it, and the straight line
+   crossing the hole.
+
+ - The mesh creation chain does not go 0A -> 1A -> 2A -> 3A.
+ Typically, the mesher will directly output a 2A mesh when fed with
+ geometry information. The user may nevertheless want to refer to "the
+ 1A/2A parts" of a 3A mesh.
+
+ - One would like to merge this with the data structure used by the mesh generator
+   to maintain a dynamic delaunay triangulation (i.e. allowing arbitrary insertion
+   and deletion of points). Maybe this is a good idea, maybe this is not.
+   At least, one should be able to easily exchange the mesh generator with one
+   that uses a very different method, so at least part of this data structure should
+   be allowed to change radically. Presumably, this means we want to split off the
+   part which is relevant only to the mesher. But then, we should at least support
+   
+    - dynamic insertion of points
+    - dynamic deletion of points
+    - serialization
+
+   so that we can use all this in a sensible way to integrate
+   dynamical triangulation with the solver, in order to get dynamical
+   mesh FEM.
+
+ - Without all this information, some things are slightly more difficult to handle,
+   or less efficient to implement, but for a first implementation, it is possible to just
+   "skip" stage 2A and implement the point-to-simplex mapping e.g. by searching
+   through all simplices.
+
+==============
+Ad Level 2/Level 3:
+
+Thinking long and deep about it, it is just unnatural to make the one
+part of the other (or vice versa). The data from level 2 can serve as
+input or output to the data at level 3. However, the level-2 structure
+certainly is the simpler one.
+
+One of the major problems with the level-3 structure is that it is
+quite complicated internally, and that it is not at all clear what
+should go there and what not. Maybe it is a good strategy to just
+allow the L3 data structures to be a bit uneven, and allow for
+dramatic changes later on, and rule that under serialization e.g. of a
+L4 or L5 structure, the L3 data is forgotten and reconstructed from
+the L2 data.
+
+==============
+
+Level 4A mesh:
+--------------
+
+Questions:
+ What is the order of the elements we want to put on the mesh?
+ Where are the interim points located? (coordinates!)
+ How do we number the vertex + interim points consecutively (array)!
+ Given a vertex/interim point, what simplices does it belong to?
+  ...and what is its number within that simplex?
+  ...and what is the associated shape function?
+ What vertex and interim points are contained in a given simplex?
+ What combinatorical (partitioning) types of interim points are there?
+ What vertex/interim points correspond to boundaries?
+
+Level 5A mesh:
+--------------
+
+Questions:
+ 1. What degrees of freedom (number, type) do we want to associate with every
+     point in the mesh?
+ 2. What boundary conditions do we want to associate with boundary points?
+ 3. What are the shape functions associated with every degree of freedom?
+
+Discussion:
+
+Ad 3: as shape functions must be a partition of unity, we may have to
+be tricky. Suppose we use an order=2 model for 3d electrodynamics and
+put E on vertices and B on interim points. Evidently, every one of the
+Ex,Ey,Ez shape functions must be a sum of 
+
+the vertex function + 1/2*neighbouring edge functions.
+
+Likewise for B, we have edge shape function plus neighbouring vertex functions.
+
+Combinatorics will become more complicated for higher order elements.
+
+Note that we should re-use shape functions wherever they can be
+re-used, and see that we do not have to do the integration-of-products
+stuff more often than necessary.
+
+It is not entirely clear how this goes together with the way how to
+specify a differential operator... Should we require the DOFs living
+at individual sites (XXX Note: "site" is an important notion: site =
+vertex | interim) to form full representations of the rotation group,
+or should we allow, say, splitting E_x and E_y to different sites?  I
+think the former is more reasonable - whoever wants the latter just
+has to re-write his diffop in a more complicated fashion.
+
+
+Level 6A mesh:
+--------------
+
+(the 5A -> 6A step requires specifying the differential operator - 
+ or differential operators, if we e.g. have to split 4th order to 2+2)
+
+Questions:
+
+ What solution do I get for a given r.h.s. of the diffop?
+
+Notes:
+
+ In general, the solution process will require iterative (sparse matrix solver!)
+ application of a chain of matrix equation solution steps
+ (combining sparse/sparse/sparse 6th order = 2+2+2 steps,
+  or sparse/nonsparse FE/BE steps, or both of them, or whatever).
+
+
+~~~~~~~~~~~~
+
+Note: this is seven(7!) levels in total! Whew!
+
+
+===================
+
+Notes:
+
+Maybe most of this should just go to one giant data structure with
+lots of optional entries originally set to None, which are then filled
+in when we use functions like promote_2A_3A...

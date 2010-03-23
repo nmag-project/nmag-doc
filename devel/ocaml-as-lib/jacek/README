@@ -1,0 +1,24 @@
+These files aim to establish a procedure for creating Python extension
+modules in OCaml. The current aim is that the following commands
+
+    python generate_makefile.py
+    make byte
+    make testbyte
+
+result in the squares of the numbers from 0 to 14 to be printed.
+
+The above demonstrates how it works for byte compiled Ocaml.
+
+For natively compiled OCaml it only works with ocaml 3.11.0 on Linux,
+as demonstrated by the following:
+
+    python generate_makefile.py
+    make native
+    make test
+
+For quickly checking that everything works, just type
+
+    make
+
+which removes any output files, regenerates the makefile, compiles and
+tests the bytecode version, and compiles and tests the native version.

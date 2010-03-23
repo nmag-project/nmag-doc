@@ -1,0 +1,21 @@
+
+Our operator specification language and framework allows to provide
+"middle field factors", which occur e.g. when we construct general
+laplace operators that correspond to dissipation problems with
+spatially varying "conductivity", also given by a field.
+
+At present, there is no general support for this in the linalg_machine
+framework, but we have to use ad-hoc code changes to play with such
+operators. 
+
+What we will need in the longer run is the separation of matrix
+creation from matrix population/repopulation. This would not only
+allow us to flexibly re-generate some matrix operators such as a
+dynamically conductivity-dependent laplacian, but we might also get
+interesting opportunities to play nice things with "setup-on-demand"
+lazy evaluation of operator matrices. (Presumably, the real benefits
+of the lazy aspects might be rather limited though.)
+
+This should (and easily can) go hand in hand with the parallelization
+of matrix setup, which we eventually want to do anyway.
+

@@ -1,0 +1,41 @@
+What the field theory specification language ultimately should
+eventually be able to look like (toy example, not dealing with all the
+subtleties involved in the computation of the demagnetizing field!):
+
+micromagnetism=physics("""
+[charge-from-magnetism]   = <rho_m || d/dxj M(j)> + <rho_m || D/Dxj M(j)>, j:3
+[charge-from-potential]   = <d/dxj rho_m || d/dxj phi>, 
+[field-from-potential]    = -<H_demag(j) || d/dxj phi>
+[exchange-from-magnetism] = -J*<d/dxj H_exch(k) || d/dxj M(k)>, j:3, k:3
+
+rho_m   = [charge-from-magnetism]*M
+phi     = [charge-from-potential]\rho_m
+H_demag = [field-from-potential]*phi
+H_exch  = [exchange_from_magnetism]*M
+
+# Do we have to introduce a special notation for site-local
+# operations? If not, that would be preferable.
+
+H_anis(j)  = a*M(j)*M(j)-b*M(3)*M(3), j:3
+H_eff(j)   = H_anis(j) + H_demag(j) + H_exch(j)
+dM/dt(j)   =    c1*epsilon(j,k,l)*M(k)*H_eff(l)
+              + c2*epsilon(j,k,l)*M(k)*epsilon(l,p,q)*M(p)*H_eff(q)
+
+# Note: /dt in a field name is treated in a special way! This
+# indicates that we will use time integration!
+ 
+# "Division from the left via \ notation" - use solver
+# Unresolved question: this is an anonymous way to specify a solver.
+# We also need an explicit one so that we can use a name handle on the 
+# solver to modify/specify/tweak parameters
+
+
+""")
+
+
+Note: Implicitly resolved through some inference mechanism
+      (with bypass to specify details where desired)
+ - Field Dependencies
+ - Field<->Cofield mappings
+ - Allocation of intermediary vectors and their type (= corresponding mwe)
+ - Matrix vivification

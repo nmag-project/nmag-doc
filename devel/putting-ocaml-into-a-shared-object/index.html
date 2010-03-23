@@ -1,0 +1,300 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Making a shared object library that uses OCaml</title>
+  </head>
+
+  <body>
+    <h1>Making a shared object library that uses OCaml</h1>
+
+<h2>Some blurb about programming philosophy</h2>
+
+<P>One issue with every programming language is interoperability with
+existing code. Virtually anything that anyone might consider a serious
+programming language can at least call into C. Some also provide means
+so that C can execute a callback into the high level language, and so
+on. The ladder of increasing inter-operability roughly looks as
+follows - where "possible" always means that (1) one can do it, (2) it
+is easy to do, and (3) it is well documented and supported, and the
+developers give guarantees that there will not be any surprise changes
+concerning he interface.
+</P>
+
+<P>
+<ol>
+<li>It is possible to call C from the language.</li>
+
+<li>It is possible to runtime-link and call C shared object libraries.</li>
+
+<li>It is possible to register callbacks from C into the language.</li>
+
+<li>Calling into C and from there back into the language recursively
+"just works as it should". (There are some call stack issues here.)</li>
+
+<li>It is possible to start the high-level language from within an own C 
+<code>main()</code> function.</li>
+
+<li>It is possible to put code written in the high-level language into
+libraries that are callable as C shared object libraries.
+</li>
+
+<li>...and this works with the standard C compiler on your machine (so
+that it even works if some other system with more misguided design
+wants to provide a special compiler wrapper - like MPI's <code>mpicc</code>).
+</li>
+
+<li>...and it is reasonable and easy to have multiple C-callable .so
+libraries that are to be used in conjunction utilize code written in
+the extension language.
+</li>
+
+<li>One can start the high-level language's
+read-eval-print-loop/command-line-interface from within C.
+</li>
+
+</ol>
+</P>
+
+<P>The underlying issue with many of those points is that, speaking in
+terms of inter-operability, a design of a language or system must be
+considered as broken if it wants to place itself on the top, without
+giving the advanced user all the tools and documentation and
+guarantees he or she needs to put something else on the top. The
+language or system XYZ may be as great as it can be, if there is
+another unrelated outstandingly useful system ABC that also considers
+itself the most important thing in the world, this will give people
+who want to combine ABC and XYZ into one program a pretty hard time.
+</P>
+
+<h2>Objective Caml</h2>
+
+<P>While OCaml does not satisfy all our interoperability wishes, it
+still does far better in this respect than many other
+systems. Nevertheless, the procedure of building an ocaml-using C
+shared object library that can be used from within C (or any other
+language with a foreign function interface) is slightly tricky and
+could need a bit more documentation. Here is what I did, and what I
+found out.
+</P>
+
+<h3>The code</h3>
+
+<P>According to the OCaml documentation, we are supposed to use the
+function <code>caml_startup(char **argv)</code> to start the OCaml
+runtime system. This is supposed to be passed an argument-vector from
+which it will initialize <code>Sys.argv</code> and maybe even do a few
+other things. Fine-tuning a system's behaviour which one might want to
+embed into another system via command line parameters can easily
+become a nightmare if more than one of the components wants to do
+that, and they barf or even conflict on one another's arguments. One
+alternative that is just as bad in terms of C stack usage as command
+args, but otherwise more flexible, is the usage of environment
+variables. So, let us for now suppose that for enhanced flexibility,
+we have all the args that are for OCaml given in one string which
+knows &gt;'<code>\ </code>'&lt; escape sequences and
+&gt;<code>"'</code>&lt; strings. This we break at whitespace to get
+individual arguments. We furthermore also expect/allow
+<code>argv[0]</code> to be specified in this way as well - this is not
+obvious. Strictly speaking, this issue is unrelated to what we want to
+do, but let us just repair this problem as well while we are at
+it. Believe me, you will find it quite convenient to just pass a
+<code>getenv()</code> string rather than a C <code>argv</code>. (Note
+ad the code: isn't it sad how we have to bend over backwards to do
+with POSIX regexps what would be a matter of a single line of code in
+Perl? And furthermore, while being quite cautious here, I am not even
+100% sure that there may not be a bug in the code, maybe even with
+security implications. Ah, the fun of writing C code. But with
+OCaml-written C libraries, we will not have to do that much longer
+anyway. :-) Just kidding.)
+</P>
+
+<P>The code for this is in 
+<a href="caml-startup.c"><code>caml-startup.c</code></a>.
+</P>
+
+<P>(A side note: People sometimes ask me whether it is really
+necessary that I mark things like own world-visible functions, patches
+to the Linux kernel, and stuff like that, with my Initials
+<code>tf</code>. The only reason why I do this is that I do not
+consider myself so authoritative that I would name a library like,
+say, '<code>libphysics</code>', or a global function like
+<code>rule_the_world()</code>, at least as long as I have a feeling
+that somebody else might want to use the same name for something quite
+different. So, all this is merely to provide sort of an own
+namespace. Even if this does not avoid occasional conflicts (never had
+one, though), it's much easier to automatically search for problems
+with such conventions in place.)
+</P>
+
+<P>Besides this, we need a ML code file. In principle, this could be
+empty (up to a comment, of course, telling us what it is), that is
+<em>contain no code at all</em>. We will put a single line of code
+in there to just show that OCaml was initialized correctly.
+</P>
+
+<P>That code is in <a href="caml-init.ml"><code>caml-init.ml</code></a>.
+</P>
+
+<P>Here we go:</P>
+
+<P>
+<center>
+<table border>
+<tr><th>Shell log 1: building a shared object library using OCaml</th></tr>
+<tr><td><pre><code>                                                            
+
+$ ls -la
+total 24
+drwxr-xr-x  2 tf tf 4096 Jul 11 01:18 .
+drwxr-xr-x  3 tf tf 4096 Jul 11 00:15 ..
+-rw-r--r--  1 tf tf  213 Jul 11 01:09 caml-init.ml
+-rw-r--r--  1 tf tf 3300 Jul 11 00:59 caml-startup.c
+
+$ ocamlc -c caml-startup.c 
+# one might want to put -ccopt -fPIC -ccopt -shared,
+# but the system already does this for us.
+
+$ ls -la
+total 28
+drwxr-xr-x  2 tf tf 4096 Jul 11 01:19 .
+drwxr-xr-x  3 tf tf 4096 Jul 11 00:15 ..
+-rw-r--r--  1 tf tf  213 Jul 11 01:09 caml-init.ml
+-rw-r--r--  1 tf tf 3300 Jul 11 00:59 caml-startup.c
+-rw-r--r--  1 tf tf 2788 Jul 11 01:19 caml-startup.o
+-rw-r--r--  1 tf tf 6511 Jul 11 01:11 index.html
+
+$ ocamlc -custom -output-obj -o caml-init.o caml-init.ml
+$ ls -la
+total 100
+drwxr-xr-x  2 tf tf  4096 Jul 11 01:19 .
+drwxr-xr-x  3 tf tf  4096 Jul 11 00:15 ..
+-rw-r--r--  1 tf tf   176 Jul 11 01:19 caml-init.cmi
+-rw-r--r--  1 tf tf   286 Jul 11 01:19 caml-init.cmo
+-rw-r--r--  1 tf tf   213 Jul 11 01:09 caml-init.ml
+-rw-r--r--  1 tf tf 58740 Jul 11 01:19 caml-init.o
+-rw-r--r--  1 tf tf  3300 Jul 11 00:59 caml-startup.c
+-rw-r--r--  1 tf tf  2788 Jul 11 01:19 caml-startup.o
+
+$ # Next, we need libcaml.
+# There is libcamlrun for the bytecode system (which we use here),
+# and libasmrun for the native code compiler.
+
+$ cp /usr/lib/ocaml/3.08.3/libcamlrun.a caml.a
+
+$ # We will have to unpack this. This will give a mess.
+$ mkdir from_caml.a
+$ cd from_caml.a && ar x ../caml.a && cd ..
+$ ls from_caml.a/
+alloc.o      debugger.o  freelist.o   io.o	  minor_gc.o  stacks.o
+array.o      dynlink.o	 gc_ctrl.o    lexing.o	  misc.o      startup.o
+backtrace.o  extern.o	 globroots.o  main.o	  obj.o       str.o
+callback.o   fail.o	 hash.o       major_gc.o  parsing.o   sys.o
+compact.o    finalise.o  intern.o     md5.o	  printexc.o  terminfo.o
+compare.o    fix_code.o  interp.o     memory.o	  roots.o     unix.o
+custom.o     floats.o	 ints.o       meta.o	  signals.o   weak.o
+
+$ gcc -o caml-in-lib.so -fPIC -shared from_caml.a/*.o caml-startup.o caml-init.o -lm -ldl -lncurses
+
+$ ls -la caml-in-lib.so
+-rwxr-xr-x  1 tf tf 223186 Jul 11 01:34 caml-in-lib.so
+$ ldd caml-in-lib.so
+	libm.so.6 => /lib/libm.so.6 (0x20036000)
+	libdl.so.2 => /lib/libdl.so.2 (0x20058000)
+	libncurses.so.5 => /lib/libncurses.so.5 (0x2005c000)
+	libc.so.6 => /lib/libc.so.6 (0x2009b000)
+	/lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
+$ nm -D caml-in-lib.so
+0002246c A _DYNAMIC
+00022560 A _GLOBAL_OFFSET_TABLE_
+(...)
+0001af80 T caml_MD5Transform
+0001adf1 T caml_MD5Update
+00013351 T caml_abs_float
+00013756 T caml_acos_float
+(...)
+0002346c B caml_young_limit
+00023468 B caml_young_ptr
+00023460 B caml_young_start
+         U chdir
+         U close
+(...)
+0001a100 T main
+         U malloc
+         U memcpy
+(...)
+         U tanh
+0001fe53 T tf_init_ocaml
+         U tgetent
+(...)
+         U write
+$ 
+</code></pre></td></tr></table>
+</center>
+</P>
+
+<P>Now let us see if this is of any use: A simple test program <a href="main.c"><code>main.c</code></a></P>
+
+<P>
+<center>
+<table border>
+<tr><th>Shell log 2: building and running main</th></tr>
+<tr><td><pre><code>                                                            
+$ gcc -o main main.c caml-in-lib.so
+$ ls -la main
+-rwxr-xr-x  1 tf tf 12025 Jul 11 01:36 main
+$ ldd main
+	caml-in-lib.so => not found
+	libc.so.6 => /lib/libc.so.6 (0x20028000)
+	/lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x20000000)
+$ LD_LIBRARY_PATH=. ./main
+
+Before the initialization of OCaml.
+OCaml was initialized correctly and 2+2=4
+After the initialization of OCaml.
+
+$ ./main
+./main: error while loading shared libraries: caml-in-lib.so:
+ cannot open shared object file: No such file or directory
+</code></pre></td></tr></table>
+</center>
+</P>
+
+<P>The issue with making the location of <code>caml-in-lib.so</code>
+known to the linker is not yet quite that sexy. But at least, we see
+that it works this way. Now, let us do something slightly more
+sophisticated: use <code>dlopen()</code> and friends.
+</P>
+
+<P>Here is the code for <a href="main-dl.c"><code>main-dl.c</code></a></P>
+
+<P>
+<center>
+<table border>
+<tr><th>Shell log 2: building and running main-dl</th></tr>
+<tr><td><pre><code>                                                            
+$ gcc -o main-dl main-dl.c -ldl
+$ ./main-dl
+
+Before the initialization of OCaml.
+OCaml was initialized correctly and 2+2=4
+After the initialization of OCaml.
+
+</code></pre></td></tr></table>
+</center>
+</P>
+
+<P>Now, it would be terrific when we could also load other OCaml
+modules into our OCaml library at run-time. I do not know whether this
+works, presumably not. Anyway, now that I'm typing this, it is almost
+3:00 in the morning, and hence I will investigate this at some other
+occasion...
+</P>
+
+    <hr>
+    <address><a href="mailto:tf@cip.physik.uni-muenchen.de">Dr. Thomas Fischbacher</a></address>
+<!-- Created: Mon Jul 11 00:16:01 BST 2005 -->
+<!-- hhmts start -->
+Last modified: Mon Jul 11 02:04:22 BST 2005
+<!-- hhmts end -->
+  </body>
+</html>

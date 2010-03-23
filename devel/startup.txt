@@ -1,0 +1,87 @@
+[Note: this is not implemented yet, 24.10.2007.
+ But the outline of the general idea should be right.
+]
+
+
+Sorting out the startup issue
+=============================
+
+General problem: we have at least four types of arguments:
+
+* MPI arguments
+* Python interpreter arguments
+* nsim arguments
+* nsim script arguments
+
+And all these, in some way, want to be passed around on the
+command line! Yuck!
+
+Notes:
+
+* We cannot really do much about MPI: mpicc will link our code in such
+  a way that when we run under MPI control, mpirun will pass on extra
+  arguments, at least on the slave nodes. We will always receive these
+  and have to deal with them. Unfortunately, they will upset python.
+  Furthermore, these will depend on the particular MPI
+  implementation/platform on top of which our code operates!
+
+* Python interpreter arguments should be just those documented in the
+  python manpage. According to the python sources, the entry function
+  is PyMain in Modules/python.c / Modules/main.c. Unfortunately, this
+  is *not* included in libpython!
+
+* In addition, nsim will want to deal with its own arguments.
+  These will -- at least -- configure the nlog loglevel, and provide
+  the name of the script to be executed.
+
+  In addition, it would be interesting if the argument list were
+  pre-scanned in a very first step for an argument of the form
+  "-nsim-mpiprefixes:p4" to find out all the prefixes of those arguments
+  that are to be removed from the arglist as they are intended for MPI.
+
+* We certainly should use some argument separation technique. Wrapping
+  up e.g. nsim arguments inside a string does not seem to make much sense,
+  somehow.
+
+Hence, suggestion: 
+
+ - We treat the one very long argument -nsim-mpiprefixes:prefix1,prefix2,...
+   in a special way. This is removed in the very first arg parsing step
+   and sets up the known list of prefixes f MPI-related arguments to
+   be removed.
+
+ - Then, we remove all MPI arguments.
+
+ - We use "stateful" argument parsing for the rest. The individual states are:
+
+     PYARG
+     NSIMARG
+     SCRIPTARG
+
+   Rules are:
+
+   - We start out in PYARG mode.
+
+   - if we are in PYARG mode and receive an argument which is not one of
+     the known python args, but is the name of a file, we take this as
+     the script name and switch to SCRIPTARG mode for all subsequent
+     arguments.
+
+   - If in any mode, we encounter -nsim-pyargs or -nsim-scriptargs or
+     -nsim-nsimargs, we switch to the corresponding arg parsing mode and
+     append further args to the corresponding argument list.
+
+   - in NSIMARG mode, we will have args named e.g. -loglevel.
+
+   - After we parsed arguments into individual groups (by appending to
+     argument lists, that is, whenever we encounter args in a group),
+     we then pass these on to the corresponding init functions.
+
+   - Also: the names "-nsim-*" in -nsim-pyargs etc. as well as in
+     -nsim-mpiprefixes can be changed by providing the environment
+     variable NSIM_MAGIC_ARGPREFIX, which defaults to "nsim".
+
+
+Then, we also should separate the present pyfem3 module into a pyfem and 
+a nsim_startup module (where the latter provides main()).
+

@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+
+import sys, os
+
+
+doc = """%s FIGUREPATH WIDTH
+
+Given the FIGUREPATH (i.e. the filename, optionally with a path) and
+the required WIDTH of the images in cm, this script will set the
+density (i.e. pixel per cm entry) in the metadata of the file so that
+the images has the required width.
+
+This will not work with all data formats. In fact, we use it only for
+png files here.
+
+Dependencies: this is a Python script (so we need python) and it uses
+the ImageMagick tools.
+
+(fangohr 22/11/2007)
+
+""" % sys.argv[0]
+
+
+DEBUG = False
+
+def do_command(command):
+    if DEBUG:
+	print "\t (executing command '%s')" % command,
+    stdin,stdout,stderr = os.popen3(command)
+    stderr_1line = stderr.readline()
+    if  stderr_1line != '':
+	print "Last command was: '%s'" % command
+	print "Error message is: '%s'" % stderr_1line
+	print "Cowardly stopping now."
+	sys.exit(1)
+    output = stdout.readlines()
+    if DEBUG:
+	print "output is '%s'" % str(output)
+    return output
+
+
+if len(sys.argv) != 3:
+    print doc
+    print "Have received %d parameters but expect 2" % (len(sys.argv)-1)
+
+    sys.exit(1)
+
+filename = sys.argv[1]
+width = sys.argv[2]
+
+
+#obtain resolution
+identify_output = do_command('identify '+filename)
+size_x,size_y = identify_output[0].split()[2].split('x')
+
+#required resolution is pixels per width
+resolution = int(size_x) / float(width)
+
+#set resolution
+print "Setting resolution of %s to %s px/cm (%s cm with %s pixels) ... " \
+    % (filename,resolution,width,size_x),
+returnvalue = do_command('mogrify -units PixelsPerCentiMeter -density '+str(resolution)+' '+filename)
+if returnvalue == []:
+    print "done"
+
+
+if int(size_x) > 1000:
+    print "WARNING: file %s has %s pixels in x --> too large for html?" % \
+	(filename,size_x)
+
+
+if int(size_x) > 1100:
+    print "WARNING!!!: file %s has %s pixels in x --> too large for html!" % \
+	(filename,size_x)
+    sys.exit(3)
+

@@ -1,0 +1,95 @@
+Example: Uniaxial anisotropy
+----------------------------
+
+In this example we would like to simulate the development of a Bloch type
+domain wall on a thin cobalt bar of dimension 504 x 1 x 1 nm
+(`bar.nmesh.h5 <../example_uniaxial_anis/bar.nmesh.h5>`__) due to uniaxial
+anisotropy.
+
+
+Uniaxial anisotropy simulation script
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. include:: bar.py
+  :literal:
+
+We shall now discuss the `bar.py <../example_uniaxial_anis/bar.py>`__  script 
+step-by-step:
+
+In this particular example we are solely interested in energy terms resulting
+from exchange interaction and anisotropy. Hence we disable the demagnetisation
+field as follows::
+
+  sim = nmag.Simulation(do_demag=False)
+
+We then create the material ``Co`` used for the bar, cobalt in this case, which exhibits uniaxial
+anisotropy in z direction with phenomenological anisotropy constant
+``K1 = SI(520e3, "J/m^3")``::
+
+  Co = nmag.MagMaterial(name="Co",
+                        Ms=SI(1400e3, "A/m"),
+                        exchange_coupling=SI(30e-12, "J/m"),
+                        anisotropy=nmag.uniaxial_anisotropy(axis=[0, 0, 1], K1=SI(520e3, "J/m^3")))
+
+After loading the mesh, we set the initial magnetisation direction such that
+it rotates from +z to -z while staying in the plane normal to x direction
+(hence suggesting the development of a Bloch type domain wall)::
+
+  def sample_m0((x, y, z)):
+    # relative_position goes linearly from -1 to +1 in region B
+    relative_position = -2*(x - offset)/length + 1
+    mz = min(1.0, max(-1.0, relative_position))
+    return [0, math.sqrt(1 - mz*mz), mz]
+
+We further pin the magnetisation at the very left (x < offset = 2 nm)
+and right (x > offset + length = 502 nm) of the bar
+(note that the pinning function may also just return a python truth
+value rather than the number 0.0 or 1.0)::
+
+  def sample_pinning((x, y, z)):
+    return x >= offset and x <= offset + length
+
+  sim.set_pinning(sample_pinning)
+
+Finally, we relax the system to find the equilibrium magnetisation
+configuration, which is saved to the file ``bar_mag_x.dat`` in a format
+understandable by Gnuplot_.
+
+Visualization
+~~~~~~~~~~~~~
+
+We can then use the following Gnuplot_ script to visualize
+the equilibrium magnetisation:
+
+.. include:: bar_mag_x.gnu
+  :literal:
+
+The resulting plot clearly shows that a Bloch type domain wall has developed:
+
+.. image:: ../example_uniaxial_anis/bar_mag_x.png
+  :align: center
+
+The figure shows also that the Bloch domain wall is well localized at the center
+of the bar, in the region where x goes from 200 to 300 nm.
+
+Comparison
+~~~~~~~~~~
+
+After simulating the same scenario with
+OOMMF (see `oommf/bar.mif <../example_uniaxial_anis/oommf/bar.mif>`__),
+we can compare results using another Gnuplot_ script:
+
+.. include:: bar_mag_x_compared.gnu
+  :literal:
+
+which generates the following plot showing good agreement of both systems:
+
+.. image:: ../example_uniaxial_anis/bar_mag_x_compared.png
+  :align: center
+
+The plot shows also the known analytical solution::
+
+  Mz(x) = Ms * cos(pi/2 + atan(sinh((x - x_wall)/sqrt(A/K1))))
+
+The plot shows only a restricted region located at the center of the bar,
+thus allowing an easier comparison between the three sets of data.

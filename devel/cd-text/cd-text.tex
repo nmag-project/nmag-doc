@@ -1,0 +1,71 @@
+% latex cd-text.tex ; dvips -O -3cm,-1cm -f <cd-text.dvi >cd-text.ps; gv cd-text.ps
+
+\documentclass{article}
+\usepackage{graphicx}
+\pagestyle{empty}
+\oddsidemargin  0mm
+\evensidemargin 0mm
+\headheight     0mm
+\textwidth      208mm
+\textheight    295mm
+
+\leftmargin 0mm
+\rightmargin 0mm
+\topmargin 0mm
+
+\def\Nmag{{\bf Nmag}}
+
+\def\instructions{
+\begin{minipage}{10cm}
+
+\begin{center}
+{\Large {\Nmag} 0.1 Bootable Live-CD}
+\end{center}
+
+\bigbreak
+
+\begin{center}
+\includegraphics[height=3cm]{logo}
+\end{center}
+
+\bigbreak
+
+This CD should be bootable on any sufficiently modern PC (including
+laptops) and contains a complete Linux operating system.
+
+This system was set up containing the first public release of the
+{\Nmag} micromagnetic simulation system developed at the University of
+Southampton.
+
+\begin{enumerate}
+
+\item Booting from this CD does not install any software on
+harddrive, so this is a safe method to test-drive {\Nmag}. This also
+means, however, that the system will start up noticeably slower than a
+harddisk installation, as loading from CD-ROM is comparatively slow.
+
+\item The {\Nmag} web page is {\tt http://nmag.soton.ac.uk}, 
+ and the developer team can be reached under the E-mail
+ {\tt nmag@soton.ac.uk}.
+
+\item The {\Nmag} documentation also can be accessed directly on this CD,
+ without booting.
+
+\item This CD may also be useful for other purposes, such as to rescue 
+data from a broken PC.
+
+\end{enumerate}
+
+\bigbreak\bigbreak
+
+\end{minipage}
+}
+
+\begin{document}
+
+\begin{tabular}{ll}
+\instructions&\instructions\\
+\instructions&\instructions
+\end{tabular}
+
+\end{document}

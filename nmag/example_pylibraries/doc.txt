@@ -1,0 +1,33 @@
+Example: Utilizing Python Libraries
+-----------------------------------
+
+Rather than providing scripting capabilities via a proprietary
+programming language (as many other simulation utilities do), |Nmag|
+is built on top of the Python library and as such allows tight
+integration with other Python software. This means in particular 
+that functionally advanced packages such as 
+`Scientific Python <http://www.scipy.org>'__ can be utilized for data 
+generation, analysis, and post-processing.
+
+Despite |Nmag| being a MPI-based parallel application, it behaves like
+any ordinary Python library towards the user and neither requires any
+experience in parallel programming nor imposes any semantic
+restrictions on when and how to use certain operations. This makes it
+in particular possible to let existing implementations of algorithms
+which never were written with parallelism in mind to directly drive
+micromagnetic simulations.
+
+Here, we give a toy example that demonstrates this concept: the
+physical setup is that of a ferromagnetic rod directed along the
+z-axis which is subjected to a linearly polarized electromagnetic
+wave. The direction of the electric field matches the axis of the
+rod. In order to simplify the physical content of the problem, we
+assume the conductivity of the ferromagnet to be sufficiently small so
+that the magnetic field induced by the current along the rod which is
+caused by the wave's electric field can be neglected. What then
+remains is the reaction of a magnetic rod to a periodically changing
+externally applied magnetic field of fixed frequency. We combine
+|Nmag|'s micromagnetic simulation capabilities with tools provided by
+the `Scientific Python' library to automatically determine the
+resonance frequency.
+

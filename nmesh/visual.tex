@@ -1,0 +1,483 @@
+%\documentclass[10pt,a4paper]{book}
+%        
+%\usepackage{amssymb}% for numbers/numbers
+%\usepackage{lscape}
+%
+%\usepackage{sectsty}
+%\allsectionsfont{\sffamily}
+%
+%\setlength{\textheight}{24cm}
+%\setlength{\textwidth}{15.912cm}
+%
+%\setlength{\evensidemargin}{0cm}
+%\setlength{\oddsidemargin}{0cm}
+%
+%\setlength{\topmargin}{-0.5cm}
+%%\setlength{\parindent}{0cm}
+%
+%
+%\usepackage{listings}
+%\usepackage{color}
+%\lstdefinestyle{defaultstyle}{}
+%\lstset{language=Python}
+%\lstset{basicstyle=\ttfamily}
+%\lstset{showstringspaces=fales}
+%\lstset{keywordstyle=\color{blue}}
+%\lstset{frame=single}
+%%\lstset{backgroundcolor=\color{white},emph={EMPTY},emphstyle=\color{white}}
+%%\definecolor{lightgrey}{cmyk}{0.1,0.1,0.1,0}
+%%\lstset{backgroundcolor=\color{lightgrey}}
+%
+%\renewcommand{\labelitemii}{\ensuremath{\triangleright}}    %  open triangle replaces default dash
+%
+%\newcommand{\py}[1]{\texttt{\color{blue}#1}}
+%
+%\newcommand{\nmesh}{nmesh}
+%
+%
+%
+%\usepackage{graphicx}
+%
+%\usepackage[dvips=true,bookmarks=true]{hyperref} 
+%
+%
+%
+%
+%
+%\begin{document}
+\chapter{Visualising meshes \label{chapter:visual}}
+
+This chapter aims to provide a concise introduction to the intended use of the {\ttfamily nmesh.visual} library. It is a collection of Python functions for the manipulation of mesh data with an emphasis on visualisation. Some of the functions for mesh manipulation could potentially be useful for other applications however. The library was created with flexibility in mind, many different effects can be achieved through combining the use of several different functions. This manual explains the usage and purpose of each function, a few examples are given of how to use combinations of functions. For most figures, the caption refers to a script which creates a similar visual. These files can be found in the {\ttfamily /examples} folder of {\ttfamily nmesh}. Thereafter, the user is left to decide which combination is required for the process they seek. 
+
+The source code file {\ttfamily visual.py} contains all of the functions for {\ttfamily nmesh.visual}. This file can be used as a module in its own right, from a Python interpreter in the same directory one can import the library in the following way:
+\begin{lstlisting}
+>>> import visual
+\end{lstlisting}
+This manual expects the reader to be using {\ttfamily nmesh} in which case the visual library is found as {\ttfamily nmesh.visual}. If the reader is using the tools outside of the {\ttfamily nmesh} module, whenever {\ttfamily nmesh.visual.some\_function()} is seen it should be replaced with {\ttfamily visual.some\_function()}.
+
+{\ttfamily visual.py} can also be used directly from the command line. To see the options available enter the following at a command prompt:
+\begin{lstlisting}
+>>> python visual.py --help
+\end{lstlisting}
+From the command line, VTK files and {\em pickle} files can be used (see section \ref{sec:pickle}). 
+
+
+
+
+
+\section{Basic structure of a mesh \label{sec:meshinf}}
+
+{\ttfamily nmesh} meshes are created in the language OCaml and cannot be easily accessed from Python, which is the language used in {\ttfamily nmesh.visual}. One of the methods of a mesh is {\ttfamily mesh.tolists()}, this converts the useful information about a mesh from OCaml, to a list of Python lists. As a convention, the output of {\ttfamily mesh.tolists()} will be referred to as {\ttfamily mesh\_info} from here on.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{visualfigures/meshinfo1}
+\caption{{\em The output of} {\ttfamily mesh.tolists()}. \label{fig:meshinfo1}}
+\end{center}
+\end{figure}
+
+The basic structure of this list is shown in figure \ref{fig:meshinfo1}. There are five lists within {\ttfamily mesh\_info}, the first element of each list is a string containing the title of the list. These titles must be as shown in the diagram, because this is how {\ttfamily nmesh.visual} finds the data it needs. However, it means that these lists do not have to appear in any particular order. The minimum number of lists is two, because the data associated with {\ttfamily ``COORDS''} and {\ttfamily ``SIMPLICES''} is required to define a mesh.
+
+The second element of each list is a description of the data within that list, for example: {\ttfamily mesh\_info[0][1] = 'Coordinates of points'}. Finally, the third element of each list is itself another list (or tuple), containing the data. 
+
+The five data headings in {\ttfamily mesh\_info} are {\ttfamily ``COORDS''}, {\ttfamily ``LINKS''}, {\ttfamily ``SIMPLICES''}, {\ttfamily ``POINT-BODIES''} and {\ttfamily ``SURFACES''}.  'Coords' contains a list of the coordinates for points (nodes) on the mesh, 'links' contains a list of pairs of integers. Each integer is the list index for a point in 'coords', these pairs of indices describe the connections in a mesh. The 'simplices' header contains a list of simplices, the first part of each simplex entry has a list of three or four indices for the 'coords' list. Three indices define a triangle and four define a tetrahedron. The second and third entries in a simplex describe the position of its circumcentre and incentre, and its circumradius and inradius. The final entry in a simplex is another integer, this is the part index and explains which part of the mesh this simplex belongs to. The data following the 'point-bodies' header is a list of tuples, some may be single element tuples. These tuples describe which part of the mesh a point in the 'coords' list belongs to. A tuple {\ttfamily (-1,1)} would mean that the point in question is on the border between part -1 (the void outside the mesh) and part 1. These tuples occur in the same order as the points in the list 'coords', so the third tuple in this list describes which part(s) the third point in 'coords' belongs to. Finally, the data associated with the 'surfaces' heading is essentially more simplex data. The difference is that for a 3D mesh, simplices will be tetrahedra and surfaces will be triangles and for 2D meshes surfaces will be lines. At the time of writing, the data available in 'surfaces' was limited.
+
+To find out the exact format of data in the third element of each of these lists, the reader should load a {\ttfamily mesh\_info} in the Python interpreter and manually view one of the elements. For example, to view the format of simplices data, type the following:
+\begin{lstlisting}
+>>> mesh_info[simplices][2][0]
+\end{lstlisting}
+This will print the first element of the data list, under the {\ttfamily ``SIMPLICES''} heading.
+
+
+
+\section{Saving and loading mesh data \label{sec:pickle}}
+A mesh object can be saved by using the following method: {\ttfamily mesh.save(<filename>)}, this saves the mesh in a form that OCaml can read, but Python cannot. It is useful to be able to save {\ttfamily mesh\_info} lists, this can be done using the function 
+{\ttfamily nmesh.visual.pickle(<filename.dat>)}. In this manner the information about the mesh is saved in such a way that OCaml is not required. So this data could be sent to a third party, along with the file {\ttfamily visual.py} which contains the source code for {\ttfamily nmesh.visual}. Providing that Python is available on their system, it will be possible for them to analyse the mesh. The accompanying function 
+{\ttfamily nmesh.visual.unpickle()} should be used to retrieve {\ttfamily mesh\_info} from a pickled file.
+
+
+
+
+\section{Manipulating mesh data}
+All of the functions described in this section can be used to take information from {\ttfamily mesh\_info} and deposit some, or all of it, in a new container (say {\ttfamily mesh\_info2}) in a slightly different form. The output, {\ttfamily mesh\_info2}, has the same format as the input and can be used in the same way. All functions in this section will remove the data {\ttfamily ``LINKS''}. 
+
+\subsection{{\ttfamily separate\_parts()}}
+This function separates the elements of a mesh according to which {\em part} they belong to. If for example a mesh contains a cone and a cube, these will generally be considered as distinct parts. Each simplex in a mesh has an index describing which part it belongs to. If in this example all the simplices of the cone have indices of $1$ and the simplices of the cube have indices of $2$, the following command would create two {\ttfamily mesh\_info} style lists; the first containing the mesh information for the cone and the second for the cube:
+
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> [cn, cb] = nmesh.visual.separate_parts(mesh_info, listOfParts=[[1],[2]])
+\end{lstlisting}
+
+
+
+From this the reader can see that the output of {\ttfamily separate\_parts()} is a list, each element of which is the {\ttfamily mesh\_info} for the part (or group of parts) requested. These will occur in the same order in the output as they were given in the argument {\ttfamily listOfParts}. This input argument is mandatory, if it is not given the function will not run. {\ttfamily listOfParts} can either be an integer (when only one part it required), or a list of lists. The output is always a list. The following two commands achieve the same thing:
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> [part] = nmesh.visual.separate_parts(mesh_info, listOfParts=1)
+>>> [part] = nmesh.visual.separate_parts(mesh_info, listOfParts=[[1]])
+\end{lstlisting}
+However, the following command would raise an error:
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> [part] = nmesh.visual.separate_parts(mesh_info, listOfParts=[1])
+\end{lstlisting}
+This is because {\ttfamily listOfParts} is expected to be a list, if it is an integer, it is wrapped in a nested list. If however a list is provided, but it is not a list of lists, the function will try to iterate over a non-existent sequence.
+
+
+The reader is invited to examine the following code and ascertain what it does, the solution follows.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> info = nmesh.visual.separate_parts(mesh_info, listOfParts=[[1,2,3],[8,9]])
+>>> group1 = info[0]
+>>> group2 = info[1]
+\end{lstlisting}
+The answer is, that the mesh associated with {\ttfamily mesh\_info} has been split into two pieces. The first contains parts 1, 2 and 3; the second contains parts 8 and 9. The output was assigned to a single variable, {\ttfamily info}, so this is in fact a list. Two new variables have been assigned, {\ttfamily group1} takes the {\ttfamily mesh\_info} for parts 1, 2 and 3. {\ttfamily group2} takes the {\ttfamily mesh\_info} for parts 8 and 9. It is worth noting here that any parts in the mesh which are not included in the argument {\ttfamily listOfParts} will be discarded. So in the above example, if there were nine parts, those with indices 4, 5, 6 and 7 have been ignored. Finally, repetition is allowed:
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> [a, b] = nmesh.visual.separate_parts(mesh_info, listOfParts=[[1],[1]])
+>>> [c, d] = nmesh.visual.separate_parts(mesh_info, listOfParts=[[1],[1,2]])
+\end{lstlisting}
+Whilst this is inefficient, items {\ttfamily a}, {\ttfamily b} and {\ttfamily c} will be the same, containing information for part 1. {\ttfamily d} will have the information for parts 1 and 2 in a single dataset.
+
+
+
+
+\subsection{{\ttfamily surface\_only()}}
+This function can be used to display only the surface elements of a mesh. In some ways it is more useful to think of this as the {\em outline} of a mesh. For a three-dimensional mesh of tetrahedra this will result in a surface made up of triangles. For a two-dimensional mesh of triangles this function will return a mesh of lines, forming the outline of the 2D shape that has been meshed. This is illustrated, for the 2D case, in figure \ref{fig:surfaceonly2d}.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{visualfigures/surfaceonly2d}
+\caption{{\em A 2D mesh, before and after use of }{\ttfamily surface\_only() (surface\_elements\_bug.py)}. \label{fig:surfaceonly2d}}
+\end{center}
+\end{figure}
+
+The user can optionally choose to view the surface of only certain parts. In this case the process is similar to {\ttfamily separate\_parts()} in that the return argument is a list of {\ttfamily mesh\_info} type lists. The output of this function is always in a similar format to {\ttfamily mesh\_info}, but contains only the simplices and points on the surface of the mesh; all information about the mesh interior is removed. Examine the following:
+
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> s1 = nmesh.visual.surface_only(mesh_info)
+>>> s2 = nmesh.visual.surface_only(mesh_info, listOfSurfaces=2)
+[s3, s4] = nmesh.visual.surface_only(mesh_info, listOfSurfaces=[[3],[4,5]])
+\end{lstlisting}
+{\ttfamily s1} will contain the information for the surface of each part in {\ttfamily mesh\_info}. {\ttfamily s2} will contain the information for the surface of part 2 only. {\ttfamily s3} will contain information on the surface of part 3 only and {\ttfamily s4} will contain the data for the surfaces of parts 4 and 5 in a single dataset.
+
+Again, the reader should note that the optional argument {\ttfamily listOfSurfaces} must either be an integer or a list of lists. The surface elements of any mesh are included in the original output of {\ttfamily mesh.tolists()}, so there is very little computational demand in the function {\ttfamily surface\_only()} because it just reads this data from the {\ttfamily ``SURFACES''} element of {\ttfamily mesh\_info} to the {\ttfamily ``SIMPLICES''} element. 
+
+
+
+
+\subsection{{\ttfamily outer\_skin()}}
+This function does something slightly different to {\ttfamily surface\_only()}. It does not use the {\ttfamily ``SURFACES''} data from {\ttfamily mesh\_info}, instead, it works out for itself which simplices are near the surface and returns a {\ttfamily mesh\_info} style list of these. In general any simplex containing one or more of the points on the surface of the mesh, will be included in the output. The user can however specify their own condition using the optional input argument {\ttfamily condition}. The function can be used for 2D and 3D meshes, but not for ones where only the surface elements are present (ie: not on meshes which have been processed by {\ttfamily surface\_only()}.
+
+The {\ttfamily condition} argument determines how many points must be in a simplex for it to be included in the output. Read the following lines of code and attempt to figure out their meaning.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> skin1 = nmesh.visual.outer_skin(mesh_info)
+>>> skin2 = nmesh.visual.outer_skin(mesh_info, condition='>= 1')
+>>> skin3 = nmesh.visual.outer_skin(mesh_info, condition='== 2')
+>>> skin4 = nmesh.visual.outer_skin(mesh_info, condition='> 2')
+\end{lstlisting}
+
+{\ttfamily skin1} will be identical to {\ttfamily skin2} because the default value of {\ttfamily condition} is {\ttfamily '>= 1'}. {\ttfamily skin3} will contain a set of simplices all of whom contain exactly points on the surface of the mesh. {\ttfamily skin4} will have a set of simplices each with more than two surface points. For a 2D mesh this would be an unwise choice, because there may very well be no simplices with three surface points. It is likely in 2D that corner elements will satisfy this however. Similarly, choosing simplices with four surface points for a 3D mesh would be unwise. Whilst these simplices may exist, they are generally a sign of a poor quality mesh. Figure \ref{fig:skinmesh2d} illustrates the outputs of the above lines of code. 
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{visualfigures/skinmesh2d}
+\caption{{\em From left to right,} {\ttfamily skin1}, {\ttfamily skin3} {\em and} {\ttfamily skin4}. \label{fig:skinmesh2d}}
+\end{center}
+\end{figure}
+
+
+
+\subsection{{\ttfamily order\_mesh()}}
+{\ttfamily nmesh.visual} uses a vtkUnstructuredGrid to represent mesh data. Although as the name suggests, this data structure does not impose a strict ordering system, all elements (simplices and points) have an index. The filter {\em ExtractUnstructuredGrid} can be used to view a subset of a vtkUnstructuredGrid by only displaying cells (or points) within a specified range. {\ttfamily order\_mesh()} rearranges a {\ttfamily mesh\_info} such that simplex indices increase along an axis. In this way the filter explained can be used to remove simplices of a mesh in a controllable fashion, so the interior of a 3D mesh can be viewed. Alternatively the user may provide a dataset, with one entry for each simplex, the mesh will then be sorted by this data. 
+
+{\ttfamily order\_mesh()} expects a {\ttfamily mesh\_info} style list, if nothing else is provided, the mesh given will be sorted along the first axis (x-axis) and returned. The user can specify the axis along which the mesh is sorted using the optional argument {\ttfamily axis}. This must be either 0, 1 or 2; corresponding to the x, y and z axes respectively. Alternatively the user may provide a dataset for the mesh to be sorted by, this is done by assigning the optional argument {\ttfamily data}. For example to sort a mesh by the list {\ttfamily quality} the function call would be as follows:
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> sorted_mesh = nmesh.visual.order_mesh(mesh_info, data=quality)
+\end{lstlisting}
+
+As an example, an ellipsoid was meshed and then ordered using the ratio:
+\[
+3 \times \frac{\mathrm{inradius}}{\mathrm{circumradius}}.
+\]
+This is a measure of the regularity of a tetrahedron. Regular tetrahedra will have a value of one and the worst tetrahedra will have values approaching zero. Figure \ref{fig:best200} shows the 200 most regular tetrahedra and figure \ref{fig:worst200} shows the 200 least regular tetrahedra. 
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.85\textwidth]{visualfigures/best200}
+\caption{{\em The best 200 simplices in a mesh. }(visual\_view\_by\_quality.py) \label{fig:best200}}
+\end{center}
+\end{figure}
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.85\textwidth]{visualfigures/worst200}
+\caption{{\em The worst 200 simplices in a mesh.} \label{fig:worst200}}
+\end{center}
+\end{figure}
+
+
+Figure \ref{fig:sweep} shows the same mesh, ordered along the y-axis. The filter ExtractUnstructuredGrid was used to remove a different number of simplices in each sub-image. The call to {\ttfamily order\_mesh()} which created this mesh is shown below.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> ordered_mesh = nmesh.visual.order_mesh(mesh_info, axis=1)
+\end{lstlisting}
+
+Once a mesh has been ordered, the {\ttfamily mesh\_info} can be used in the same way as the original output of {\ttfamily mesh.tolists()}. Once it has been converted to VTK data and visualised in MayaVi, the filter ExtractUnstructuredGrid must be applied to remove cells selectively. For information on using MayaVi please see the guide produced in section \ref{sec:mayaviguide}. Figure \ref{fig:sweep} shows the effect of changing {\ttfamily CellMaximum} alone. Figure \ref{fig:sweep2} shows how, by varying {\ttfamily CellMaximum} and {\ttfamily CellMinimum} so that a narrow range of simplices is shown, the effect of viewing a layer of simplices can be achieved.
+
+
+\newpage
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width=9in]{visualfigures/sweep}
+\caption{{\em The filter ExtractUnstructuredGrid can be used to cut away parts of a mesh.} (visual\_sweep.py) \label{fig:sweep}}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\newpage
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width=9in]{visualfigures/layers2}
+\caption{{\em The filter ExtractUnstructuredGrid can be used to view layers of tetrahedra.} \label{fig:sweep2}}
+\end{center}
+\end{figure}
+\end{landscape}
+
+
+
+
+\subsection{{\ttfamily skin\_mesh()}}
+This function uses a similar process to {\ttfamily outer\_skin()} but does so recursively. Whereas {\ttfamily outer\_skin()} reduces a {\ttfamily mesh\_info} to contain information about certain simplices near the surface, {\ttfamily skin\_mesh()} finds those simplices, then the next layer of simplices touching those, etc. The easiest way to describe this is to say that it orders the indices in a mesh such that the filter ExtractUnstructuredGrid can be used to peel back layers of simplices, much like peeling skins from an onion. This function is computationally intensive, this has been tolerated because it is unlikely to be used frequently. 
+
+It is important with this function that the user understand a little more detail about how it works. In a similar way to {\ttfamily outer\_skin()} it finds all the points on the surface of a mesh, then finds the simplices which contain a certain number of those points. The number of points which must be in a simplex can be set by the user in the same way it is for {\ttfamily outer\_skin()}, again the default is {\ttfamily '>= 1'}. Once these simplices are found, all the points within those simplices, which are not points on the surface are put in a list. The function then repeats, searching through this new list of points, simplices which include these points but have not already been indexed form a new layer. Again, a list is made, of the points within these simplices which have not yet been considered. Then the simplices containing those points form the next layer, and so on. This continues until all the points in the mesh have been considered. 
+
+For convenience, the function also returns a list of tuples, each tuple giving the values which should be used for {\ttfamily CellMaximum} and {\ttfamily CellMinimum} in the filter ExtractUnstructuredGrid. An example can be seen in figure \ref{fig:onion}, there the condition used was the default. The reader should consider the effect of changing the condition. For example, changing the condition to be {\ttfamily '>= 3'}, will include only those simplices with three or more surface points in the outer layer. Then the simplices with three or more of the remaining points in the next layer, etc. This will mean there are more layers and will significantly increase the runtime of the function. The user should be aware that the {\ttfamily mesh\_info} given as input argument to this function will be partially destroyed, this is necessary to increase the efficiency of the routine. The user should employ {\ttfamily copy.deepcopy()} to replicate {\ttfamily mesh\_info} before it is passed to {\ttfamily skin\_mesh()}, if the  user wishes to retain the original mesh data.
+
+
+The output from this function is the same as any other {\ttfamily mesh\_info} and can be passed to other functions, just as the output of {\ttfamily mesh.tolists()}. The command used to order the mesh for figure \ref{fig:onion} is shown below.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> layers, intervals = nmesh.visual.skin_mesh(mesh_info, condition='>=1')
+\end{lstlisting}
+
+
+
+\newpage
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width=9in]{visualfigures/onion}
+\caption{{\em The end effect of using }{\ttfamily skin\_mesh()}{\em and ExtractUnstructuredGrid. }(visual\_skinning.py) \label{fig:onion}}
+\end{center}
+\end{figure}
+\end{landscape}
+
+
+
+\section{Processing VTK data}
+The functions described in this section are all related to creating and handling VTK datasets. {\ttfamily nmesh.visual} exclusively uses vtkUnstructuredGrid datasets, these should be appropriate for any work with meshes from {\ttfamily nmesh}. 
+
+\subsection{{\ttfamily mesh2vtk()}}
+This function takes a {\ttfamily mesh\_info}, either in its original form or after manipulation by the functions from the previous section. It creates a vtkUnstructuredGrid dataset from it, automatically deciding when to use triangles or tetrahedra. If the user wishes, additional information about the mesh can be provided. This does not increase runtime because these data are generated in any case. This extra data is returned by changing the input argument {\ttfamily VTKonly} to be False. The following lines show the two possible calls to this function:
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> vtkData = nmesh.visual.mesh2vtk(mesh_info)
+>>> data = nmesh.visual.mesh2vtk(mesh_info, VTKonly=False)
+\end{lstlisting}
+The first line produces a VTK dataset called {\ttfamily vtkData}, this can be visualised in MayaVi or have additional data appended to it by {\ttfamily append2vtk()}. The second line produces a list called {\ttfamily data}. The first element of this list is the same VTK dataset, the second element of the list is a list of the points in the mesh. These points will be in three dimensions even if the input mesh was only in two dimensions. The third element of {\ttfamily data} will be a list of triangles or tetrahedra. Each shape is simply a list of three or four indices of points in the list contained in the second element of {\ttfamily data}. The fourth element is a list of the indices describing which part each simplex belongs to. The fifth element of {\ttfamily data} is a list of the incircle radii for the simplices and the sixth element is a list of the circumcircle radii.
+
+There are many possible applications for the additional data output by {\ttfamily mesh2vtk()}. The list of simplex indices can be appended to the VTK dataset as cell data, this way all the cells of a part will share the same value. This can be useful for displaying different parts in different colours. Also, the lists of inradii and circumradii can be sent to {\ttfamily findRatios()} and a useful quality metric is returned. This quality metric can be appended to the VTK data as cell data and each simplex of the mesh can be coloured according to its quality; this is exceptionally useful for the visual analysis of mesh quality. Alternatively, this quality data could be analysed statistically, perhaps to find the mean quality or to plot a histogram. 
+
+
+
+\subsection{{\ttfamily append2vtk()}}
+A vtkUnstructuredGrid, as produced by {\ttfamily mesh2vtk()} can have a variety of additional data added to it. This data can either be associated with the points in the grid ({\em point data}), or with the cells ({\em cell data}). {\ttfamily append2vtk()} simplifies the process of adding either type of data to a mesh. As described in the last paragraph of the previous section, the part indices for each simplex could be appended:
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> vtkData2 = nmesh.visual.append2vtk(vtkData, indices, "Part indices")
+\end{lstlisting}
+The VTK dataset is given first, then the data to be appended to it and finally a title for the data set. The resulting VTK data has been visualised in figure \ref{fig:partindices}, the reader can see that each part has a different colour. This is because a colour scale, dependent upon the part index, has been applied. Figure \ref{fig:in2circdata} shows a different scalar data set applied as cell data to a mesh. In this case the mesh is of a frustum, the cells have been coloured according to their regularity. More regular cells are blue, highly irregular cells are red.
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.85\textwidth]{visualfigures/partindices}
+\caption{{\em A mesh with simplices coloured by which part they belong to. }(visual\_separate\_parts.py) \label{fig:partindices}}
+\end{center}
+\end{figure}
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.85\textwidth]{visualfigures/in2circdata}
+\caption{{\em A mesh where simplices have been coloured according to their regularity.} (visual\_in2circ2d.py) \label{fig:in2circdata}}
+\end{center}
+\end{figure}
+
+
+By default data sets are appended as cell data, but by changing the optional argument {\ttfamily sites} to be {\ttfamily 'point'}, data can be appended to points instead. If the list of data to be appended does not have an entry for each site, an error will arise. To clarify, a mesh with say 500 simplices, must be given a list of cell data with 500 values. An example of a mesh with point data appended to it is shown in figure \ref{fig:pointdata}. In this case the data is vectors showing the direction of a magnetic exchange field, the mesh is of a bar viewed along its axis. {\ttfamily append2vtk()} allows 3D vector, or scalar data for point data. Cell data can only be scalar data. This limitation is imposed by {\ttfamily append2vtk()} not be VTK's data structures.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{visualfigures/pointdata}
+\caption{{\em A mesh with vector point data appended. }(example\_for\_tf.py) \label{fig:pointdata}}
+\end{center}
+\end{figure}
+
+
+
+\subsection{{\ttfamily findRatios()}}
+This function accepts two lists and returns a single list of the same length. The i'th element of the returned list is found by dividing the i'th element of the first input list, by the i'th element of the second input list. Optionally the argument {\ttfamily factor} can be set, this way each element of the returned list will have been multiplied by the value of {\ttfamily factor}. This function is useful because many of the quality metrics for unstructured meshes are found by dividing one property by another. For example, a good measure of the regularity of a triangle or tetrahedron is:
+\[
+\frac{\mathrm{inradius}}{\mathrm{circumradius}}.
+\]
+When multiplied by a factor of 2 for triangles or a factor of 3 for tetrahedra, this value will be unity for a regular shape and approach zero for distorted shapes. This metric was applied to the mesh in figure \ref{fig:in2circdata}. It was calculated with the following entry and then applied to the VTK data by use of {\ttfamily append2vtk()}.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> in2circ = nmesh.visual.findRatios(icradii, ccradii, factor=3)
+\end{lstlisting}
+The returned list is one-dimensional.
+
+
+\subsection{{\ttfamily findAngles()}}
+This function finds all of the internal angles of a triangular mesh. Typically this data is used to plot a histogram, a good mesh will predominantly have angles of $60^{o}$. To create a list of all the internal angles of a mesh the following command should be used.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> angles = nmesh.visual.findAngles(mesh_info)
+\end{lstlisting}
+The returned list is a list of three element lists. Each three element list contains the internal angles of a triangle. It would therefore be possible to reduce the list to contain the largest, or the smallest, angle for each triangle and append this to a mesh as cell data. To append the data using {\ttfamily append2vtk()} the user would first have to make the list one-dimensional, this can be done by using the {\ttfamily ravel} function from the {\ttfamily Numeric} libraries:
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> import Numeric
+>>> linear-list = Numeric.ravel(list)
+\end{lstlisting}
+
+
+
+
+\subsection{{\ttfamily save\_vtk()}}
+This function simply allows the user to save a VTK dataset to a file in the following manner.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> nmesh.visual.save_vtk(vtkData, "mesh.vtk")
+\end{lstlisting}
+The first argument is the VTK dataset to be saved, the second is the file to save it to. The reader is advised to stick to the convention of naming these files with the extension {\ttfamily .vtk}. These files can be viewed by anyone with a VTK visualiser, such as MayaVi.
+
+Saving your VTK data is not only useful to view results at a later stage or on another machine; it is also the only way of making data available to MayaVi on systems where the library {\ttfamily vtkpython} is not present.
+
+
+
+
+
+\section{Visualising VTK data with MayaVi}
+This section describes the use of {\ttfamily nmesh.visual} visualisation functions. A guide to using MayaVi is a separate issue and has been provided in section \ref{sec:mayaviguide}.
+
+\subsection{{\ttfamily mesh2mayavi()}}
+This function accepts either a VTK dataset as it's input, or the filename for a VTK file as a string. If the VTK data is not provided as a file, {\ttfamily vtkpython} must be present on the system. There is also a minor memory leak associated with the function in this case. Therefore, in general, the reader is advised to save data to a file first. 
+
+There are a few options available to the user with this function. The handle on an existing MayaVi window can be provided by assigning the optional argument {\ttfamily myv}. This will cause the visualisation to appear in an existing window, rather than opening a new one. The function returns the handle on the MayaVi window it uses, so if one was provided it is returned; if not, a handle on the window which was created by {\ttfamily mesh2mayavi()} will be returned.
+
+The argument {\ttfamily module} can be given a string which is the name of the module to be loaded in MayaVi. By default the SurfaceMap module is used, but other suitable options could be Outline, Axes or Glyph. Finally, if the VTK dataset has cell data appended to it, MayaVi will automatically apply colour scaling to the mesh. This uses a Look-Up-Table (LUT) to assign a different colour to different values of the cell data. The user can specify the range of this colour scale by assigning a two element tuple to the argument {\ttfamily lut\_range}. For example, with the ratio used in figure \ref{fig:in2circdata} the range {\ttfamily lut\_range=(0,1)} was specified.
+
+Please read the following lines and try to decide what they will do. The variable {\ttfamily v} is a handle on a MayaVi window, ie: {\ttfamily v = mayavi.mayavi()}.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> v1 = nmesh.visual.mesh2mayavi(vtkData, myv=v)
+>>> v2 = nmesh.visual.mesh2mayavi("mesh.vtk", lut_range=(0,10))
+\end{lstlisting}
+The first line of code visualises a VTK dataset from memory, using the existing MayaVi window handled by {\ttfamily v}. The second line creates a new MayaVi window and displays the data from file {\ttfamily mesh.vtk} in it. The colour scale used in the second example is forced to span data in the range 0 to 10.
+
+
+\subsection{{\ttfamily rotate()}}
+This function simply alters the position from which a mesh is viewed in a MayaVi window. The inputs are {\ttfamily myv} which is the handle on the MayaVi window in question, and a value in degrees for the roll, pitch or yaw required. If none of the angles are specified the view is not changed. All angles are optional, so the view can be rolled but not pitched, etc. Any angle can be given for roll or yaw, the angle given for pitch will yield confusing results if less than $-85^{o}$ or greater than $+85^{o}$. The function does not return anything.
+
+Please consider the following lines, where v is the handle on a MayaVi window.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> rotate(v)
+>>> rotate(v, roll=20, yaw=-10)
+>>> rotate(roll=5, pitch=5, yaw=5)
+\end{lstlisting}
+The first line does nothing, because no rotations are requested. The second line rotates the view by $+20^{o}$ and $-10^{o}$. The third line will raise an error, because the function has not been told which MayaVi window to apply these changes to.
+
+\subsection{{\ttfamily export\_visualisation()}}
+To save an image from a MayaVi window this function should be used. It requires the handle on a MayaVi window and a filename as a string, for it's inputs. The format of the saved picture will be {\ttfamily .png} or {\ttfamily .eps} depending upon the filename given. In actuality, if a {\ttfamily .eps} is requested, a {\ttfamily .eps.gz} will be saved. This should be uncompressed before used in \LaTeX but can be left untouched for viewing in GhostView. It is important to note that this function works by capturing the image on the screen, so if another window is over the top of the MayaVi window, this will be included in the saved image as well. No simple method for off screen rendering exists.
+
+Examine the following:
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> nmesh.visual.export_visualisation(v, "mesh.png")
+>>> nmesh.visual.export_visualisation(v, "mesh.eps")
+\end{lstlisting}
+The first line saves a {\ttfamily .png} file and the second saves a {\ttfamily .eps.gz} file. Note that this function can only save {\ttfamily .png} files on Microsoft Windows systems. The facility to save {\ttfamily .eps} works only on Linux and UNIX machines.
+
+
+
+\section{High-level convenience functions}
+\subsection{{\ttfamily basic\_solid()}}
+This function uses a sequence of the functions mentioned so far to visualise a mesh as a solid, green in colour. The index describing which part each simplex belongs to is appended, but not used to colour the mesh. The function requires a {\ttfamily mesh\_info} as input. Optionally the user can opt to view only a selection of the parts in the mesh by specifying {\ttfamily part} in the same way as {\ttfamily listOfParts} for {\ttfamily separate\_parts()}. Similarly, the mesh can be ordered using {\ttfamily order\_mesh()} by giving the optional input argument {\ttfamily order} an integer value between zero and two. Ordering can only be chosen when the argument {\ttfamily part} is not given, or is an integer. Finally, this function will draw in an existing MayaVi window if given the handle as argument {\ttfamily myv}.
+
+Examine the following code.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> v1 = nmesh.visual.basic_solid(mesh_info)
+>>> nmesh.visual.basic_solid(mesh_info, part=1)
+>>> v2 = nmesh.visual.basic_solid(mesh_info, order=2, myv=v)
+>>> v3 = nmesh.visual.basic_solid(mesh_info, part=[[1,2],[2,3]], order=1)
+\end{lstlisting}
+Line one simply generates an image of the mesh described by {\ttfamily mesh\_info}. Line two visualises only part 1 of the mesh in {\ttfamily mesh\_info}, also in this situation the returned MayaVi window handle has not been captured. The third line displays the mesh in the existing MayaVi window with the handle {\ttfamily v}. This time the mesh has been ordered in the z-axis, so by use of the filter ExtractUnstructuredGrid the user can remove simplices according to their position along this axis. Finally, the fourth line will raise an error, because it has asked for multiple mesh parts to be ordered. Whilst this might work, it could be very confusing to view, so the user is advised to re-think their request. If this process truly is desired, the user must achieve it manually through use of {\ttfamily separate\_parts()} and {\ttfamily order\_mesh()}.
+
+
+\subsection{{\ttfamily basic\_surface()}}
+This represents meshes in a similar way to {\ttfamily basic\_solid()}, but shows only the surface elements. For a 3D mesh this will be the surface triangles and for a 2D mesh this will be the outline of the shape meshed. The user can choose which part(s) they wish to view, just as in {\ttfamily basic\_solid()}. Likewise, the function can use an existing MayaVi window. A handle on the MayaVi window used is returned.
+
+
+\subsection{{\ttfamily wireframe()}}
+This function will do the same as {\ttfamily basic\_solid()}, but displays the mesh as a wireframe not as a solid. The part(s) to be viewed can be selected and an existing MayaVi window can be used. A handle on the MayaVi window used is returned.
+
+
+
+\subsection{{\ttfamily solid\_in2circ()}}
+This function will calculate the ratio of inradius to circumradius and multiply it by a factor, such that the value for an ideal element is 1 and bad elements tend to 0. This will be applied as scalar cell data, so each mesh simplex will be coloured according to the value of this metric. A legend for the colour scale will be displayed. As with {\ttfamily basic\_solid()} the part(s) to be viewed can be chosen, the mesh can be ordered and an existing MayaVi window can be used. Unlike the other three functions in this section, which all return the handle on the MayaVi window they use, this function also returns the list of inradius to circumradius ratios for the mesh.
+
+
+
+
+\section{Other functions}
+There are various other functions contained within the {\ttfamily nmesh.visual} library. Some of these have been omitted because they have been inherited from other areas where they have been documented, others because they have little obvious use. Details on all the functions within {\ttfamily nmesh.visual} can be found by entering the following in a Python interpreter.
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> import nmesh
+>>> help(nmesh.visual)
+\end{lstlisting}
+More detailed explanations of how the functions work can be found in the developer's documentation, see appendix \ref{app:sourcecode}.
+
+
+
+
+\section{A couple of examples}
+
+\subsection{Cross-section of a mesh skin}
+The code below was used to create the mesh visualisation shown in figure \ref{fig:crosssection}.
+
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+>>> mesh_info = nmesh.visual.outer_skin(mesh_info)
+>>> v = nmesh.visual.basic_solid(mesh_info, order=1)
+\end{lstlisting}
+
+Note that if you were using the functions {\ttfamily outer\_skin()} and {\ttfamily order\_mesh()} manually, it would be more efficient to use them in that order. This way {\ttfamily order\_mesh()} has far fewer simplices to consider.
+
+
+\newpage
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width=9in]{visualfigures/crosssection}
+\caption{{\em The cross-section of the outer skin of an ellipsoid mesh. }(visual\_cross\_section.py)\label{fig:crosssection}}
+\end{center}
+\end{figure}
+\end{landscape}
+
+
+
+\subsection{Ordering mesh by its quality}
+The code below was used to create the visualisations in figures \ref{fig:best200} and \ref{fig:worst200}.
+Once the code has been entered the menus in MayaVi can be used to apply the ExtractUnstructuredGrid filter and set the CellMinimum and CellMaximum. 
+
+\begin{lstlisting}[basicstyle=\small\ttfamily][basicstyle=\tiny]
+>>> data = nmesh.visual.mesh2vtk(mesh_info, VTKonly=False)
+>>> icradii = data[-2]
+>>> ccradii = data[-1]
+>>> in2circ = nmesh.visual.findRatios(icradii, ccradii, factor=3)
+>>> mesh_info2 = nmesh.visual.order_mesh(mesh_info, data=in2circ)
+>>> v = nmesh.visual.solid_in2circ(mesh_info2)
+\end{lstlisting}
+%\end{document}

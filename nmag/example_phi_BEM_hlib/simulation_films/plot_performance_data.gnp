@@ -1,0 +1,41 @@
+set term postscript eps enhanced color 
+set out "performance.eps"
+
+set multiplot
+set size 1.0,0.32
+set lmargin 10
+set xtics 4000
+set mytics 2
+set format y "%4.0f"
+set key left top
+
+#bottom plot
+set origin 0.0,0.0
+set autoscale y
+set ytics 2000 
+set xlabel "Number of Volume Nodes" 
+set ylabel "Sim. Time [s]" 
+plot "timings_full.dat" using 1:4 notitle with linespoints , \
+     "timings_hlib.dat" using 1:4 notitle with linespoints
+
+unset xlabel
+set xlabel ""
+set format x ""
+
+#middle plot
+set origin 0.0,0.33
+set ytics 200
+set ylabel "Setup Time [s]"
+plot "timings_full.dat" using 1:3 notitle with linespoints , \
+     "timings_hlib.dat" using 1:3 notitle with linespoints
+
+#top plot
+set origin 0.0,0.66
+set ytics 200
+set ylabel "Memory [MB]"
+plot "timings_full.dat" using 1:2 title "full BEM" with linespoints , \
+     "timings_hlib.dat" using 1:2 title "H-Matrix" with linespoints
+
+unset multiplot
+pause -1
+

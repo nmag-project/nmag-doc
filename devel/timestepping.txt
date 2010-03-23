@@ -1,0 +1,124 @@
+
+How Timestepping works in Nsim
+==============================
+
+1. History and general remarks
+------------------------------
+
+Timestepping in Nsim is a much more tricky issue than with purely
+batch-based systems such as Magpar. The problem is that control flow
+can be nondeterministic - i.e. depend on external input, such as user
+input, given at run-time only. This is, as it stands, not easily
+integrated with the MPI execution model.
+
+Our first approach to timestepping was to provide all the
+micromagnetism-specific functions in a "box", which can be used from
+the master process to execute certain sequences of (potentially
+parallelized) linear algebra computations. While this simplifies the
+structure of the code, we had to discover that this is impractical, as
+the linear solvers required for time integration need about as much
+computational effort as the determination of the demagnetising field -
+which we initially thought to be the only hard bit of the computation.
+
+So, the next iteration was to use a centrally coordinated time
+integrator which also can reach out into the parallelization mechanism
+via a second pathway and utilize parallelized linear solvers for its
+own linear algebra. This actually turned out to work well to some
+degree, but was found to be rather impractical, as the communication
+overhead involved in sending back and forth vector data across the
+cluster killed scalability of the time integrator (while the actual
+computation of the configuration velocities did show scaling behaviour
+that seemed quite promising.)
+
+So, we needed a third generation of time integration code. (Rather, a
+fourth, because we started out with a simple predictor-corrector time
+integrator which is hopelessly unsuitable for a stiff system such as
+micromagnetism.) Here, the idea is to extend the
+box-of-parallel-tricks, which already includes parallel setup of
+operators, parallelised linear equation system solvers, parallel
+site-wise execution of non-linear operators, etc., by parallelised
+time integration.
+
+What complicates matters is that we also have to support periodic
+boundary conditions, i.e. a physical degree of freedom may appear more
+than once in the configuration vectors fed into the "machine" that
+computes velocities. These "mirage copies" of physical degrees of
+freedom should not be kept in the configuration vectors themselves, as
+the time integrator may have trouble with them, so the mapping of 
+y/ydot vectors to and from physical configurations is a bit tricky.
+
+2. Strategy
+-----------
+
+To be written
+
+3. Implementation
+-----------------
+
+The CVODE integrator provided by the Sundials library requires five
+"support functions" to be implemented. In principle, it can do without
+knowing the Jacobian, but in the end, not providing one will seriously
+reduce performance.
+
+1. J*v (Jacobi-times-vector)
+
+   y_in -> y_out
+
+2. re-Jacobi
+
+   Rebuild Jacobi matrix for a given present configuration encoded in
+   some state vector y:
+
+   y_par -> y_multiseq -> physical,primary_multiseq ->
+   physical,primary_par -> physical,dependent_par ->
+   physical,dependent_multiseq -> Jacobian
+
+3. RHS evaluation:
+
+   y_par -> y_multiseq -> physical,primary_multiseq ->
+   physical,primary_par -> physical,dependent_par ->
+   RHS_par -> RHS_multiseq -> ydot_multiseq -> ydot_par
+
+4. Preconditioner Solver:
+
+   y_par -> y_par,solved
+
+5. Preconditioner Setup:
+
+  gamma, Jacobian -> 1-gamma*J   
+
+NOTE: in the present implementation, the Jacobi matrix is shortened
+(i.e. does not include "mirage" periodic-boundary-conditions copies of
+entries) and operates on PBC-shortened vectors.
+
+Evidently, these individual pieces need access to the same
+(distributed and local) resources. The plan is to collect all this in
+some distributed "timestepper data structure", which must provide:
+
+- Handles to the (distributed) physical fields containing (in
+  micromagnetism) m, H_exch, H_anis, H_total.
+
+- multisequential buffers for the relevant primary and derived
+  physical fields.
+
+- a "buffer" for the preconditioner KSP matrix (to be populated later)
+  and the KSP used by the time integrator as a linear solver. 
+  (-> matrix option refs, to be destroyed by the time integrator
+  finalizer!)
+
+- multisequential buffers for the y and ydot vectors.
+
+Notational conventions:
+
+ * stuff holding parallelized vectors will have a _pv suffix.
+
+ * stuff holding multisequential vectors will have a _msv suffix.
+
+ * stuff holding y/ydot vectors will be named y/ydot
+ 
+ * When using a linear solver, we use "in" and "out" to denote what goes
+   into and out of the solver.
+
+ * "physical" vectors will be named "pphys" or "dphys", or just
+   "phys", which subsumes pphys and dphys.
+

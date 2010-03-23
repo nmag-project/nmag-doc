@@ -1,0 +1,502 @@
+
+On Pycaml Memory Management
+===========================
+
+One of the ugly problems of creating an interface between different
+high-level(*) languages, such as Python and Objective Caml, is that
+usually, both systems have their very own ideas about memory
+management.
+
+(*) For our purposes, "high-level" is supposed to mean: "high-level
+from the perspective of a C programmer." The major distinguishing
+feature of all these systems presumably is that they include some
+memory management subsystem, which may be as elaborate as a
+full-fledged generational garbage collection, or just a simple set of
+conventions for reference counting. Indeed, the Python/OCaml
+combination exhibits just this combination.
+
+In an ideal world, there would be a generally-agreed-upon single,
+verified, fast, stable, proper implementation of a garbage collection
+which everyone who is building a higher-level language is using. That
+way, inter-language interfacing would be simplified considerably,
+because one and the same memory management system could take care of
+any kind of data, regardless of whether it represents some internal
+data structure for system A or system B. If, as is usual, both systems
+bring along their own memory management, we have to make sure that
+wrapping up an A-value inside a B-container and vice versa will make
+sure that both memory management subsystems have proper ideas about
+when a value becomes "unreachable" and hence may be reclaimed. Aside
+from coding complexity issues, some garbage collectors - especially
+stop-and-copy GCs like that of CMU common lisp - like to monopolize
+all or large portions of address space, and hence cannot be combined
+easily and freely with other memory management systems. 
+
+Actually, there is a quite miraculous library that comes close to this
+ideal: the Boehm-Demers-Weiser garbage collecting malloc library
+(Debian package libgc6). This provides a drop-in replacement for
+libc's malloc() and free(), where free() is just a do-nothing
+function, and malloc() will magically take care of properly freeing
+memory regions that became unused. A few simple tests demonstrate that
+libgc6 is a very fast garbage collection that compares favorably with
+those of Java, CMU CL, and OCaml. Indeed, it is used in quite a few
+scheme systems, such as Bigloo, and using libgc should be strongly
+recommended to any C programmer in the world unless he has very good
+reasons not to use it. (Using libc's malloc()/free() nevertheless in
+order to get guarantees on execution time usually is misguided, as
+libc's free() may have to do a lot of quite difficult work in some
+situations and hence does not provide any guarantees on maximum run
+time either.) How can this work, as systems with a proper GC go to
+great lengths using tricky tagging schemes and such in order to
+discern between pointers and non-pointer values, while C does not at
+all care about these issues? The answer is simply that libgc uses
+"conservative" heuristics: whenever a value is found on the heap which
+looks like a pointer into the heap, we better assume that it really is
+such a pointer. This may lead to some memory never being reclaimed,
+but the situations where this actually leads to problems are very,
+very rare indeed. Actually, this is not that much worse than other
+systems as it sounds: proper functional language implementations such
+as CMU CL have the problem that when a GC is triggered, they have to
+scan the whole heap for reachable objects starting from just a few
+roots. At GC invocation time, processor registers may or may not hold
+such GC roots, so the GC must have means to discern. For CPUs with
+many registers (32 is usual among RISC CPUs such as the SPARC,
+PowerPC, ARM and the like), one can easily partition the register set
+into heap-pointer registers and non-heap-pointer registers. As x86
+machine language only provides eight registers, this is not a good
+option, and so, systems like CMU CL on x86 prefer to conservatively
+treat any register value as a potential heap pointer when GC'ing.  One
+issue with libgc6 is that obviously, it cannot move and compact heap
+values, but has to use mark-and-sweep, which may lead to memory
+fragmentation - hence, it is worse than many systems that can do a
+heap-compacting stop-and-copy GC, but at least, it is not worse than
+the original malloc() in that respect.
+
+Sometimes, it even is a good idea to use features such as LD_PRELOAD
+to force a binary program to use libgc6 - a cavalier way to fix memory
+management problems in other people's code without actually even
+having to look at the source! There once even was a patch for python
+which just disabled python's internal reference counting and made it
+use libgc. One disadvantage of this conservative collector, however,
+is that it does not give strong guarantees that a value actually will
+be collected as soon as it became unreachable, and hence, if one
+registered finalizers that do some cleanup work on such a value, these
+may end up not being called as expected. Of course, libgc will not do
+any good if pointers are "hidden" by writing them to disk or mangling
+them in evil ways (such as using pointer1 xor pointer2 to halve the
+amount of memory required for pointers in a doubly linked list: if we
+xor this with the pointer through which we reached the current
+position, we will get the other pointer). As it seems, it may not work
+to make the perl5 interpreter just use libgc, as it occasionally uses
+e.g. negative indices on pointers.
+
+If libgc is not an option, we usually have to do it the hard
+way. Considering the task of interfacing OCaml with Python, we have to
+remember that OCaml's memory management is a generational
+stop-and-copy garbage collector, while Python primarily uses simple
+reference counting (which is conceptually broken anyway, but everyone
+knows this). We want to wrap up python values inside ocaml values and
+vice versa. Quite in general, as we are interfacing two memory
+management systems to one another, the following things can go wrong:
+
+1.: [OCaml-side bug]: An OCaml value that became garbage is not freed.
+
+2.: [OCaml-side bug]: An OCaml value that is still active
+       is considered as garbage.
+
+3.: [Python-side bug]: A python value that became garbage is not freed.
+
+4.: [Python-side bug]: A python value is still active is considered as
+    garbage.
+
+In addition, we theoretically may encounter an awkward situation which
+is of little relevance in the real world, but we nevertheless should
+mention this issue:
+
+5.: For deeply nested A-inside-B-inside-A-inside-B values (such as a
+Python function being defined in terms of an OCaml closure which also
+contains Python values that encapsulate Ocaml callbacks which are
+closures over ocaml-wrapped Python values that contain ocaml pills -
+this situation is not as unusual as it sounds!), if at least one of
+the systems A,B uses a proper garbage collection, it may take multiple
+GC runs to completely reclaim such a value. Reason: suppose the GC
+scans the heap and finds some inner entity of this russian doll being
+referenced (through some "special alien pointer into the heap") and
+hence alive. The GC hence learns that it must not reclaim that inner
+entity. Later on, it runs across the outermost entity and reclaims
+that level, which may trigger reclamation of the next-inner level of a
+value in the other system. This will remove the "special alien pointer
+into the heap" and ensure that !!upon the next GC run only!!, the
+inner entity that was regarded as being live will have a chance of
+being collected.
+
+Usually, this effect does not cause serious problems, but it is there,
+and is an indication that it's somehow awkward and inappropriate to
+use and interweave different memory management systems. A
+monotheistical approach with a proper fast lisp compiler system at the
+base would be the best, but this is, of course, just a dream.
+
+We also have to take into account that OCaml can move around values
+inside its data heap when collecting garbage, while Python does
+not. This means that,
+
+* If we inadvertedly lose an OCaml pointer, which should have stayed
+  visible towards the OCaml GC, we typically are bound to get a crash
+  soon. Why? Pointers not seen by the GC are not corrected when
+  objects are moved around, and hence a GC run may create a "wild
+  pointer" pointing to junk data on the heap, which is almost bound to
+  go boom if the GC tries to scan through this pointer on some
+  subsequent run. (After all, it will assume that all the data pointed
+  to by heap pointers adhere to certain conventions that allow the GC
+  to put its "I have seen this before" flags and such.)
+
+* If we inadvertedly lose a Python pointer (through decreasing
+  its reference counter by mistake), things may turn out to work
+  well for some time after, until that region of memory is being 
+  overwritten.
+
+* If we inadvertedly keep a Python pointer alive, this will lead to
+  memory not being reclaimed. This may have another unexpected effect:
+  if we pile up more and more garbage that way, and this garbage
+  contains wrapped-up OCaml values, every single one of them has to
+  provide an extra entry point into the OCaml heap for the OCaml GC.
+  The effect would then be that the run time of OCaml's GC will increase
+  linearly over time as our program proceeds.
+
+* We actually cannot inadvertedly keep an OCaml pointer (except
+  through an inadvertedly kept Python value). If we hold on to it,
+  we have it. If not, it might get collected (provided it is 
+  otherwise unreachable as well.)
+
+In our system, at least for now, OCaml will be in charge and start the
+Python subsystem, which mostly behaves just like some funny C
+library. We may turn this around later on, but even if we do so, this
+means that our interface code is being written as a C extension to
+OCaml that uses libpython functions. In particular, OCaml will use
+libpython primitives to dynamically create a new Python module called
+"ocaml", through which it will publish (by calling libpython functions
+that manipulate the symbol dictionary) callbacks into OCaml code.
+
+The OCaml side of this interfacing business now is quite
+straightforward: If we just to take care that whenever we handle some
+OCaml value in C code, the OCaml garbage collector can see this value,
+we are on the safe side. This means in particular:
+
+- We should NEVER use OCaml's Field() macro as a lvalue
+  (though that's technically speaking quite possible).
+  When writing data to tuples, we have to use Store_field()
+   and such.
+
+  Actually, OCaml as it is distributed requires to use Field() as a
+  lvalue when writing C data into a custom block (because we must not
+  send the GC scanner through some obscure C pointer). In order to
+  nevertheless maintain this pretty nice convention of never using
+  Field() as a lvalue, and for the additional benefit of better code
+  documentation, we use our own Store_C_field() macro.
+
+- Whenever we get OCaml value parameters passed into a function, we have to
+  tell the OCaml GC that we will handle these entities locally in our C
+  code. The same goes for any new memory-allocated OCaml values which we
+  create of our own. Macros from the CAMLparam() and CAMLlocal() family
+  will help us in extending our local frame of OCaml values in an
+  appropriate way to keep the OCaml GC happy. When we extended the frame,
+  we have to make sure to reset it once we leave our function, hence we
+  have to use the CAMLreturn() macro for that purpuse. (In pycaml_stubs.c,
+  there is one function where we have to use these macros even though we
+  are not called from OCaml but C, and indeed we CAMLreturn a C value
+  and not an OCaml value!)
+
+  Sometimes people will tell you that all this GC frame handling is a
+  bit of an overhead that can in principle frequently be reduced; and
+  indeed, some old OCaml C interface code, such as Xavier Leroy's
+  interface to MPI, uses such techniques. The idea is that there are
+  semi-official guarantees that a GC run will only be triggered by an
+  allocation, so as long as you can make sure your code will not
+  allocate memory ("cons", as one might want to say), you need not
+  properly GC-register values. This is, however, very dangerous
+  practice, as it is not well documented, and it violates some
+  fundamental properties of synthesizability: if you eventually want
+  to put just a single extra statement into a complicated piece of
+  code which was written with such "optimizations", and your new
+  statement conses, you will have to make quite dramatic changes,
+  repairing these "old sins". Or you forget about it and get 
+  crashes which are impossibly hard to find.
+
+  The python analogue of precisely this kind of "optimization" is not
+  infrequently used in Python<->C code, and it is interesting to study
+  the following document very closely:
+  
+  http://starship.python.net/crew/mwh/toext/refcounting-conventions.html
+  
+  The last paragraph on this page reads:  
+
+"Bugs of this ilk can be immensely hard to detect. There have been
+quite a few found and squashed even in core Python in recent years,
+and it would be optimistic to assume that none remain."
+
+  Quite amazing that Python is so widely used if such grave potential
+  problems regarding its most fundamental basis - its memory
+  management - remain. Maybe it really would be best to just kill all
+  refcounting and go for libgc.	(At least, I would not use python
+  for anything really important then!)
+
+- Whenever we want to wrap up an OCaml value in such a way that it can
+  be handled by some outside code, we need a non-OCaml-heap allocated
+  pointer to that value, AND the GC must know about this pointer so that
+  it can correct it when it moves the underlying value. This is done
+  by using malloc() to get a small bit of memory on the C heap, putting
+  the pointer there and using register_global_root() to turn this into a new
+  global GC entry point into the OCaml heap. Conceptually speaking, this
+  way of working with extra global entry points is a bit unclean, and it would
+  be nice to have other means to achieve the same effect, but for most
+  practical purposes, it will serve us well.
+
+  We in particular have to do this when we want to wrap up OCaml
+  values in pills that can be reached around as python values. To
+  every pill, we will associate such a global root, and we tell
+  Python's custom de-allocator for these pills to remove the global
+  root if it reclaims the pill - so that the OCaml-wrapped value may
+  become garbage as well.
+
+While our live is not as simple as with the Boehm-Demers-Weiser "don't
+worry, be happy" libgc, this still is at least reasonably
+straightforward: We just have to stick to a few conventions and do not
+have to make any special major decisions, and we are fine.  With
+Python's more primitive memory management facilities, life
+unfortunately is not quite so easy. Here, reference counting is
+used. In the end, we keep on passing around C pointers of type
+PyObject*, but this is just what happens "in the material
+world". There also is a spiritual component to every such action, and
+in conjunction with the pointer itself, we may or may not also pass
+around the responsibility to get rid of that value once it is no
+longer used.
+
+The Python documentation uses special terminology for this, where
+pointers are called "references", but the term "reference" actually is
+used in a slightly ambiguous way and usually means "pointer plus
+obligation to announce so whenever you get rid of it" (by decreasing
+the reference counter, that is).
+
+Typically, functions that return PyObject* values also create and pass
+on special responsibility to announce when that value is lost. For
+example, PyTuple_New() will create and return a new, originally empty
+tuple. As soon as we get such a new tuple, we also hold (part of the)
+responsibility to make sure it is destroyed. Typically, we then
+populate this tuple (which originally does not hold any proper values
+and hence even would be an invalid python value if we just handed it
+over as it is) and eventually return it to our own caller. In just
+doing so, we also pass on responsibility to de-allocate this tuple
+once it is lost.
+
+Suppose we do not return this tuple, but put it into two Python lists
+instead (or twice into the same list, at different positions). Then,
+we have to make sure that all the places through which this tuple is
+reachable share the responsibility to de-allocate it once it becomes
+unreachable. This works as follows: the tuple internally will have to
+keep record somewhere that "it now can be reached in two independent
+ways", and if we properly destroy one path (say, by losing one list -
+but one may also just overwrite the entry), the system will make sure
+- behind the scenes - that this counter is updated and the tuple will
+know that it then is only reachable through one path. If that is lost
+as well, the tuple will tell all its entries that they now are
+reachable through one path less, and afterwards be de-allocated. If in
+this process, any of the tuple's entries become completely unreachable
+as well, de-allocation will proceed accordingly to greater depths.
+
+So much about the theory. What complicates matters is that the Python
+implementors decided that sometimes, they actually just want to
+quickly peek at a value in a situation where they believe to have good
+reason to assume that someone else will take care it will not
+disappear for the time being. That is, there are some functions that
+return a PyObject* which do not as well pass on responsibility to
+announce when this path to the value is destroyed (as it is not
+considered to be a proper path anyway). One speaks of functions that
+return a "borrowed" reference. One may imagine quite a few uses for
+borrowed references. For example, in order to find out whether a list
+contains an entry which is identical (not just equal) to some other
+given Python value, we can arrive at a true/false answer by just
+peeking at list elements in succession (which will not disappear in
+the process, as they are firmly held by the list!), and get away with
+not acquiring responsibility for every single list element and getting
+rid of it again afterwards. This is called "borrowing" a reference,
+and there are a few functions that just return such a "borrowed"
+reference, instead of a proper one. Of course, we can always turn a
+borrowed reference into a proper one (and then put such a value into a
+tuple or return it to our own caller who expects to get a proper
+reference) by just manually increasing its reference count.
+
+Unfortunately, there is no simple clear visual distinction (say,
+through the name of a function, or through C typing tricks using
+wrapper structs that just hold one entry) between functions that
+return proper references and functions that return borrowed
+references. For example, PyDict_GetItemString just returns a borrowed
+reference, whereas PyMapping_GetItemString returns a proper reference.
+Likewise, PyTuple_GetItem and PyList_GetItem only return borrowed
+references, but PySequence_GetItem returns a proper reference. On the
+other hand again, PyModule_GetDict only returns a borrowed reference.
+
+In fact, most functions do return proper references, and only a few
+do not. Actually, the document
+
+http://mail.python.org/pipermail/doc-sig/2001-July/001956.html
+
+claims to provide a complete list, but I think one has to be very
+careful here - to me it does not seem that complete, and it really
+helps to check against the file refcounts.dat from the python sources
+to see whether the reference counts on PyObject* return values are
+increased properly by various functions. Of course, when writing a
+cross-language interface, we have to be far(!) more diligent than an
+ordinary programmer who is just using this interface and may get away
+with accidentally increasing a reference count once too often in his
+highly specific program - some value then will never be de-allocated,
+but that may be okay.
+
+So much about return values. Concerning function arguments, when we
+write a Python extension function that receives PyObject* values, it
+usually does not receive responsibility to de-allocate these values,
+so these references at first must be considered "borrowed". By
+increasing their reference counts, we can turn them into proper
+references, but we only have to do this if we make them visible in
+some other way - by putting them into lists or tuples, returning them,
+or similar actions. If we just want to pass them on to other
+functions, we are fine.
+
+How does then a function like PyDict_SetItemString behave? This will
+add a new key-value pair to a python dictionary, where the key is
+given as a char* C string, and the value is a PyObject*. Actually, it
+will secretly create a PyObject* holding the key as a new python
+string, but let us just forget about the key for now. When making this
+entry, PyDict_SetItemString will automatically take care that the
+reference counter for the value entry is increased by one, as it is
+now reachable through a reachable dictionary. So we do not have to
+increase the reference counter. If however, we do not pass on the
+tuple, and voluntarily "lose" the reference to the newly entered
+value, we have announce so and decrease the reference count by one.
+If, actually, PyDict_SetItemString overwrote another previously
+existing dictionary entry, it will automatically make sure the
+corresponding reference count of that piece of data is decreased.
+
+So, this would be quite simple and straightforward. However, to make
+things a bit more error-prone, there are two functions that behave in
+a different way: PyTuple_SetItem and PyList_SetItem.
+
+They expect a PyObject* argument and also rob the responsibility to
+announce de-allocation. So, they actually just do not increase the
+reference count, and hence, by calling them on a proper reference, we
+lose responsibility for its de-allocation. The underlying reason is
+that one wants to be able to write tuple-creating code in a simple and
+straightforward way by just putting freshly obtained references into
+the tuple without intermediately having to adjust their refcounts. In
+principle, this means that we even sometimes can fill a tuple in a
+<tt>for</tt> loop without having to use an intermediate variable for
+the entries. That seems nice, but indeed, it just helps to complicate
+things a bit.
+
+To make things even worse, there are some functions which actively
+<em>destroy</em> some of the values you give them, such as
+<tt>PyString_ConcatAndDel</tt>.
+
+The upshot of all this is that we - especially as we are proficient C
+hackers, but just casual low-level python hackers - have to be very
+very careful and check with great care when handling C-level Python
+functions how they influence de-allocation responsibility.
+
+Let us for now just assume that most functions do behave in a very
+nice and straightforward way, take references as arguments without
+stealing responsibility for these values, update reference counts
+properly when they create new paths to a value, or destroy paths to a
+value, and always return proper and not borrowed references (that is,
+with de-allocation responsibility) when they return a PyObject*. But
+we have to keep in mind that there are exceptions as well.
+
+How do we deal with this from the OCaml level? If we want to make a
+Python value visible as an OCaml value, it is quite straightforward to
+wrap up a PyObject* in the same way we would also wrap up any other C
+pointer. OCaml's C interface certainly does provide us with
+appropriate facilities for such a task. We just have to make sure we
+also provide custom operations to such an OCaml block wrapping a
+PyObject* that take care of de-allocation. The idea is that by
+wrapping up the PyObject* in an OCaml block on the ML heap, the
+de-allocation responsibility for that python reference is also
+absorbed by that block. Hence, we just tell the OCaml GC to use a
+special finalization function on that block as soon as it is to be
+re-claimed, which is procided by us, and which just decreases the
+Python reference count.
+
+Going the other way round, when we wrap up an OCaml value inside
+Python, we have seen that we must register an extra external pointer
+into the ML heap which is an entry point for the GC. This location
+containing the OCaml heap root is then just an ordinary block of C
+data, and we can easily wrap this up in a Python C object. This is
+quite straightforward as Python, unlike OCaml, never moves its own
+values around in memory. (If it did, we would have had to use a
+C-malloc()'d block containing a registered OCaml GC root pointing to
+the actual value from outside the ML heap, and put a pointer to this
+piece of C space containing just a ML pointer into a Python C object.
+Here, our C pointer can directly go into a Python object instead.)
+
+Of course, we now also have to provide a special de-allocation
+function that removes the global root pointing into the OCaml
+heap. Once we did all this, we are fine.
+
+Almost.
+
+We still have to take care of those few functions which behave a bit
+strange when it comes to stealing references and returning only
+borrowed references. Looking at the original PyCaml source, one
+discovers a few intreresting quirks. Actually, most of the low-level
+Python C API functions that are to be wrapped up for OCaml are called
+through one and the same C function "pygencall", which is interfaced
+towards OCaml with a variety of different type signatures. "pygencall"
+returns functions, and takes just one argument, which is a
+specification of calling and wrapping conventions. Internally,
+functions are grouped into bunches with equal python-C-api-internal
+type, which are represented to the outside with uniform type, and
+hence have to be wrapped uniformly. So, the one argument to
+"pygencall" must provide just the right python-C-api function pointer
+and dispatch index for internal wrapper code that match the static
+type specified in the Ocaml-C interface. (If one called e.g. the
+function <tt>pyfuncall8</tt> with a python function description tuple
+argument that dispatches into the <tt>pyfuncall7</tt> branch, this
+would produce a function that crashes badly upon being called.)
+
+This design may seem a bit strange, and certainly could be improved,
+but still it is somehow neat to do things in such an uniform way (even
+though much unnecessary work gets done at run time that could have
+been done at compile time!). However, one big problem is that PyCaml
+just looks at the type, and originally, functions that have the same
+type signature but behave very differently in terms of Python
+reference responsibility were interfaced through the same wrapper.
+
+What I did was to extend the original Python C API function
+specification triplet
+<tt>(function_pointer,call_format,table_index)</tt> by a fourth
+boolean entry <tt>do_steal</tt> that controls whether wrapping up the
+final python result for OCaml may steal the de-allocation
+responsibility and put it directly into the OCaml cell. For functions
+where this is not possible, we first have to increase the reference
+count to turn a borrowed reference into a proper one. We also use the
+same flag for functions that store away references into sequences of
+different type to determine whether we have to turn the reference we
+got from our caller into a proper reference first.
+
+As for the problem of properly interfacing a statically typed language
+with a dynamically typed one, we already solved this, and this is not
+an issue to discuss here - where we are only concerned with the
+low-level innards of the memory management system.
+
+
+Evidently, our changes constitute a major conceptual modification to
+PyCaml, and the pycaml debian package should be regarded as very very
+badly broken: it did try somewhat sloppily to get memory management
+right, but contained small flaws ML-wise and big conceptual bugs
+OCaml-wise. So, we should see that we get this bug reported and get
+our own variant (with extensions) published instead.
+
+As far as I can see, the grave bugs are fixed now, but there still are
+some exotic functions which we do not handle properly (namely those
+actually destroying Python values), and some others where the original
+PyCaml code looks quite suspicious. For now, I isolated them with
+large amounts of yellow crime scene tape, and what we have now should
+be good enough for our job. But when we clean it up for release, we
+will have to touch these pieces as well.
+

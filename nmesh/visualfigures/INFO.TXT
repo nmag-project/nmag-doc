@@ -1,0 +1,5 @@
+The figures in trunk/interface/nmesh/doc/visualfigures are very large and
+not used for documentation (I think).
+
+We move them to attic/interface/nmesh/doc/visualfigures just in case
+we need to got back to them. (fangohr 19/04/2007)

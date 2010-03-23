@@ -1,0 +1,24 @@
+#!/usr/bin/perl -w
+
+# (C) 2008 Dr. Thomas Fischbacher
+# If we think we were called to assemble a camlstartup file, we move a copy to
+# /tmp/caml.as.$UID/camlstartup.s
+
+my @args=@ARGV;
+
+warn "PERL WRAPPER FOR /usr/bin/as: args:  @args\n";
+
+my $a="@args";
+
+$a=~m:(/tmp/camlstartup.*\.s): and do {
+  my $src=$1;
+
+  my $content=`cat $src`;
+  open OUT, ">camlstartup.s" and do
+    {
+      print OUT $content;
+      close OUT;
+    };
+};
+
+system("/usr/bin/as @args");

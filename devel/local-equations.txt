@@ -1,0 +1,35 @@
+
+Grammar for local field equations.
+
+Rules:
+
+ * Every line will be instantiated with if(have_field1 && have_field2 && ...) { <body> }
+ 
+ * All joker field indices will be made to run over the whole range,
+   using Einstein summation convention. Range has to be provided!
+
+Examples:
+
+========
+%local Some_Tensor(3,3),len_M_sq;
+%ranges i:3, j:3, k:3, l:3, m:3;
+
+dM_dt(i) <-   alpha * eps(i,j,k) * M(j) * H_total(k) 
+            + beta * eps(i,j,k) * eps(k,l,m) * M(j) * M(l) * H_total(m)
+            + gamma * M(i)*(M(j)*M(j)-len_M_sq);
+
+========
+
+Rules (roughly):
+
+* Statements are terminated by a semicolon.
+
+* We have %local lines introducing local variables, either tensors or
+  scalars. 
+
+* Assignments use <- as an assignment sign. Permissible lvalues
+  are tensors.
+
+* We will always fold out all Tensor(j,k) to concrete index instantiations!
+
+

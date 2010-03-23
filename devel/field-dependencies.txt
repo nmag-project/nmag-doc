@@ -1,0 +1,31 @@
+
+One important issue inside the "nsim" simulation framework is the
+dependency tree of fields. There are primary and derived fields, where
+the latter can depend in a complicated way on the former and other
+derived fields.
+
+At present, we use an "inference engine" at the python side to
+determine at the user interface level when what operation has to be
+performed to update an out-of-date field without doing any unnecessary
+work.
+
+In the long run, tighter integration of this coordination dependency
+logic with the nsim linalg_machine would be very desirable (in
+particular, we need a "language" to express fields and their
+dependencies nicely at the same time!)
+
+One issue is that quite many extensions of the basic micromagnetic
+model will go along the lines of "introduce some extra locally
+computable field strengths and energies". One example is a local
+exchange coupling of the form "E = J_12 * m1(k) * m2(k)" and its
+associated effective field strength. Conceptually, this behaves in
+just the same way as H_anis.
+
+While we can do this in a manual ad-hoc fashion at present whenver
+necessary, adding such extensions should work much smoother in the
+future!
+
+Key idea: can we, just by analyzing the structure of the underlying
+equations and looking at the quantities that enter, auto-derive all
+the dependency structure?
+

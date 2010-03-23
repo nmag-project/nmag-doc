@@ -1,0 +1,134 @@
+Restart example
+---------------
+
+Micromagnetic simulations can last for many hours or even many days.
+It is then important to be able to save periodically the state
+of the simulation, in such a way that, if a hardware failure
+or a power cut occurs, the simulation can be restarted
+exactly at the point where its state was last saved.
+In this example we show how an nmag script can be modified
+to be "restartable". The only thing the user needs to do
+is to periodically save the state of the simulation in what we call
+a "restart file". The simulation can then be restarted
+using the appropriate command line option.
+
+The restart feature applies only to the hysteresis_ method.
+
+Saving the state of the simulation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We re-consider the cubic anisotropy example
+(`Cubic anisotropy simulation script`_)
+and replace the last line:
+
+.. include:: last_line.py
+  :literal:
+
+with the following lines:
+
+.. include:: restart_modifications.py
+  :literal:
+
+The first two lines reproduce the default behaviour:
+the fields and their averages are saved at the end of each stage.
+The third line specifies that the restart file should be saved
+at the end of each stage and also every 1000 steps.
+
+For convenience the modified script `cube_restartable.py <../example_restart/cube_restartable.py>`__ is shown below:
+
+.. include:: cube_restartable.py
+  :literal:
+
+Starting and restarting the simulation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We will now demonstrate how the discussed nmag script can be
+restarted. To do that, we will have to interrupt it artificially. We
+start the simulation in the usual way::
+
+  $ nsim cube_restartable.py
+
+We interrupt the execution after the hysteresis loop has started and
+several stages have been computed. Do this by pressing simultaneously
+the keys CTRL and C (in the same terminal window where nsim was
+started), thus simulating what could have been the result of a power
+cut.  We then use the command::
+
+  $ ncol cube_restartable stage step time
+
+to see at what point of the hysteresis loop the simulation was interrupted.
+We obtain (for this particular interruption)::
+
+            1            330  3.320127110062e-11
+            2            480  5.042492488627e-10
+            3            640  9.926580643272e-10
+            4            805  1.464971830453e-09
+            5            980  1.927649646634e-09
+            6           1150  2.406521613682e-09
+            7           1340  2.882400372552e-09
+            8           1515  3.371522550051e-09
+            9           1705  3.863380029345e-09
+           10           1920  4.365560120394e-09
+           11           2095  4.893234441813e-09
+           12           2295  5.436617525896e-09
+           13           2480  5.997866344586e-09
+           14           2680  6.570733097131e-09
+           15           2890  7.172534305054e-09
+           16           3100  7.803577637245e-09
+           17           3315  8.462827284047e-09
+
+The simulation was interrupted at the seventeenth stage.
+We now try to run the simulation again with the command::
+
+  $ nsim cube_restartable.py
+
+obtaining the following output::
+
+       <snip>
+       NmagUserError: Error: Found old file ./cube_restartable_dat.ndt -- cannot proceed.
+       To start a simulation script with old data files present you either need
+       to use '--clean' (and then the old files will be deleted), or use '--restart'
+       in which case the run will be continued.
+
+nsim suggests the possible alternatives. We can start the simulation from scratch with the command (but this will override any data from the previous run)::
+
+  $ nsim cube_restartable.py --clean
+
+or we can continue from the configuration which was last saved::
+
+  $ nsim cube_restartable.py --restart
+
+Here we choose the second possibility.
+After the simulation has finished we issue again
+the command ``ncol cube_restartable stage step time``, obtaining
+the following output::
+
+            1            330  3.320127110062e-11
+            2            480  5.042492488627e-10
+            3            640  9.926580643272e-10
+            4            805  1.464971830453e-09
+            5            980  1.927649646634e-09
+            6           1150  2.406521613682e-09
+            7           1340  2.882400372552e-09
+            8           1515  3.371522550051e-09
+            9           1705  3.863380029345e-09
+           10           1920  4.365560120394e-09
+           11           2095  4.893234441813e-09
+           12           2295  5.436617525896e-09
+           13           2480  5.997866344586e-09
+           14           2680  6.570733097131e-09
+           15           2890  7.172534305054e-09
+           16           3100  7.803577637245e-09
+           17           3315  8.462827284047e-09
+        stage           step          #time
+           <>             <>           #<s>
+           18           3715  8.519843629989e-09
+           19           3975  9.300878866142e-09
+           ...
+
+The two lines between stage 17 and 18 stand as a reminder that the
+simulation was restarted at that point. (They need to be removed
+manually from the ``cube_restartable_dat.ndt`` file, before ncol_ can
+work in the usual way on the ndt file.)
+
+

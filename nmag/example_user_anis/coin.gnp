@@ -1,0 +1,13 @@
+set term postscript eps enhanced color
+set out "coin.eps"
+
+mu0 = 4e-7*pi
+Msat = 1e6
+
+set xlabel "H_0 (T)"
+set ylabel "M/M_{sat}"
+
+plot [] [] \
+  "coin_hloop.dat" u ($1*mu0):($4/Msat)  t  "" w lp 1, \
+  "coin_hloop.dat" u (-$1*mu0):(-$4/Msat)  t  "" w lp 1
+

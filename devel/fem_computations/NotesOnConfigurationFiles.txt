@@ -1,0 +1,43 @@
+
+Goals:
+
+-global configuration file in ?/nmag/nmag.conf
+
+-user configuration file ~/.nmag.conf
+
+Once we run a script, we'd like it to do the same thing
+reproducibly. That means, we need to write a local configuration file
+for every run (if it doesn't exist) that contains all relevant
+settings, and read this file if it exists already.
+
+(The same applies for nmesh parameters, and logging parameters.)
+
+
+
+
+
+places to configure stuff:
+
+the nsimrc file for 
+
+global data
+-library locations such as sundials
+-flags for c compiler 
+
+per run data
+-output directory? (remove -> too complex)
+-global log level
+
+The logging config file (usually in the nmag directory). The location
+is specified in the nsimrc file (so the user can modify the location
+to provide their own).
+
+
+options for command line (overriding everything else)
+
+-run ID
+(-run directory)
+-loglevel
+
+
+

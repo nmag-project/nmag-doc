@@ -1,0 +1,5 @@
+set term postscript enhanced color 
+set out 'no_periodic.ps'
+set xlabel 'Applied field'
+set ylabel 'M / Ms'
+plot 'periodic2_dat.ndt' u 1:9 ti 'Mx' w lp, 'periodic2_dat.ndt' u 1:10 ti 'My' w lp, 'periodic2_dat.ndt' u 1:11 ti 'Mz' w lp

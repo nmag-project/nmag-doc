@@ -1,0 +1,89 @@
+Dr. Hans Fangohr wrote:
+> Update of /var/local/cvs/tf/ocaml/interface/nmag2
+> In directory alpha:/tmp/cvs-serv11479
+> 
+> Modified Files:
+> 	si_units.py 
+> Log Message:
+> Thomas, this looks promising. Could you add one or two examples of how
+> you anticipate this being used at the end of the file? I think that
+> would help me (and maybe Matteo) to get the idea more easily and
+> correctly.
+
+tf@alpha:~/ocaml/interface/nmag2$ python
+Python 2.3.5 (#2, Jul 30 2006, 15:57:01)
+[GCC 4.1.2 20060715 (prerelease) (Debian 4.1.1-9)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+
+>>> execfile("si_units.py")
+
+>>> force = physical(10,["kg",1,"m",1,"s",-2])
+
+>>> time=physical(0.5,["s",1])
+
+>>> force
+<SI: 10.000000  m kg / s^2 >
+
+>>> time
+<SI: 0.500000  s >
+
+>>> momentum=force*time
+
+>>> momentum
+<SI: 5.000000  m kg / s >
+
+>>> momentum.extract(["kg",1,"m",1,"s",-1])
+5.0
+
+>>> momentum.extract(["kg",1,"m",1,"s",-2])
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+  File "si_units.py", line 119, in extract
+    raise "SI extraction - incompatible dimensions: wanted: %s have: 
+%s" %(dummy,self)
+SI extraction - incompatible dimensions: wanted: <SI: 1.000000  m kg / 
+s^2 > have: <SI: 5.000000  m kg / s >
+
+
+There are very few rules to observe:
+
+* arithmetics is defined on SI quantities only: if you want to multiply
+some SI quantity by 5, you should use <si-value>*physical(5,[]) to first
+promote the number 5 to a dimensionless physical quantity.
+
+* Internally, physical numbers are automatically being converted to
+floatingpoint.
+
+* When you want a numerical value, use the extract() method with the
+desired/expected dimensions. You will get an error message if dimensions
+do not match.
+
+The idea is that e.g. the MagMaterial constructor will eventually take
+SI quantities for some of its arguments (such as Ms) and use the
+extract() method to make sure it gets numbers with the proper expected
+dimensions - when it has to pass numbers on to ocaml.
+
+Likewise, our yet-to-be-written python-level all-field-inspector
+will/should presumably return field values as tensors containing SI
+objects.
+
+But I am still a bit unsure about a few details (time/memory
+performance-wise) whether this really such a good idea. At least,
+it certainly would be very nice and eliminate virtually any confusion.
+
+Furthermore, it would be trivial to extend this to support data
+input/output in, say, imperial units as well (if we have "m^2",
+we could easily request "ft^2", and have the system do the conversion
+internally.)
+
+An extension which I would like to see is a parser which would allow us
+to specify physical units dorectly in the form "kg m / s^2" rather than
+the more clumsy ["kg",1,"m",1,"s",-2] - and make this extensible so it
+knows about aliases (e.g. "W" = "kg m^2 / s^3").
+
+But this is non-essential syntactic sugar and basically a nice "student
+homework type" programming exercise.
+
+-- 
+Thomas
+

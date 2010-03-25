@@ -14,7 +14,6 @@ final: update pngformulae htmlfinal pdffinal
 dyn/svnversion.txt:
 	echo ".. |svnversion| replace:: "$$(svnversion -n) > dyn/svnversion.txt
 
-
 #the file svnversion.txt will be part of the repository for released versions
 #(so we don't overwrite it with current svnversion number)
 dynamic: dyn/svnversion.txt

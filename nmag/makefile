@@ -19,7 +19,6 @@ dyn/svnversion.txt:
 #(so we don't overwrite it with current svnversion number)
 dynamic: dyn/svnversion.txt
 	cd dyn; $(NSIM) make_dyn.py; cd ..
-
 	cp $(NSIM_PYTHONPATH)/nsim/si_units/si.py dyn/si.py
 
 #developers can force update of manual with proper svnversion number
@@ -42,7 +41,6 @@ updatefiles:
 html:   
 	mkdir -p html
 	rst2html --strict --stylesheet-path=html/voidspace_2008_03.css --link-stylesheet -v manual.txt html/manual.html -r 1 -g -t -d -s
-
 
 htmlfinal: 
 	echo "Will ignore warnigs (for example 'duplicate implicite targets defined' or so)"

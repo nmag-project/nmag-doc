@@ -1,3 +1,8 @@
+NSIM_ROOT=../../src
+NSIM_BIN=$(NSIM_ROOT)/bin
+NSIM_PYTHONPATH=$(NSIM_ROOT)/interface
+NSIM=$(NSIM_BIN)/nsim
+
 .PHONY: all pngformulae html examples latex updatefiles
 
 all: update pngformulae html pdf updatefiles
@@ -13,9 +18,9 @@ dyn/svnversion.txt:
 #the file svnversion.txt will be part of the repository for released versions
 #(so we don't overwrite it with current svnversion number)
 dynamic: dyn/svnversion.txt
-	cd dyn;  ../../../../bin/nsim make_dyn.py; cd ..
+	cd dyn; $(NSIM) make_dyn.py; cd ..
 
-	cp ../../nsim/si_units/si.py dyn/si.py
+	cp $(NSIM_PYTHONPATH)/nsim/si_units/si.py dyn/si.py
 
 #developers can force update of manual with proper svnversion number
 #with this (non-default) target.
@@ -44,7 +49,6 @@ htmlfinal:
 	mkdir -p html
 	rst2html --stylesheet-path=html/voidspace.css -v manual.txt html/manual.html -r 2
 
-
 latex: pdf
 	echo "Done latex."
 
@@ -57,7 +61,6 @@ pdffinal: pngformulae
 	rst2latex --strict --stylesheet=stylesheet.tex -v manual.txt tex/manual.tex -r 2
 	cd tex; pdflatex manual.tex; mv -v manual.pdf ..
 
-
 htmlnmag: 
 	echo "Writing dyn/nmag.txt to /tmp/test.html"
 	rst2html --strict --stylesheet-path=html/voidspace.css -v dyn/nmag.txt /tmp/test.html
@@ -66,7 +69,6 @@ pngformulae:
 	cd example_stoner_wohlfarth; make pngformulae
 	cd example_larmor; make pngformulae
 	cd tutorial; make pngformulae	
-
 
 scalepngs:
 	python tools/scalepng images/smallsphere.png 5

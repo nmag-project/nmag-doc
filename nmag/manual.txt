@@ -1609,8 +1609,6 @@ converts a the mesh ``mesh.nmesh.h5`` (in h5 format) to the ``mesh.nmesh`` (in a
 
 
 
-
-
 nmeshmirror
 ~~~~~~~~~~~
 

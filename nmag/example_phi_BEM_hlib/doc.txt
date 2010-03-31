@@ -81,7 +81,7 @@ In order to be able to use the HLib_ library and to obtain the HLib source
 code, you have to apply for an HLib licence as explained on
 http://hlib.org/license.html\ .
 
-Once the HLib authors grant a licence, they will send their HLib tarball. Nmag will have to be compiled from source (see `install from source <http://nmag.soton.ac.uk/nmag/0.1/install/install_a.html>`__) in the presence of this tarball to make use of it. 
+Once the HLib authors grant a licence, they will send their HLib tarball. Nmag will have to be compiled from source (see `install from source <http://nmag.soton.ac.uk/nmag/0.1/install/install_a.html>`__) in the presence of this tarball to make use of the HLib matrix compression. (Nmag will compile happily in the absence of this file, and in that case the boundary element matrix is stored 'in the normal way' as a full matrix.) 
 
 We describe the required steps for this in detail.  We assume you
 downloaded the HLib tarball and the Nmag tarball in your home
@@ -101,7 +101,7 @@ Inside the directory ``nmag-0.1`` there is a directory called
 
   me@mymachine:~/nmag-0.1$ cp ../HLib-1.3p19.tar.gz hlib-pkg/
 
-You can now compile Nmag in the usual way::
+You can now compile Nmag with HLib support in the usual way::
 
   me@mymachine:~/nmag-0.1$ make
 
@@ -128,7 +128,8 @@ As you see, the only additional step which is required with respect to the
 normal procedure for compiling Nmag from source, is to put the HLib tarball
 inside the directory ``nmag-0.1/hlib-pkg``.
 
-The current nmag release requires Hlib version 1.3p19.
+The current nmag release requires Hlib version 1.3p19, to support HLib
+matrix compression.
 
 
 Testing the HLib BEM Matrix compression

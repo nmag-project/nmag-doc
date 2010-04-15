@@ -1,7 +1,7 @@
 NSIM_ROOT=../../src
 NSIM_BIN=$(NSIM_ROOT)/bin
 NSIM_PYTHONPATH=$(NSIM_ROOT)/interface
-NSIM=$(NSIM_BIN)/nsim
+NSIM=$(NSIM_BIN)/nsim-raw
 
 .PHONY: all pngformulae html examples latex updatefiles
 
@@ -17,7 +17,7 @@ dyn/svnversion.txt:
 #the file svnversion.txt will be part of the repository for released versions
 #(so we don't overwrite it with current svnversion number)
 dynamic: dyn/svnversion.txt
-	cd dyn; $(NSIM) make_dyn.py; cd ..
+	cd dyn; ../$(NSIM) make_dyn.py; cd ..
 	cp $(NSIM_PYTHONPATH)/nsim/si_units/si.py dyn/si.py
 
 #developers can force update of manual with proper svnversion number

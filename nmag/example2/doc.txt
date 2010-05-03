@@ -419,7 +419,7 @@ square brackets). The first relax instruction is this tuple::
 
   ('averages', every('time',5*ps)
 
-and means that the *averages* should be saved *every 50 picoseconds*. 
+and means that the *averages* should be saved *every 5 picoseconds*. 
 The syntax used here breaks down into the following parts:
 
   * ``'averages'`` is just the keyword (a string) to say that the
@@ -436,7 +436,7 @@ The syntax used here breaks down into the following parts:
       has been defined earlier in our example program to represent a pico-second.
 
     * We can provide further keywords to the ``every`` object (for example 
-      to save the data every ``n`` iteration steps we can use ``every(10,'step')``).
+      to save the data every ``10`` iteration steps we can use ``every(10,'step')``).
 
 Internally, the relax_ command uses the hysteresis_ command, so the documentation of 
 hysteresis_ should be consulted for a more detailed explanation of parameters.

@@ -1605,7 +1605,7 @@ The command::
 
   nmeshpp -c mesh.nmesh.h5 mesh.nmesh
 
-converts a the mesh ``mesh.nmesh.h5`` (in h5 format) to the ``mesh.nmesh`` (in ascii format). Works also in the reverse way. ``nmeshpp`` will save as ``h5`` file in the last extension of the file to write is ``.h5``.
+converts a the mesh ``mesh.nmesh.h5`` (in h5 format) to the ``mesh.nmesh`` (in ascii format). Works also in the reverse way. ``nmeshpp`` will save as ``h5`` file if the last extension of the file to write is ``.h5``.
 
 
 

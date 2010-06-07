@@ -1605,7 +1605,7 @@ The command::
 
   nmeshpp -c mesh.nmesh.h5 mesh.nmesh
 
-converts a the mesh ``mesh.nmesh.h5`` (in h5 format) to the ``mesh.nmesh`` (in ascii format). Works also in the reverse way. ``nmeshpp`` will save as ``h5`` file in the last extension of the file to write is ``.h5``.
+converts a the mesh ``mesh.nmesh.h5`` (in h5 format) to the ``mesh.nmesh`` (in ascii format). Works also in the reverse way. ``nmeshpp`` will save as ``h5`` file if the last extension of the file to write is ``.h5``.
 
 
 
@@ -2099,6 +2099,23 @@ China) kindly provides this solution:
   can get two physical objects as you want.
 
 
+Can I run more than one simulation in one directory?
+----------------------------------------------------
+
+If you want to run two (or more) simulations in the same directory,
+then this is fine as well as long as they have different *simulation names*.
+ 
+The simulation name is either the string given to the constructor of
+the simulation object, or -- if no name is defined explicitly -- the
+name of the python file that contains the simulation script (without
+the ``.py`` extension). See `File names for data files`_ for a detailed
+example for this. 
+ 
+Data and log files will all start with the simulation name, followed
+by some specific appended string and specific file extensions. It is
+thus safe to run simulations with different names in the same
+directory.
+ 
 
 Useful tools
 ============

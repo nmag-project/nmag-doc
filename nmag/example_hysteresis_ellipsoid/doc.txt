@@ -23,7 +23,7 @@ and subsequent visualisation with Mayavi_::
 
 We have further added the axes within MayaVi
 (Visualize->Modules->Axes), and changed the display color from blue to
-red (Double lick on ``SurfaceMap`` in the selected Modules list, then
+red (Double click on ``SurfaceMap`` in the selected Modules list, then
 uncheck the ``Scalar Coloring`` box, click on ``Change Object Color``
 and select a suitable color).
 
@@ -44,7 +44,7 @@ script `ellipsoid.py <../example_hysteresis_ellipsoid/ellipsoid.py>`__:
   :literal:
 
 As in the previous examples, we first need to import the modules
-necessary for the simulatiofgn. ``at('convergence')`` allows us to save
+necessary for the simulation. ``at('convergence')`` allows us to save
 the fields and the averages whenever convergence is reached. 
 We then define the material of the magnetic object, load the mesh and set
 the initial configuration of the magnetisation as well as the

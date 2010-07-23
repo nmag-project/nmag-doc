@@ -1,0 +1,150 @@
+Example: Calculation of dispersion curves
+-----------------------------------------
+
+|Nmag| can be used to study the propagation of spin waves and to calculate
+dispersion curves. Here we consider a simulation script which shows how
+to do that. In particular, we study a long cylindrical wire made of Permalloy.
+We assume the magnetisation in the wire is relaxed along one axial direction
+(i.e. there are no domain walls inside the wire). One side of the wire is "perturbed" at time t=0 by a pulsed magnetic field. The spin waves generated
+on this side propagate towards the other. We want to study the propagation
+of spin waves and obtain the dispersion relation, i.e. a relation between the
+wave vector and the frequency of the spin-waves which propagate in the
+considered media.
+
+In order to carry out such a numerical experiment, we first need to calculate
+the relaxed equilibrium magnetisation, i.e. the one which we perturb with
+the application of a pulsed field. Consequently, the simulation is split into
+two parts:
+
+* In **part I**, the system is relaxed to obtain the initial magnetisation
+  configuration for zero applied field. Such a state is then saved into a file
+  to be used in part II;
+
+* In **part II**, the magnetisation obtained in part I is loaded and used as
+  the initial magnetisation configuration. A pulsed external magnetic field
+  localised on one side of the wire is applied. The Landau-Lifshitz-Gilbert
+  equation is integrated in time to compute the dynamical reaction to the
+  applied stimulus. The configuration of the magnetisation is saved frequently
+  to file, so that it can be studied and processed later.
+
+The two parts are two simulations of the same system under different
+conditions.
+If we then decide to write two separate files for the two parts we end up
+duplicating the fragment of code which defines the materials and load
+the mesh. For this reason we split the simulation in three files:
+
+* ``"thesystem.py"``: defines the material which composes the nanowire and
+  loads the mesh;
+
+* ``"relaxation.py"``: uses "thesystem.py" to setup the system and performs a
+  relaxation with zero applied field. It saves the final magnetisation
+  configuration to a file "m0.h5";
+
+* ``"dynamics.py"``: uses "thesystem.py" to setup the system, loads the initial
+  magnetisation configuration from the file "m0.h5" (produced by
+  "relaxation.py"). It then applies a localised pulse of the applied magnetic
+  field on one side of the wire and compute the dynamical response of the system
+  saving the result to files.
+
+Consequently, in order to run the full simulation the user will have to type
+two commands on the shell, one for each part of the simulation::
+
+  $ nsim relaxation.py
+  $ nsim dynamics.py
+
+(there is no need to type ``nsim thesystem.py`` as this file is implicitly
+"included" by the other two). In the next sections we will go through the
+three files which make up the numerical experiment.
+
+The system: ``thesystem.py``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The system under investigation is a cylindrical nanopillar of radius r=3 nm
+and length l=100 nm. The mesh file ``cylinder.nmesh.h5`` is obtained (using
+Netgen_) from the file `cylinder.geo <../example_nmagprobe/cylinder.geo>`__
+which is shown below:
+
+.. include:: cylinder.geo
+  :literal:
+
+The cylinder is made of Permalloy and as specified in the file
+`thesystem.py <../example_nmagprobe/thesystem.py>`__ shown below:
+
+.. include:: thesystem.py
+  :literal:
+
+The file defines a few entities which are used in both the two parts of the
+simulations: ``nm`` is just an abbreviation for nanometer and similarly
+``ps`` is an abbreviation for picosecond. ``m0_filename`` is the name of the
+file where the relaxed magnetisation will be saved (in part I) and loaded
+(in part II). Finally, the function ``simulate_nanowire`` deals with the
+portion of the setup which is common to both part I and part II.
+In particular, it defines a new material ``permalloy``, creates a new
+simulation object ``s``, load the mesh and associates to it the material
+``permalloy``. Such setup procedure is very similar to what has been
+encountered so far in the manual, the only element of novelty is that here
+we do it inside a function and return the created simulation object
+as a result of the function. The file defined here is not supposed
+to be run by itself, but rather to be used in part I and II.
+
+Part I: ``relaxation.py``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The source for the file `relaxation.py <../example_nmagprobe/relaxation.py>`__
+is shown below:
+
+.. include:: relaxation.py
+  :literal:
+
+The first two lines are used to import entities defined elsewhere.
+In particular, the first line in::
+
+  from thesystem import simulate_nanowire, m0_filename, ps
+  from nmag.common import *
+
+tells to Python to load the file ``thesystem.py`` and "extract" from it the
+entities ``simulate_nanowire``, ``m0_filename``, ``ps``. The second line
+does a similar thing and extracts all the quantities defined in the Nmag
+module ``nmag.common``. This module defines some entities which are commonly
+used in simulations (such as ``every``, ``at``, ``SI``, etc).
+The simulation is then set up using::
+
+  s = simulate_nanowire(name='relaxation', damping=0.5) # NOTE the high damping!
+
+This line invokes the function ``simulate_nanowire``, which does load the mesh
+and associate the material to it. The function returns the simulation object
+which is stored inside the variable ``s`` and is used in the following lines::
+
+  s.set_m([1, 0, 0])
+  s.relax(save=[('fields', at('time', 0*ps) | at('convergence'))])
+  s.save_restart_file(m0_filename)
+
+Here we set the magnetisation along the axis of the nanopillar,
+we then relax the system to find the equilibrium magnetisation.
+We finally save such a configuration in the file ``m0_filename``, i.e. with
+the name specified in ``thesystem.py``.
+
+Part II: ``dynamics.py``
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The source for the file `dynamics.py <../example_nmagprobe/dynamics.py>`__
+is shown below:
+
+.. include:: dynamics.py
+  :literal:
+
+The system under investigation is a 100 x 100 x 10 nm Permalloy film. 
+The mesh is stored in the file
+`pyfilm.nmesh.h5 <../example_zhangli1/pyfilm.nmesh.h5>`__.
+
+
+.. comment
+  .. include:: m_of_t.gnp
+    :literal:
+
+.. comment
+  .. figure:: ../example_zhangli1/m_of_t.png
+    :align: center
+    :alt: zhangli-3
+
+

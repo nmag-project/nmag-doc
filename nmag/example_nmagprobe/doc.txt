@@ -10,6 +10,8 @@ on this side propagate towards the other. We want to study the propagation
 of spin waves and obtain the dispersion relation, i.e. a relation between the
 wave vector and the frequency of the spin-waves which propagate in the
 considered media.
+To calculate the dispersion relation we use the method developed
+by V. Kruglyak, M. Dvornik and O. Dmytriiev
 
 In order to carry out such a numerical experiment, we first need to calculate
 the relaxed equilibrium magnetisation, i.e. the one which we perturb with
@@ -61,8 +63,14 @@ The system: ``thesystem.py``
 
 The system under investigation is a cylindrical nanopillar of radius r=3 nm
 and length l=100 nm. The mesh file ``cylinder.nmesh.h5`` is obtained (using
-Netgen_) from the file `cylinder.geo <../example_nmagprobe/cylinder.geo>`__
-which is shown below:
+Netgen_).
+
+.. figure:: ../example_nmagprobe/cylinder.png
+  :align: center
+  :alt: magnonics-1
+
+
+The geometry file given to Netgen_ `cylinder.geo <../example_nmagprobe/cylinder.geo>`__ is shown below:
 
 .. include:: cylinder.geo
   :literal:
@@ -133,18 +141,168 @@ is shown below:
 .. include:: dynamics.py
   :literal:
 
-The system under investigation is a 100 x 100 x 10 nm Permalloy film. 
-The mesh is stored in the file
-`pyfilm.nmesh.h5 <../example_zhangli1/pyfilm.nmesh.h5>`__.
+The simulation starts again importing a few entities from the file 
+``thesystem.py``. In particular, the function ``simulate_nanowire`` is used
+to setup the system similarly to what was done for the relaxation.
+The next few lines define some variables which are used to define the
+geometry and duration of the magnetic field pulse::
 
+  # Details about the pulse
+  pulse_boundary = -50.0e-9 + 0.5e-9 # float in nm
+  pulse_direction = [0, 1, 0]
+  pulse_amplitude = SI(1e5, 'A/m')
+  pulse_duration = 1*ps
 
-.. comment
-  .. include:: m_of_t.gnp
-    :literal:
+In this example the pulse is obtained by switching on the applied field
+(from (0, 0, 0) to (0, ``pulse_amplitude``, 0)) in the region of the wire
+where x < ``pulse_boundary``, which corresponds in this case to a layer
+of 0.5 nm thickness on one side of the cylinder.
+The pulse is switched on at t=0 and switched off at ``pulse_duration``.
+We now examine the code and explain how all this is coded in the script.
+We start explaining the last few lines::
 
-.. comment
-  .. figure:: ../example_zhangli1/m_of_t.png
-    :align: center
-    :alt: zhangli-3
+  # Here we run the simulation: do=[....] is used to set the pulse
+  #   save=[...] is used to save the data.
+  s = simulate_nanowire('dynamics', 0.05)
+  s.load_m_from_h5file(m0_filename)
+  s.relax(save=[('fields', every('time', 0.5*ps))],
+          do=[(set_pulse, at('time', 0*ps)),
+              (set_to_zero, at('time', pulse_duration)),
+              ('exit', at('time', 200*ps))])
 
+Here we use the ``simulate_nanowire`` function which we defined in the file
+``thesystem.py`` to setup the system and the materials.
+We then set the initial magnetisation configuration from the file saved
+in part I and carry out the time integration by calling the ``relax`` method
+of the simulation object ``s``. The pulse is switched on and switched off
+by the instruction passed in the ``do=[...]`` argument. In particular,
+the argument ``do`` accepts a list of pairs
+(things to be done, at a given time). The code::
+
+  do=[(switch_on_pulse, at('time', 0*ps)),
+      (switch_off_pulse, at('time', pulse_duration)),
+      ('exit', at('time', 200*ps))]
+
+specifies that:
+
+* the function ``switch_on_pulse`` should be executed at time t=0 ps;
+
+* the function ``switch_off_pulse`` should be executed at time
+  t= ``pulse_duration``;
+
+* the simulation should terminate at time t=200 ps.
+
+At the same time the argument ``save=[('fields', every('time', 0.5*ps))]``
+of the relax method saves the field every 0.5 ps.
+
+Let's now see how the pulse is actually switched on and off.
+To switch off the pulse we provide the function::
+
+  # Function which sets the magnetisation to zero
+  def switch_off_pulse(sim):
+    sim.set_H_ext([0.0, 0.0, 0.0], unit=pulse_amplitude)
+
+The function gets the simulation object, ``sim``, as an argument
+and uses it together with the method ``set_H_ext`` to set the applied
+magnetic field to zero everywhere.
+The function to set up the simulation is a little bit more complicated::
+
+  # Function which sets the pulse as a function of time/space
+  def switch_on_pulse(sim):
+    def H_ext(r):
+      if r[0] < pulse_boundary:
+        return pulse_direction
+      else:
+        return [0.0, 0.0, 0.0]
+
+    sim.set_H_ext(H_ext, unit=pulse_amplitude)
+
+Indeed, being the pulse localised (and hence non-uniform) in space,
+we need to define a function to be given to ``set_H_ext``.
+The function checks whether the x component in the given point is lower
+than ``pulse_amplitude`` and sets the applied field to a value differt
+from zero only if that is really the case.
+
+Postprocessing the data
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Once the simulations are finished, the data (i.e. the values of the
+magnetisation saved every 0.5 ps) can be extracted from the file
+``dynamics_dat.h5`` and postprocessed.
+We use the ``nmagprobe`` command for this. ``nmagprobe`` can perform
+several postprocessing tasks (detailed documentation can be obtained
+by typing ``nmagprobe --help``).
+In this context it is used to probe the magnetisation along the axis
+of the cylinder at regular intervals of time.
+The values extracted are then Fourier transformed.
+The command we use is the following::
+
+  nmagprobe --verbose dynamics_dat.h5 --field=m_Py \
+    --time=0,100e-12,101 --space=-50,50,201/0/0 --ref-time=0.0 \
+    --scalar-mode=component,1 --out=real-space.dat \
+    --ft-axes=0,1 --ft-out=norm --ft-out=rec-space.dat
+
+Here we extract data for the magnetisation (option ``--field=m_Py``)
+from the file ``dynamics_dat.h5``.
+
+* We probe the field over a cubic lattice in space and time.
+  The lattice is four dimensional and consists of the points
+  (t, x, y, z) with t=0, 1 ps, 2 ps, ..., 100 ps (101 values),
+  x=-50 nm, 49.5 nm, 49 nm, ..., 50 nm (201 values)
+  and y=z=0.
+  The lattice is fully determined by the options ``--time`` and ``--space``.
+  In particular, the option ``--time=0,100e-12,101`` states that the lattice
+  consists of 101 equispaced values going from 0 to 100e-12 s. 
+  The option ``--space`` accepts a similar expressions for each spatial
+  coordinate separated by ``/``;
+
+* ``--ref-time=0.0`` tells to ``nmagprobe`` that after extracting
+  the values for the field, m(t, x, y, z), it should compute the difference
+  with respect to the given time,
+  i.e. dm(t, x, y, z) = m(t, x, y, z) - m(0, x, y, z).
+  We add this option to ``nmagprobe`` because we are interested in the variation
+  of the magnetisation with respect to the equilibrium configuration (t=0)
+  rather than on its "absolute" value;
+
+* ``--scalar-mode=component,1`` induces ``nmagprobe`` to extract the y
+  component of dm and to use it as a scalar when writing the output
+  and when doing the fourier transform (to extract the x component one
+  should use ``--scalar-mode=component,0``);
+
+* ``--out=real-space.dat`` induces ``nmagprobe`` to save to file the data
+  selected by the options discussed so far. In particular, the file
+  ``real-space.dat`` will be filled with the values of the y-component
+  of dm(t, x, y, z) along the selected lattice. That will be a text file
+  which can be inspected with a text editor and used within plotting programs
+  such as Gnuplot_;
+
+* ``--ft-axes=0,1`` specifies that the selected data should be Fourier
+  transformed along the axis 0 (time) and 1 (x-space);
+
+* ``--ft-out=norm`` induces ``nmagprobe`` to compute the norm of the complex
+  numbers coming from the Fourier-transform. These are the values which
+  are finally saved to file;
+
+* ``--ft-out=rec-space.dat`` specifies the output file for the
+  Fourier-transformed data.
+
+The command creates two files: ``real-space.dat``, containing the y component
+of the magnetisation variation as a function of time and space,
+and ``rec-space.dat``, containing the Fourier transform of such a quantity.
+
+To plot the data in the two files we use the Gnuplot_ script
+`plot.gnp <../example_nmagprobe/plot.gnp>`__ :
+
+.. include:: plot.gnp
+  :literal:
+
+Here is the result after running the script with Gnuplot.
+
+.. figure:: ../example_nmagprobe/real-space.png
+  :align: center
+  :alt: magnonics-1
+
+.. figure:: ../example_nmagprobe/rec-space.png
+  :align: center
+  :alt: magnonics-2
 

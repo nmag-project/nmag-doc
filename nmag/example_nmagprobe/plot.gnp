@@ -1,0 +1,15 @@
+set term png
+set pm3d map
+
+set out "real-space.png"
+set title "y component of magnetisation variation"
+set xlabel "position in axis (nm)"
+set ylabel "time (ps)"
+splot [] [0:] 'real-space.dat' u ($2):($1/1e-12):5 t ""
+
+set out "rec-space.png"
+set title "Fourier transform"
+set xlabel "k (1/nm)"
+set ylabel "omega (GHz)"
+splot [] [0:] 'rec-space.dat' u (-$2):($1/(2*pi*1e9)):5 t ""
+

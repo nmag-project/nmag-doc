@@ -55,7 +55,7 @@ for example using hierarchical matrices.
   entries. The efficiency of hierarchical matrices derives from those
   approximations. 
 
-The basic idea `idea
+The basic `idea
 <http://www.mis.mpg.de/publications/other-series/ln/lecturenote-2103.html>`__
 is to approximate submatrices of **B** by a data-sparse approximation
 where possible (within user-provided tolerance margins).  In general
@@ -96,6 +96,9 @@ You can now untar the nmag tarball and enter the newly created directory::
   me@mymachine:~/$ tar xzvf nmag-0.1-all.tar.gz
   me@mymachine:~/$ cd nmag-0.1
 
+Note that in this particular example we assume the Nmag version to be 0.1.
+For later versions, you'll have to change the tarball name and the paths
+accordingly (e.g. ``nmag-X.Y.Z`` for version ``X.Y.Z``).
 Inside the directory ``nmag-0.1`` there is a directory called
 ``hlib-pkg`` and we need to copy (or move) the HLib tarball into this directory::
 

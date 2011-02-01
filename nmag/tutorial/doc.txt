@@ -86,10 +86,8 @@ This depends on what you want to simulate. Here are some points to consider.
   requirements of the hybrid finite element/boundary element simulations (both
   |Nmag| and Magpar_ are in this category).
 
-  (We state for completeness that there are techniques to
-  significantly reduce the memory footprint of the hybrid finite
-  element/boundary element method but these are not available in open
-  source micromagnetic code.)
+  If this turns out to be a problem for you, we suggest to read the section
+  `Compression of the Boundary Element Matrix using HLib`_.
 
 * Finite element simulations are best suited to describe geometries
   with some amount of curvature, or angles other than 90 degrees. For

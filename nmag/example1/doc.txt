@@ -82,7 +82,7 @@ coupling strength.
 ::
 
  Py = nmag.MagMaterial(name = 'Py',
-                       Ms = SI(1e6, 'A/m',
+                       Ms = SI(1e6, 'A/m'),
                        exchange_coupling = SI(13.0e-12, 'J/m'))
 
 The name of the material is important, as we may want to simulate

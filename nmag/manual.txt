@@ -3,16 +3,18 @@
 
 .. sectnum::
 
-===================================
-NMAG User Manual (0.1 Beta version)
-===================================
+===============================
+NMAG User Manual (|nmagverstr|)
+===============================
 
 
 :Authors: Hans Fangohr, Thomas Fischbacher, Matteo Franchin, Giuliano Bordignon, Jacek Generowicz, Andreas Knittel, Michael Walter
 
 :Licence: `GNU General Public License (GPL) version 2 <http://www.gnu.org/licenses/gpl2.txt>`__
 
-:SVN-Version: |svnversion| compiled |date| at |time|.
+:Version: |nmagverinfo| 
+
+:Date: Manual generated on |date| at |time|.
 
 :Home page: http://nmag.soton.ac.uk
 
@@ -2234,7 +2236,7 @@ project.
 
 .. _`University of Southampton`: http://www.soton.ac.uk
 
-.. include:: dyn/svnversion.txt
+.. include:: dyn/nmagverstr.txt
 
 .. _GPL: http://www.gnu.org/licenses/gpl2.txt
 

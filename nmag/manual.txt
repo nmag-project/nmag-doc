@@ -151,7 +151,7 @@ If you are using |nmag|, we recommend that you subscribe to at least
 one of these following two lists to be aware of any major bugs or
 improvements. If you have a question about how to use the software, we
 suggest you subscribe to nmag-users_, and post it there. (If you
-prefer to contact only the devolpers, see `nmag team`_.)
+prefer to contact only the developers, see `nmag team`_.)
 
 nmag-announce
 ~~~~~~~~~~~~~

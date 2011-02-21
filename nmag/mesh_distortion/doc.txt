@@ -21,3 +21,28 @@ process works.
 Example
 ~~~~~~~
 
+Consider a nanowire with dimensions 800nm x 20nm x 5nm (for
+convenience we provide the corresponding mesh in the file
+`nanowire_800x20x5.nmesh <../mesh_distortion/nanowire_800x20x5.nmesh>`__). [#]_
+
+We distort this mesh using the following command:
+
+:: 
+
+  nmeshpp --distort-along-axis X --front-rear-axis Y --distort 0.4 --correlation-length 2.0 --seed 23 nanowire_800x20x5.nmesh nanowire_800x20x5_distorted.nmesh
+
+Intuitively, what this command does is to randomly displace the
+"front" and "rear" nodes of the mesh and to stretch/shrink the middle
+bits accordingly. The details of this process, as well as meaning of
+all the command line switches, are explained in the next section. The
+original and distorted mesh look like this (only part of each mesh
+is shown):
+
+.. image:: ../mesh_distortion/smooth_wire_3D_view.png
+   :align: center
+
+.. image:: ../mesh_distortion/rough_wire_3D_view.png
+   :align: center
+
+.. [#] The mesh file for the nanowire was produced using the ``examesh`` tool, which is included in the nmag distribution in the directory ``utils/cubicmesh/`` (note that it needs to be compiled before it can be used - just ``cd`` into this directory and type ``make``). The exact command used to produce the mesh file was ``examesh nanowire_800x20x5.nmesh,800:450,20:15,5:3``.
+

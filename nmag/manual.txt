@@ -1600,6 +1600,9 @@ computes a histogram of the edge length distribution of the mesh::
   min and max :        =(1.953689,5.708395)
 
 
+.. include:: mesh_distortion/doc.txt
+
+
 Convert nmesh.h5 to nmesh file (and back)
 -----------------------------------------
 

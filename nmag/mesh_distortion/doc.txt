@@ -1,0 +1,23 @@
+Mesh distortion for edge roughness simulation
+---------------------------------------------
+
+The meshes used in micromagnetic simulations usually represent
+idealized geometries (for example, a nanowire might be modeled using a
+completely smooth cuboid mesh).  Real-world materials, on the other
+hand, possess imperfections on various scales caused by fabrication
+processes (e.g., electron beam lithography or sputter
+deposition). This can potentially have a significant impact on the
+magnetization dynamics.  The advantage of finite element-based
+simulations is that such effects can be simulated (at least
+qualitatively) by distorting the mesh in a suitable way. ``nmeshpp``
+provides a means of distorting a given mesh in order to imitate
+roughness so that the resulting effects on simulations can be
+explored. Note that at the moment only edge roughness is supported.
+We first present an example in the following section and then go into
+the details of the command line interface and how the distortion
+process works.
+
+
+Example
+~~~~~~~
+

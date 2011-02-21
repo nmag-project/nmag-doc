@@ -38,6 +38,9 @@ all the command line switches, are explained in the next section. The
 original and distorted mesh look like this (only part of each mesh
 is shown):
 
+.. comment:
+   XXX TODO: Add coordinate axes to the images.
+
 .. image:: ../mesh_distortion/smooth_wire_3D_view.png
    :align: center
 
@@ -46,3 +49,67 @@ is shown):
 
 .. [#] The mesh file for the nanowire was produced using the ``examesh`` tool, which is included in the nmag distribution in the directory ``utils/cubicmesh/`` (note that it needs to be compiled before it can be used - just ``cd`` into this directory and type ``make``). The exact command used to produce the mesh file was ``examesh nanowire_800x20x5.nmesh,800:450,20:15,5:3``.
 
+
+Details
+~~~~~~~
+
+Preliminary remark: As mentioned above, ``nmeshpp`` can only produce
+edge roughness at the moment. There is a slight chance that the user
+interface might change in the future when more functionality (such as
+surface roughness) is added.
+
+In this section we go into the details of the distortion process and
+explain the relevant command line options. To begin with, the surface
+nodes of the mesh are divided into "front" and "rear", depending on
+which side of the mesh they lie on (by default, this distinction is
+based on their y-coordinate, but this can be changed using the option
+``--front-rear-axis``). Next, a univariate "distortion function"
+``f(x)`` is constructed as follows. We pick equidistant nodes ``x_i``
+along the x-axis, assign a random value ``f(x_i)`` to each node
+(chosen from a normal distribution with mean 0 and a certain standard
+deviation), and finally smoothly interpolate these values to obtain a
+continuous distortion function ``f(x)``.
+
+.. comment:
+   , as illustrated in the following picture (only a small part around
+   the center of the nanowire at x=400nm is plotted):
+
+.. comment:
+   .. image:: ../mesh_distortion/sample_distortion_function.png
+      :align: center
+
+.. comment:
+  An example of such a distortion function (which incidentally was
+  used for the nanowire above) can be seen in the following
+  picture. Only a small part around x=400nm (at the center of the
+  nanowire) is plotted. The underlying normal distribution has a
+  standard deviation of 0.4nm (as specified in the command line call
+  in the previous section):
+
+The standard deviation of the underlying normal distribution must be
+specified using the command line switch ``-d``, or ``--distort`` (in
+the example above with we used ``--distort 0.4``, which is also the
+standard deviation illustrated in the picture). The distance between
+the nodes ``x_i`` can be adjusted using the flag
+``--correlation-length``. If ``f`` should be a function of a different
+coordinate axis, this can be changed with the switch
+``--distortion-axis``. It is also possible to specify a seed for the
+randomization process (by passing any integer value as an argument to
+``--seed``) so that the mesh distortion is reproducible.
+
+In the actual mesh distortion step, the y-coordinates of all front
+nodes of the mesh are shifted by the amount given by ``f``. The rear
+nodes are adjusted analogously using a second distortion function g(x)
+(which is constructed independently from ``f``). The intermediate
+parts of the mesh are stretched to fit nicely between the new
+distorted sides.
+
+The entire procedure is again illustrated in the following picture. It
+shows the rear part of the nanowire from the example in the previous
+section as seen from above (along the z-axis). The first part shows
+the original mesh, the third part shows the mesh after distortion with
+the function ``f`` (which is depicted in the middle). Note that the
+contour of the resulting mesh follows the outline of ``f``.
+
+.. image:: ../mesh_distortion/steps_illustrated.png
+   :align: center

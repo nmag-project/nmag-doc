@@ -43,9 +43,13 @@ is shown):
 
 .. image:: ../mesh_distortion/smooth_wire_3D_view.png
    :align: center
+   :width: 500
+   :height: 200
 
 .. image:: ../mesh_distortion/rough_wire_3D_view.png
    :align: center
+   :width: 500
+   :height: 200
 
 .. [#] The mesh file for the nanowire was produced using the ``examesh`` tool, which is included in the nmag distribution in the directory ``utils/cubicmesh/`` (note that it needs to be compiled before it can be used - just ``cd`` into this directory and type ``make``). The exact command used to produce the mesh file was ``examesh nanowire_800x20x5.nmesh,800:450,20:15,5:3``.
 
@@ -93,6 +97,8 @@ distorted mesh follows the outline of ``g``.
 
 .. image:: ../mesh_distortion/steps_illustrated.png
    :align: center
+   :width: 1194
+   :height: 149
 
 The distortion functions ``f`` and ``g`` are constructed as
 follows. First we pick equidistant nodes ``x_i`` along the x-axis

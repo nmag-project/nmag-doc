@@ -10,6 +10,8 @@ with Netgen_ from the geometry file `two_cubes.geo <../example_two_materials/two
 
 .. image:: ../example_two_materials/cubes.png
    :align: center
+   :width: 568
+   :height: 468
 
 We use the `two_cubes.py <../example_two_materials/two_cubes.py>`__ script to carry out the simulation:
 
@@ -95,6 +97,8 @@ of the two materials against time:
 
 .. image:: ../example_two_materials/results.png
    :align: center
+   :width: 696
+   :height: 470
 
 The blue lines represent the (soft) permalloy and the black lines show
 the (hard) cobalt. Each thick line denotes the z-component of the corresponding material. 
@@ -116,6 +120,8 @@ Time T=0 ps:
 
 .. image:: ../example_two_materials/vis1.png
    :align: center
+   :width: 756
+   :height: 669
 
 Time T=1e-10s=0.1ns: Cobalt is already pointing up, i.e. in the
 direction of the anisotropy axis, while Permalloy has just started to
@@ -123,6 +129,8 @@ rotate.
 
 .. image:: ../example_two_materials/vis2.png
    :align: center
+   :width: 756
+   :height: 669
 
 Time T=0.3ns: Cobalt has reached its final configuration (pointing up)
 and Permalloy is still rotating, but already pointing down (to
@@ -131,9 +139,13 @@ demagnetisation stray fields).
 
 .. image:: ../example_two_materials/vis3.png
    :align: center
+   :width: 756
+   :height: 669
 
 Time T=1 ns: The final configuration has been reached.
 
 .. image:: ../example_two_materials/vis4.png
    :align: center
+   :width: 756
+   :height: 669
 

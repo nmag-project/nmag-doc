@@ -8,11 +8,15 @@ magnetisation. The extened LLG equation reads
 
 .. image:: ../example_zhangli1/eq_zhangli_llg.png
   :align: center
+  :width: 724
+  :height: 85
 
 where the first two terms on the right-hand side are the normal LLG equation, and the extra terms come from the Zhang-Li model, and
 
 .. image:: ../example_zhangli1/eq_zhangli_llg_d.png
   :align: center
+  :width: 668
+  :height: 196
 
 The central column shows the method which can be used to set
 the field (``Simulation.set_m`` or ``Simulation.set_H_ext``) or
@@ -23,11 +27,15 @@ we define as:
 
 .. image:: ../example_zhangli1/eq_v.png
   :align: center
+  :width: 184
+  :height: 80
 
 with:
 
 .. image:: ../example_zhangli1/eq_v_d.png
   :align: center
+  :width: 755
+  :height: 169
 
 In this and in the next examples we show how to set up a micromagnetic
 simulation including such spin transfer torque effects.

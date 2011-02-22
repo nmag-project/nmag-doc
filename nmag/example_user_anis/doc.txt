@@ -96,6 +96,8 @@ of the script `coin.py <../example_user_anis/coin.py>`__.
 
 .. image:: ../example_user_anis/coin.png
   :align: center
+  :width: 730
+  :height: 500
 
 During the switching the system falls into an intermediate state,
 where the magnetisation is nearly aligned with the anisotropy easy axis.

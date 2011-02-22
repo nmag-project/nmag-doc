@@ -33,6 +33,8 @@ but with small deviations in x and y due to a small temperature of 2K:
 
 .. image:: ../example_thermal_cube/random-noise-netgen-mesh.png
   :align: center
+  :width: 800
+  :height: 719
 
 
 The zero temperature case
@@ -86,6 +88,8 @@ The `mesh <../example_thermal_cube/cube.nmesh.h5>`__ we use has been created wit
 
 .. image:: ../example_thermal_cube/netgen-mesh.png
   :align: center
+  :width: 462
+  :height: 446
 
 Choosing the time step
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -130,6 +134,8 @@ summarised in the next figure:
 
 .. image:: ../example_thermal_cube/switching-field-4_92-nmag-netgen.png
   :align: center
+  :width: 800
+  :height: 600
 
 It can be seen that 
 
@@ -143,6 +149,8 @@ We also show a snap shot of one of the reversal processes at 2K:
 
 .. image:: ../example_thermal_cube/switch-snapshot-2K-netgen-mesh-4_92.png
   :align: center
+  :width: 522
+  :height: 518
 
 
 ------------------

@@ -370,6 +370,8 @@ between both simulation types (example given for the film with an edge length of
 
 .. image:: ../example_phi_BEM_hlib/relaxation_m.png
   :align: center
+  :width: 740
+  :height: 510
 
 The magnetisation field moves from its out-of-plane configuration into the plane
 and relaxes into a high remanent state, which is aligned along the diagonal of the
@@ -378,6 +380,8 @@ field (obtained with Mayavi2) for a thin film with an edge length of 130 nm.
 
 .. image:: ../example_phi_BEM_hlib/thinfilm130.png
   :align: center
+  :width: 678
+  :height: 678
 
 We have run the simulations on a machine with an 
 `AMD Athlon(tm) 64 X2 Dual Core Processor 3800+`, using only one core. The 
@@ -393,6 +397,8 @@ simulate a certain structure with Nmag+HLib and the available hardware.
 
 .. image:: ../example_phi_BEM_hlib/performance.png
   :align: center
+  :width: 725
+  :height: 375
 
 Besides the savings in memory, hierarchical matrices also reduce the time needed 
 for the simulation setup considerably (see the bottom graph).

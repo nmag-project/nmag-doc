@@ -276,6 +276,8 @@ The new file ``partitioning.vtk`` contains only one field on the mesh, and this 
 
 .. image:: ../example_mpi1/sphere3partitions.png
    :align: center
+   :width: 800
+   :height: 664
 
 The figure shows that the sphere has been divided into three areas
 which carry values 0, 1 and 2 (corresponding to the MPI CPU rank which

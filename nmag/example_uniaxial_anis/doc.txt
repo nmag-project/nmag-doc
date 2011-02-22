@@ -68,6 +68,8 @@ The resulting plot clearly shows that a Bloch type domain wall has developed:
 
 .. image:: ../example_uniaxial_anis/bar_mag_x.png
   :align: center
+  :width: 800
+  :height: 600
 
 The figure shows also that the Bloch domain wall is well localized at the center
 of the bar, in the region where x goes from 200 to 300 nm.
@@ -86,6 +88,8 @@ which generates the following plot showing good agreement of both systems:
 
 .. image:: ../example_uniaxial_anis/bar_mag_x_compared.png
   :align: center
+  :width: 800
+  :height: 600
 
 The plot shows also the known analytical solution::
 

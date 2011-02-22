@@ -12,6 +12,8 @@ and produced with Netgen_ from `ellipsoid.geo
 
 .. image:: ../example_hysteresis_ellipsoid/mesh.png
   :align: center
+  :width: 800
+  :height: 531
 
 This picture has been obtained by converting the mesh to a vtk_ file using::
 
@@ -150,5 +152,7 @@ which generates the following hysteresis loop graph:
 
 .. image:: ../example_hysteresis_ellipsoid/hysteresis.png
   :align: center
+  :width: 725
+  :height: 494
 
 

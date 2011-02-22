@@ -14,6 +14,8 @@ which is created from `the_nanodot.geo <../example_hysteresis_disk/the_nanodot.g
 
 .. image:: ../example_hysteresis_disk/nanodot1_mesh.png
   :align: center
+  :width: 515
+  :height: 346
 
 To compute the hysteresis loop for the disc, we use the script
 `nanodot1.py <../example_hysteresis_disk/nanodot1.py>`__:
@@ -116,6 +118,8 @@ The resulting graph is:
 
 .. image:: ../example_hysteresis_disk/nanodot_hyst.png
   :align: center
+  :width: 717
+  :height: 508
 
 and the comparison with the Magpar_ data, obtained with the
 script `make_comparison_plot.gnu <../example_hysteresis_disk/make_comparison_plot.gnu>`__:
@@ -128,6 +132,8 @@ the hysteresis loop.):
 
 .. image:: ../example_hysteresis_disk/nanodot_comparison_hyst.png
   :align: center
+  :width: 730
+  :height: 508
 
 Here we can see a slight difference between |nmag| and Magpar_ in the
 location of the switching point, probably due to different tolerances

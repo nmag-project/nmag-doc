@@ -21,6 +21,8 @@ NMAG User Manual (|nmagverstr|)
 
 .. image:: ../images/nmaglogo500.png
    :align: center
+   :width: 500
+   :height: 189
 
 
 .. contents:: Outline of document
@@ -896,6 +898,9 @@ a sphere with radius 1 (with Netgen_ and this geometry file
 
 .. image:: ../images/smallsphere.png
    :align: center
+   :width: 480
+   :height: 434
+
 
 The mesh file looks as follows::
 

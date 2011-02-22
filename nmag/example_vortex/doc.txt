@@ -13,8 +13,9 @@ is contained in `nanodot.nmesh.h5
 <../example_vortex/nanodot.nmesh.h5>`__):
 
 .. image:: ../example_vortex/nanodot_mesh.png
-  :width: 15cm
   :align: center
+  :width: 515
+  :height: 346
 
 To simulate the magnetised disc, we use the following
 script (`nanodot.py <../example_vortex/nanodot.py>`__):
@@ -57,6 +58,8 @@ The resulting graph is shown here:
 
 .. image:: ../example_vortex/nanodot_evo.png
   :align: center
+  :width: 750
+  :height: 525
 
 and we can see that the results from nsim_ match those from magpar_
 . The magnetisation configurations during the switching process are

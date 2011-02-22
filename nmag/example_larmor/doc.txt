@@ -56,6 +56,8 @@ Zeeman effect, with a torque:
 
 .. image:: ../example_larmor/torque.png
    :align: center
+   :width: 133
+   :height: 18
 
 
 acting on the magnetisation m which is orthogonal to both m and H;
@@ -65,12 +67,16 @@ by:
 
 .. image:: ../example_larmor/frequency.png
    :align: center
+   :width: 186
+   :height: 35
 
 where the parameter gamma, called gyromagnetic ratio, is taken to
 have the following value (see [#]_ ):
 
 .. image:: ../example_larmor/gamma.png
    :align: center
+   :width: 264
+   :height: 38
 
 so that f_Larmor = 35.176 GHz and the period T = 1/f_Larmor =
 0.0284284 ns. 
@@ -103,6 +109,8 @@ The result is the following image:
 
 .. image:: ../example_larmor/larmor_plot.png
    :align: center
+   :width: 800
+   :height: 600
 
 The values for B in the fit, which corresponds to the unknown period
 T, is initially set to 30 in order to help Gnuplot_ fit the curve.

@@ -35,6 +35,8 @@ Let's assume we would like to simulate a sphere. The following picture
 
 .. image:: ../tutorial/fd.png
    :align: center
+   :width: 200
+   :height: 180
 
 shows an approximation of the shape of the sphere by cubes. This is
 the finite difference approach. For clarity, we have chosen rather
@@ -53,6 +55,8 @@ Using tetrahedra, the a discretised sphere looks like this:
 
 .. image:: ../tutorial/fe.png
    :align: center
+   :width: 200
+   :height: 186
 
 The spherical shape is approximated better than with the finite
 differences.
@@ -230,12 +234,16 @@ driving domain wall formation)
 
 .. image:: ../tutorial/l_ex_soft.png
    :align: center
+   :width: 109
+   :height: 56
 
 and this equation for hard materials (with uniaxial pinning) where the
 crystal anisotropy governs domain wall lengths
 
 .. image:: ../tutorial/l_ex_hard.png
    :align: center
+   :width: 84
+   :height: 45
 
 If in doubt which of the two equations is the right one, compute both
 |l1| and |l2| and choose the minimum length as the relevant exchange

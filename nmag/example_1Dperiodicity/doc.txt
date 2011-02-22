@@ -115,6 +115,8 @@ and larger to represent the growing number of periodic copies).
  
 .. image:: ../example_1Dperiodicity/periodic1_in_axis.png
   :align: center
+  :width: 726
+  :height: 513
  
 Demagnetising field as a function of the number of periodic
 copies with the magnetisation aligned along the periodic axis.
@@ -122,6 +124,8 @@ copies with the magnetisation aligned along the periodic axis.
  
 .. image:: ../example_1Dperiodicity/periodic1_out_of_axis.png
   :align: center
+  :width: 726
+  :height: 513
  
 Demagnetising field as a function of the number of periodic
 copies with the magnetisation aligned along an axis orthogonal 

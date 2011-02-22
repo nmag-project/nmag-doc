@@ -9,6 +9,8 @@ where we now deal with a 2D "thin film" system. The unit cell is a
 
 .. image:: ../example_2Dperiodicity/mesh.png
    :align: center
+   :width: 559
+   :height: 290
 
 where we take 10 copies in x- and 40 copies in y-direction to create
 the macro geometry.
@@ -29,6 +31,8 @@ which creates the following plot:
 
 .. image:: ../example_2Dperiodicity/no_periodic.png
    :align: center
+   :width: 750
+   :height: 525
 
 From this plot we can see that with using only the unit cell the
 magnetisation aligns along the x-axis at equilibrium.
@@ -90,6 +94,8 @@ The outcome is shown in the following figure:
 
 .. image:: ../example_2Dperiodicity/periodic2.png
    :align: center
+   :width: 750
+   :height: 525
 
 where we notice that the final configuration is now with the
 magnetisation aligned along the (negative) y axis, and not along the x

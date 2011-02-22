@@ -42,6 +42,8 @@ which was created using Netgen_ from the file
 
 .. image:: ../example_zhangli2/mesh.png
    :align: center
+   :width: 590
+   :height: 308
    
 
 The simulation is subdivided into two parts, similarly to the previous

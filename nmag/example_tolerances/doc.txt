@@ -98,6 +98,8 @@ corresponding black line has been tagged with little ``+`` characters.
 
 .. image:: ../example_tolerances/plot1.png
    :align: center
+   :width: 710
+   :height: 470
 
 We can see that curves seem to coincide (at this scale) apart from the
 red ``tol=1e-1`` curve which deviates somewhat.
@@ -106,6 +108,8 @@ focus on the lowers curves in the main plot:
 
 .. image:: ../example_tolerances/plot2.png
    :align: center
+   :width: 702
+   :height: 470
 
 The better resolution reveals that there is a clear deviation of the
 various curves: the red (0.1), indigo (0.01) and yellow (1e-3) curves
@@ -120,6 +124,8 @@ average*).
 
 .. image:: ../example_tolerances/plot3.png
    :align: center
+   :width: 706
+   :height: 471
 
 We conclude that we should use a tolerance of at most 1e-3 for this
 simulation; better 1e-4 or smaller.

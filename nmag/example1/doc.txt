@@ -19,6 +19,8 @@ a sphere of radius 10nm.
 
 .. image:: ../example1/spheremesh.png
    :align: center
+   :width: 325
+   :height: 327
 
 
 
@@ -330,6 +332,8 @@ add a 3d coordinate system to the visualization):
 
 .. image:: ../example1/sphere1_h5_m.png
    :align: center
+   :width: 1033
+   :height: 910
 
 
 The magnetisation is pointing in positive x-direction because we
@@ -353,6 +357,8 @@ computed (by taking its negative gradient):
 
 .. image:: ../example1/sphere1_h5_phi.png
    :align: center
+   :width: 1033
+   :height: 910
 
 We first need to select ``phi`` as the data source for 'scalar'
 visualisation modules: Through clicking on the ``Configure Data``
@@ -383,6 +389,8 @@ isosurfaces of the magnetic potential:
 
 .. image:: ../example1/sphere1_h5_demag.png
    :align: center
+   :width: 1033
+   :height: 910
 
 
 It can be seen that the isosurfaces are completely flat planes

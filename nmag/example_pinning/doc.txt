@@ -83,6 +83,8 @@ magnetisation vector field.
 
 .. image:: ../example_pinning/pinned_core.png
   :align: center
+  :width: 800
+  :height: 836
 
 The blue blob in the center of the sphere is the collection of those
 tetrahedra that have corners just inside the 4nm sphere. Because we
@@ -109,4 +111,6 @@ change from the pinned magnetisation in the centre to the outside.
 
 .. image:: ../example_pinning/magnetisation.png
   :align: center
+  :width: 800
+  :height: 777
 

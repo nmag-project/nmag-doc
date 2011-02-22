@@ -51,6 +51,8 @@ The generated mesh looks like this:
 
 .. image:: ../example2/bar30_30_100.png
    :align: center
+   :width: 973
+   :height: 605
 
 We can examine the mesh using nmeshpp_ to obtain information about
 mesh quality, the statistical distribution of edge lengths, the
@@ -265,6 +267,8 @@ to create the following plot (manually adding the legend and axis labels):
 
 .. image:: ../example2/data_M.png
    :align: center
+   :width: 789
+   :height: 437
 
 Comparison with OOMMF and Magpar
 ++++++++++++++++++++++++++++++++
@@ -277,6 +281,8 @@ here, follows the |nmag| data very closely.)
 
 .. image:: ../example2/data_M_OOMMF.png
    :align: center
+   :width: 789
+   :height: 437
 
 
 Spatially resolved fields
@@ -354,6 +360,8 @@ This is the initial configuration with magnetisation pointing in the
 
 .. image:: ../example2/bar_initial_M.png
   :align: center
+  :width: 1039
+  :height: 682
 
 The "final" configuration shows that the magnetisation aligns along
 the z-direction. The coloured surface shows the x-component of the
@@ -365,6 +373,8 @@ quite close.):
 
 .. image:: ../example2/bar_final_M.png
   :align: center
+  :width: 1039
+  :height: 682
    
 
 Because we have saved all fields (not just the magnetisation), we can
@@ -377,6 +387,8 @@ perpendicular on the isosurfaces:
 
 .. image:: ../example2/bar_final_demag.png
   :align: center
+  :width: 1039
+  :height: 682
 
 Higher level functions
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -491,6 +503,8 @@ From the data saved, we can obtain the following plot:
      
 .. image:: ../example2/bar_relax_data_M.png
   :align: center
+  :width: 789
+  :height: 437
 
 In summary, the relax_ function is useful to obtain a meta-stable
 configuration of the system. In particular, it will carry out the time
@@ -520,6 +534,8 @@ precession term in the equation of motion:
 
 .. image:: ../example2/bar_relax2_data_M.png
   :align: center
+  :width: 789
+  :height: 437
 
 While the time-development of the system happens at the same time
 scale as for the system with the precession term (see `"Relaxing" the

@@ -129,6 +129,8 @@ sphere_manipulate``) and visualise with mayavi_:
 
 .. image:: ../example_manipulate/step7.png
    :align: center
+   :width: 800
+   :height: 732
 
 We can see one blue cone in the centre of the sphere - this is the
 one site that he have modified to point in the y-direction (whereas all

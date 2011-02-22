@@ -13,6 +13,8 @@ and periodic along the x direction, so that the nodes with coordinates
 
 .. image:: ../example_periodic_spinwaves/periodic_mesh.png
   :align: center
+  :width: 629
+  :height: 376
 
 The mesh is contained in `periodic.nmesh <../example_periodic_spinwaves/periodic.nmesh>`__ and 
 has been produced using Netgen_ (from  `periodic.geo <../example_periodic_spinwaves/periodic.geo>`__) and the nmeshmirror_ command to create required periodic structure ::
@@ -41,6 +43,8 @@ magnetisation configuration.
 
 .. image:: ../example_periodic_spinwaves/initial_magn.png
   :align: center
+  :width: 552
+  :height: 389
 
 In our case, we use the function ::
 

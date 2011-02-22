@@ -8,7 +8,7 @@ NMAG User Manual (|nmagverstr|)
 ===============================
 
 
-:Authors: Hans Fangohr, Thomas Fischbacher, Matteo Franchin, Giuliano Bordignon, Jacek Generowicz, Andreas Knittel, Michael Walter
+:Authors: Hans Fangohr, Thomas Fischbacher, Matteo Franchin, Giuliano Bordignon, Jacek Generowicz, Andreas Knittel, Michael Walter, Maximilian Albert
 
 :Licence: `GNU General Public License (GPL) version 2 <http://www.gnu.org/licenses/gpl2.txt>`__
 
@@ -1598,6 +1598,9 @@ computes a histogram of the edge length distribution of the mesh::
   average   a0: <a0>   = 3.543451
   stand dev a0: <a0^2> = 0.581220^2
   min and max :        =(1.953689,5.708395)
+
+
+.. include:: mesh_distortion/doc.txt
 
 
 Convert nmesh.h5 to nmesh file (and back)

@@ -8,7 +8,7 @@ NMAG User Manual (|nmagverstr|)
 ===============================
 
 
-:Authors: Hans Fangohr, Thomas Fischbacher, Matteo Franchin, Giuliano Bordignon, Jacek Generowicz, Andreas Knittel, Michael Walter
+:Authors: Hans Fangohr, Thomas Fischbacher, Matteo Franchin, Giuliano Bordignon, Jacek Generowicz, Andreas Knittel, Michael Walter, Maximilian Albert
 
 :Licence: `GNU General Public License (GPL) version 2 <http://www.gnu.org/licenses/gpl2.txt>`__
 

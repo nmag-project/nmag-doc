@@ -1,27 +1,25 @@
-.. comment:
-  .. _`Example manipulating magnetisation`:
+.. _Example: Manipulating magnetisation:
 
 Example: Manipulating magnetisation
 -----------------------------------
 
 There are two basic techniques to modify the magnetisation: on the one
-hand, we can use the set_m_ method to replace the current
-magnetisation configuration with a new one. We can use set_m_ to specify
-both homogeneous (see `Setting the initial magnetisation`_)
-and non-homogeneous magnetisations (see the `Spin-waves example`_).
+hand, we can use the :ref:`set_m` method to replace the current
+magnetisation configuration with a new one. We can use :ref:`set_m` to specify
+both homogeneous (see :ref:`Setting the initial magnetisation`)
+and non-homogeneous magnetisations (see the :ref:`Spin-waves example <spin-waves example>`).
 Alternatively, we can selectively change magnetic moments at individual mesh sites.
 This example demonstrates how to use the latter technique.
 
-
-The basics of this system are as in `Example: Demag field in uniformly
-magnetised sphere`_: we study a ferromagnetic sphere with initially
+The basics of this system are as in :ref:`Example: Demag field in uniformly
+magnetised sphere <example 1>`: we study a ferromagnetic sphere with initially
 homogeneous magnetisation. The corresponding script file is 
-`sphere_manipulate.py <../example_manipulate/sphere_manipulate.py>`__
+:download:`sphere_manipulate.py </example_manipulate/sphere_manipulate.py>`
 
-.. include:: ../example_manipulate/sphere_manipulate.py
+.. include:: /example_manipulate/sphere_manipulate.py
   :literal:
 
-To execute this script, we have to give its name to the nsim_
+To execute this script, we have to give its name to the :ref:`nsim`
 executable, for example (on linux)::
 
   $ nsim sphere_manipulate.py
@@ -31,9 +29,9 @@ loaded the mesh, set the initial magnetisation and the external field,
 we save the data the first time (Step 1).
 
 We could visualise the magnetisation and all other fields as described
-in `Example: Demag field in uniformly magnetised sphere`_, and would
+in :ref:`Example: Demag field in uniformly magnetised sphere <example 1>`, and would
 obtain the same figures as shown in section
-`Saving spatially resolved data`_.
+:ref:`Saving spatially resolved data`.
 
 In step 2, we probe the demag field at positions along a line going
 from [-10,0,0]nm to [10,0,0]nm, and then print the values. This
@@ -99,35 +97,36 @@ Note that the subfield name we are probing for the exchange field is
 field is ``H_demag`` (without the extension ``_Py``. The reason for
 this is that the exchange field is a something that is associated with
 a particular material (here Py) whereas there is only one demag field
-that is experienced by all materials (see also `Fields and subfields`_).
+that is experienced by all materials (see also :ref:`Fields and subfields`).
 
+.. _Modifying the magnetisation:
 
 Modifying the magnetisation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In step 4, we use the get_subfield_ command. This will return a
-(numpy_) array that contains one 3d vector for every site_ of the
+In step 4, we use the :ref:`get_subfield` command. This will return a
+(:ref:`numpy`) array that contains one 3d vector for every :ref:`site` of the
 finite element mesh. 
 
 In step 5, we modify the first entry in this array (which has index
 0), and set its value to ``[0,1,0]``. Whereas the magnetisation is
-pointing everywhere in [1,0,0] (because we have used the set_m_
+pointing everywhere in [1,0,0] (because we have used the :ref:`set_m`
 command in the very beginning of the program, it is now pointing in
 the [0,1,0] at site 0.
 
 The information, which site corresponds to which entry in the data
-vector, that we have obtained using get_subfield_, can be retrieved from
-get_subfield_sites_. Correspondingly, the position of the sites can be
-obtained using get_subfield_positions_. 
+vector, that we have obtained using :ref:`get_subfield`, can be retrieved from
+:ref:`get_subfield_sites`. Correspondingly, the position of the sites can be
+obtained using :ref:`get_subfield_positions`. 
 
 We now need to set this modified magnetisation vector (Step 6) using
-the set_m_ command.
+the :ref:`set_m` command.
 
 If we save the data again to the file (Step 7), we can subsequently
 convert this to a vtk file (using, for example, ``nmagpp --vtk data
-sphere_manipulate``) and visualise with mayavi_:
+sphere_manipulate``) and visualise with :ref:`mayavi`:
 
-.. image:: ../example_manipulate/step7.png
+.. image:: /example_manipulate/step7.png
    :align: center
    :width: 800
    :height: 732
@@ -200,11 +199,5 @@ this is reflected in the dependant fields (such as demag and exchange)
 immediately. 
 
    
-
-
-
-
-
-
 
    

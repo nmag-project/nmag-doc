@@ -1,5 +1,4 @@
-.. comment:
-  .. _`example vortex`:
+.. _Example: Vortex formation and propagation in disk:
 
 Example: Vortex formation and propagation in disk
 -------------------------------------------------
@@ -7,20 +6,20 @@ Example: Vortex formation and propagation in disk
 This example computes the evolution of a vortex in a flat cylinder
 magnetised along a direction orthogonal to the main axis.  
 
-We use the same geometry as in the `Hysteresis loop for thin
-disk example`_: a flat cylinder, 20 nm thick and 200 nm in diameter (the mesh
-is contained in `nanodot.nmesh.h5
-<../example_vortex/nanodot.nmesh.h5>`__):
+We use the same geometry as in the :ref:`Hysteresis loop for thin
+disk example <example hysteresis disk>`: a flat cylinder, 20 nm thick and 200 nm in diameter (the mesh
+is contained in :download:`nanodot.nmesh.h5
+</example_vortex/nanodot.nmesh.h5>`):
 
-.. image:: ../example_vortex/nanodot_mesh.png
+.. image:: /example_vortex/nanodot_mesh.png
   :align: center
   :width: 515
   :height: 346
 
 To simulate the magnetised disc, we use the following
-script (`nanodot.py <../example_vortex/nanodot.py>`__):
+script (:download:`nanodot.py </example_vortex/nanodot.py>`):
 
-.. include:: ../example_vortex/nanodot.py
+.. include:: /example_vortex/nanodot.py
   :literal:
 
 We would like to compute the magnetisation behaviour in the applied
@@ -39,74 +38,66 @@ steps of ``-5e3 A/m``. The command for this is::
                       ]
                 )
 
-The ncol_ command allows us to extract the data and we redirect it to
-a text file with name `nmag.dat <../example_vortex/nmag.dat>`__::
+The :ref:`ncol` command allows us to extract the data and we redirect it to
+a text file with name :download:`nmag.dat </example_vortex/nmag.dat>`::
 
   $ ncol nanodot H_ext_0 m_Py_0 > nmag.dat
 
-
-Plotting the data with Gnuplot_::
+Plotting the data with `Gnuplot`_::
 
   $ gnuplot make_comparison_plot.gnu
 
-which uses the script in `make_comparison_plot.gnu <../example_vortex/make_comparison_plot.gnu>`__:
+which uses the script in :download:`make_comparison_plot.gnu </example_vortex/make_comparison_plot.gnu>`:
 
-.. include:: ../example_vortex/make_comparison_plot.gnu
+.. include:: /example_vortex/make_comparison_plot.gnu
   :literal:
 
 The resulting graph is shown here:
 
-.. image:: ../example_vortex/nanodot_evo.png
+.. image:: /example_vortex/nanodot_evo.png
   :align: center
   :width: 750
   :height: 525
 
-and we can see that the results from nsim_ match those from magpar_
-. The magnetisation configurations during the switching process are
+and we can see that the results from :ref:`nsim` match those from `magpar`_.
+The magnetisation configurations during the switching process are
 shown in the following snapshots:
 
-.. figure:: ../example_vortex/nanodot-1.png
+.. figure:: /example_vortex/nanodot-1.png
   :align: center
   :alt: nanodot-1
 
   Magnetisation configuration for a decreasing applied field of 20 kA/m. The x-axis is increasing from left to right for this and the subsequent plots.
 
-.. figure:: ../example_vortex/nanodot-2.png
+.. figure:: /example_vortex/nanodot-2.png
   :align: center
   :alt: nanodot-2
 
   Magnetisation configuration for a decreasing applied field of 15 kA/m.
 
-
-.. figure:: ../example_vortex/nanodot-3.png
+.. figure:: /example_vortex/nanodot-3.png
   :align: center
   :alt: nanodot-3
 
   Magnetisation configuration for a decreasing applied field of 10 kA/m.
 
-
-.. figure:: ../example_vortex/nanodot-4.png
+.. figure:: /example_vortex/nanodot-4.png
   :align: center
   :alt: nanodot-4
 
   Magnetisation configuration for a decreasing applied field of -30 kA/m.
 
-
-.. figure:: ../example_vortex/nanodot-5.png
+.. figure:: /example_vortex/nanodot-5.png
   :align: center
   :alt: nanodot-5
 
   Magnetisation configuration for a decreasing applied field of -95 kA/m.
 
-
-.. figure:: ../example_vortex/nanodot-6.png
+.. figure:: /example_vortex/nanodot-6.png
   :align: center
   :alt: nanodot-6
 
   Magnetisation configuration for a decreasing applied field of -100 kA/m.
-
-
-
 
 We see that during magnetisation reversal a vortex nucleates on the
 boundary of the disc when the field is sufficiently decreased from its
@@ -117,5 +108,4 @@ further decrease of the applied field the vortex moves towards the
 opposite side of the disc with respect to the nucleation position, and
 it is eventually expelled when the magnetisation aligns with the field
 direction over all the disc.
-
 

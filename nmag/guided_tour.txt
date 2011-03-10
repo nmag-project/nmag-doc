@@ -1,0 +1,74 @@
+.. _Guided Tour:
+
+Guided Tour
+===========
+
+We present a number of worked out examples that are explained in
+detail and should cover most of the usual applications.
+
+.. toctree::
+   :maxdepth: 3
+
+   example1/doc.txt
+
+   example2/doc.txt
+
+   example_hysteresis_ellipsoid/doc.txt
+
+   example_stoner_wohlfarth/doc.txt
+
+   example_hysteresis_disk/doc.txt
+
+   example_vortex/doc.txt
+
+   example_manipulate/doc.txt
+
+   example_ipython/doc.txt
+
+   example_pinning/doc.txt
+
+   example_uniaxial_anis/doc.txt
+
+   example_cubic_anis/doc.txt
+
+   example_user_anis/doc.txt
+
+   example_restart/doc.txt
+
+   example_two_materials/doc.txt
+
+   example_larmor/doc.txt
+
+   example_1Dperiodicity/doc.txt
+
+   example_2Dperiodicity/doc.txt
+
+   example_periodic_spinwaves/doc.txt
+
+   example2/doc2.txt
+
+   example_zhangli1/doc.txt
+
+   example_zhangli2/doc.txt
+
+   mesh_distortion/doc.txt
+
+   example_phi_BEM_hlib/doc.txt
+
+   example_tolerances/doc.txt
+
+   example_mpi1/doc.txt
+
+.. comment
+   example_timestepper_params/doc.txt
+
+.. comment
+   example_thermal_cube/doc.txt
+
+
+.. _More than one magnetic material, exchange coupled:
+
+More than one magnetic material, exchange coupled
+-------------------------------------------------
+
+To be written.

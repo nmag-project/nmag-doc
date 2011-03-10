@@ -1,14 +1,18 @@
+.. _Compression of the Boundary Element Matrix using HLib:
+
 Compression of the Boundary Element Matrix using HLib
 -----------------------------------------------------
 
 .. include:: <isogrk1.txt>
+
+.. _Hierarchical Matrices in Micromagnetism:
 
 Hierarchical Matrices in Micromagnetism
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Nmag uses the hybrid finite element method/boundary element method
 (hybrid FEM/BEM) to compute the demagnetisation field (as does
-Magpar_). Not using this method, one would have to discretise a large
+`Magpar`_). Not using this method, one would have to discretise a large
 part of space arround the magnetic structure (ideally all
 space). Using the hybrid FEM/BEM method, it is only necessary to
 discretise (and solve the equations for the demag field on that
@@ -42,8 +46,8 @@ employ techniques which involve some kind of approximation of **B**,
 for example using hierarchical matrices.
 
 .. comment:
-  The basic `idea
-  <http://hlib.org/literature.html#boerm_grasedyck_hackbusch_2004>`__ of
+  The basic :download:`idea
+  <http://hlib.org/literature.html#boerm_grasedyck_hackbusch_2004>` of
   this hierarchical matrix approach is to split **B** into submatrices,
   which are stored within the leaves of a hierarchical tree
   structure. Since those submatrices describe the dipole potential at a
@@ -66,7 +70,7 @@ representation. For the use of HLib hierarchical matrices in
 micromagnetic simulations we are often mostly interested in the their
 reduced *memory* requirements.
 
-The library HLib_ contains implementations of this hierarchical matrix
+The library `HLib`_ contains implementations of this hierarchical matrix
 methodology, and can be used with Nmag in order to run micromagnetic
 simulations in a more memory efficient way (see for example `Knittel
 et al 105, 07D542 (2009)
@@ -74,10 +78,12 @@ et al 105, 07D542 (2009)
 <http://www.soton.ac.uk/~fangohr/publications/postprint/Knittel_etal_JAP_105_07D542_2009.pdf>`__).
 .
 
+.. _Installation of HLib:
+
 Installation of HLib
 ~~~~~~~~~~~~~~~~~~~~
 
-In order to be able to use the HLib_ library and to obtain the HLib source
+In order to be able to use the `HLib`_ library and to obtain the HLib source
 code, you have to apply for an HLib licence as explained on
 http://hlib.org/license.html\ .
 
@@ -102,7 +108,7 @@ accordingly (e.g. ``nmag-X.Y.Z`` for version ``X.Y.Z``).
 Inside the directory ``nmag-0.1`` there is a directory called
 ``hlib-pkg`` and we need to copy (or move) the HLib tarball into this directory::
 
-  me@mymachine:~/nmag-0.1$ cp ../HLib-1.3p19.tar.gz hlib-pkg/
+  me@mymachine:~/nmag-0.1$ cp HLib-1.3p19.tar.gz hlib-pkg/
 
 You can now compile Nmag with HLib support in the usual way::
 
@@ -134,6 +140,7 @@ inside the directory ``nmag-0.1/hlib-pkg``.
 The current nmag release requires Hlib version 1.3p19, to support HLib
 matrix compression.
 
+.. _Testing the HLib BEM Matrix compression:
 
 Testing the HLib BEM Matrix compression
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -149,8 +156,6 @@ The test should take less than 5 minutes. If it passes, then it
 appears that the hlib is used, and produces quantitatively appropriate
 approximations of the true solution.
 
-
-
 Using HLib example 1: Demagnetisation Field of a Sphere 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 
@@ -164,19 +169,21 @@ used algorithms, being still very efficient (see for example `Knittel et al 105,
 <http://www.soton.ac.uk/~fangohr/publications/postprint/Knittel_etal_JAP_105_07D542_2009.pdf>`__).
 
 The performance and accuracy of the HCA II algorithm can be tuned by providing
-a number of parameters, which are collected inside a `HMatrixSetup`_ object.
+a number of parameters, which are collected inside a :ref:`HMatrixSetup` object.
 A default ``HMatrixSetup`` object is provided, where a reasonable choice of
 these parameters is made. The default parameters can be overriden by users.
 
-We point the reader to the documentation of the `HMatrixSetup`_ class
+We point the reader to the documentation of the :ref:`HMatrixSetup` class
 for a list and description of all avaliable parameters. The next
 example shows how to use HLib with the default values for the setup of
 the BEM matrix.
 
+.. _Using HLib with default parameters:
+
 Using HLib with default parameters
 ++++++++++++++++++++++++++++++++++
 
-The Nmag script `sphere_hlib.py <../example_phi_BEM_hlib/sphere_hlib.py>`__ shows how Nmag can be used in order to compute
+The Nmag script :download:`sphere_hlib.py </example_phi_BEM_hlib/sphere_hlib.py>` shows how Nmag can be used in order to compute
 the demagnetisation field within a sphere with a radius of 50 nm.
 
   .. include:: sphere_hlib.py
@@ -193,7 +200,7 @@ parameters in ``nmag.default_hmatrix_setup``.
 (The actual values of the parameters can be visualised on the screen by simply
 printing the object with ``import nmag; print nmag.default_hmatrix_setup``.)
 
-When running the simulation `sphere_hlib.py <../example_phi_BEM_hlib/sphere_hlib.py>`__ using the usual command::
+When running the simulation :download:`sphere_hlib.py </example_phi_BEM_hlib/sphere_hlib.py>` using the usual command::
 
  nsim sphere_hlib.py --clean,
 
@@ -212,12 +219,12 @@ it should print out the demagnetisation field at ten points along the line
  x= 4e-09 : H_demag =  [-333052.78687652596, -25.388604442091431, -76.097088958697071]
  x= 5e-09 : H_demag =  [-333051.43416558538, -25.507782471847442, -77.792885797356391]
 
-As in `example 1`_ of our guided tour, we should obtain a constant
+As in :ref:`example 1` of our guided tour, we should obtain a constant
 magnetic induction of about [333333,0,0] [A/m]. Deviations from that value
 can be mainly ascribed to the discretisation errors of the finite
 element method (rather than the error due to the approximation with
-hierarchical matrices). To see this, we use `sphere_fullBEM.py
-<../example_phi_BEM_hlib/sphere_fullBEM.py>`__ which carries out the same
+hierarchical matrices). To see this, we use :download:`sphere_fullBEM.py
+</example_phi_BEM_hlib/sphere_fullBEM.py>` which carries out the same
 calculation but uses the normal full BEM. It reports::
 
  x= -5e-09 : H_demag =  [-333065.71403658605, -5.2685406972238447, -55.70105442854085]
@@ -239,6 +246,8 @@ HLib), and that the error we see there (of the order of 60/333333 in
 the z-component) is coming from approximating the spherical shape with
 tetrahedra, and approximating the magnetisation with a piecewise
 linear function (not primarily from using the HLib approximation of the BEM).
+
+.. _HLib Memory usage:
 
 HLib Memory usage
 +++++++++++++++++
@@ -271,6 +280,8 @@ the memory used for the hierarchical tree structure itself, by computing
 the difference between the size of the hierarchical matrix and
 the sum of the total sizes of the admissible and inadmissible leaves.
 
+.. _Changing the Parameters of HLib:
+
 Changing the Parameters of HLib
 +++++++++++++++++++++++++++++++
 
@@ -281,7 +292,7 @@ parameter ``nmin`` to 50, reassign the parameter ``eps_aca`` to 1e-5 in order to
 decrease the accuracy of the HCA II algorithm, and reduce the accuracy of 
 the numerical integration by setting the parameter ``quadorder`` to 2.
 
-To use non-default settings in a new script `sphere_hlib2.py <../example_phi_BEM_hlib/sphere_hlib2.py>`__ we  add one line to create an ``HMatrixSetup`` object ::
+To use non-default settings in a new script :download:`sphere_hlib2.py </example_phi_BEM_hlib/sphere_hlib2.py>` we  add one line to create an ``HMatrixSetup`` object ::
 
   #create an HLib object
   hms = nmag.HMatrixSetup(nmin=50, eps_aca=1e-5, quadorder=2)
@@ -297,7 +308,7 @@ with a preceding 'time', i.e. ::
 
 do the same with the sphere_hlib.py script, and compare the execution times. Alternatively, 
 search for the string like "Populating BEM took 25.094362 seconds" in the log file/output.
-The execution time of the second script should be smaller (see also `Using HLib Example 2: Thin Films`_).
+The execution time of the second script should be smaller (see also :ref:`Using HLib Example 2: Thin Films <Using HLib Example 2 Thin Films>`).
 
 For completeness: the Hdemag values computed with this script are::
 
@@ -313,10 +324,10 @@ For completeness: the Hdemag values computed with this script are::
  x= 4e-09 : H_demag =  [-333048.08718075219, 6.4586908275326955, -83.334113807086638]
  x= 5e-09 : H_demag =  [-333046.47566667694, 8.6375699926922742, -85.648195356633963]
 
-
-
-
  
+
+.. _Using HLib Example 2 Thin Films:
+
 Using HLib Example 2: Thin Films
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -324,7 +335,7 @@ In this example we consider square thin films with a thickness of 10
 nm (in z-direction), and a varying edge length (in x and y directions)
 between 20 and 130 nm . The magnetisation within those films is
 initially homogeneously aligned and points out-of-plane. We then use
-Nmag's relax_ routine in order to evolve the magnetisation field to an
+Nmag's :ref:`relax` routine in order to evolve the magnetisation field to an
 energetically (meta-)stable state. 
 
 In order to estimate the efficiency benefits of hierarchical matrices,
@@ -332,7 +343,7 @@ the simulations are executed twice: (i) with and (ii) without
 hierarchical matrices. Optimal damping is ensured by setting the
 damping constant of the LLG equation to 1. To increase the efficiency
 of the relaxation the tolerance of the time-stepper has been increased
-to 1e-5 (see `Example: Timestepper tolerances`_).
+to 1e-5 (see :ref:`Example: Timestepper tolerances <example tolerances>`).
 
 For our estimation of the efficiency we measure the time needed for
 the setup of our simulation (basically the time for populating the
@@ -342,16 +353,16 @@ which should be roughly equal to the maximal value throughout the
 simulation. 
 
 For each film size and either use of the full BEM or the approximation through hierarchical matrices, a separate nsim script file
-(`thinfilm20_full.py <../example_phi_BEM_hlib/simulation_films/thinfilm20_full.py>`__,
-`thinfilm40_full.py <../example_phi_BEM_hlib/simulation_films/thinfilm40_full.py>`__,
-`thinfilm60_full.py <../example_phi_BEM_hlib/simulation_films/thinfilm60_full.py>`__, ...,
-`thinfilm20_hlib.py <../example_phi_BEM_hlib/simulation_films/thinfilm20_hlib.py>`__, etc.) 
+(:download:`thinfilm20_full.py </example_phi_BEM_hlib/simulation_films/thinfilm20_full.py>`,
+:download:`thinfilm40_full.py </example_phi_BEM_hlib/simulation_films/thinfilm40_full.py>`,
+:download:`thinfilm60_full.py </example_phi_BEM_hlib/simulation_films/thinfilm60_full.py>`, ...,
+:download:`thinfilm20_hlib.py </example_phi_BEM_hlib/simulation_films/thinfilm20_hlib.py>`, etc.) 
 has been written. It is important to start every simulation as a
 single process (by calling ``nsim thinfilm20_full.py --clean`` etc.),
 so that there are no overlaps in the memory access of different
 simulations. From every script a routine ``run_simulation`` which is
-imported from a local nsim module `simtools.py
-<../example_phi_BEM_hlib/simulation_films/simtools.py>`__, starts a simulation specified by
+imported from a local nsim module :download:`simtools.py
+</example_phi_BEM_hlib/simulation_films/simtools.py>`, starts a simulation specified by
 its arguments (name of the simulation, name of the mesh file, name of
 hlib object in case hierarchical matrices are used, and the tolerance
 for the time integrator) and returns the number of nodes of the mesh,
@@ -368,7 +379,7 @@ Looking at the spatially averaged magnetisation we find a very good agreement
 between both simulation types (example given for the film with an edge length of 
 100nm):
 
-.. image:: ../example_phi_BEM_hlib/relaxation_m.png
+.. image:: /example_phi_BEM_hlib/relaxation_m.png
   :align: center
   :width: 740
   :height: 510
@@ -378,7 +389,7 @@ and relaxes into a high remanent state, which is aligned along the diagonal of t
 square base. The plot below shows a 3d visualisation of the relaxed magnetisation 
 field (obtained with Mayavi2) for a thin film with an edge length of 130 nm.
 
-.. image:: ../example_phi_BEM_hlib/thinfilm130.png
+.. image:: /example_phi_BEM_hlib/thinfilm130.png
   :align: center
   :width: 678
   :height: 678
@@ -395,7 +406,7 @@ ferromagnetic structures. The graph
 on the memory consumption should enable users to estimate, whether they can 
 simulate a certain structure with Nmag+HLib and the available hardware.
 
-.. image:: ../example_phi_BEM_hlib/performance.png
+.. image:: /example_phi_BEM_hlib/performance.png
   :align: center
   :width: 725
   :height: 375
@@ -403,13 +414,13 @@ simulate a certain structure with Nmag+HLib and the available hardware.
 Besides the savings in memory, hierarchical matrices also reduce the time needed 
 for the simulation setup considerably (see the bottom graph).
 
+.. _HLib and MPI:
+
 HLib and MPI
 ~~~~~~~~~~~~
 
-The HLib_ library that is available for academic use does not support
+The `HLib`_ library that is available for academic use does not support
 parallel execution. It is thus stored on the master node, and cannot
 be distributed over several nodes. Simulations using the Hlib library
 can use MPI (for all other calculations).
-
-
 

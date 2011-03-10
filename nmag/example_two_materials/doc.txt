@@ -1,3 +1,5 @@
+.. _example two different magnetic materials:
+
 Example: two different magnetic materials
 -----------------------------------------
 
@@ -6,19 +8,19 @@ of two 15 nm x 15 nm x 15 nm cubes close to one another (with 2 nm
 spacing along the x-axis). We take the right cube to be made of
 PermAlloy and the left cube to be made of Cobalt, with the magnetic
 anisotropy axis pointing in z-direction. The mesh has been generated
-with Netgen_ from the geometry file `two_cubes.geo <../example_two_materials/two_cubes.geo>`__.
+with `Netgen`_ from the geometry file :download:`two_cubes.geo </example_two_materials/two_cubes.geo>`.
 
-.. image:: ../example_two_materials/cubes.png
+.. image:: /example_two_materials/cubes.png
    :align: center
    :width: 568
    :height: 468
 
-We use the `two_cubes.py <../example_two_materials/two_cubes.py>`__ script to carry out the simulation:
+We use the :download:`two_cubes.py </example_two_materials/two_cubes.py>` script to carry out the simulation:
 
-.. include:: ../example_two_materials/two_cubes.py
+.. include:: /example_two_materials/two_cubes.py
    :literal: 
 
-The script is very similar to the one used in `example 2`_. However,
+The script is very similar to the one used in :ref:`example 2`. However,
 here we have two materials. The related changes are that we define two
 magnetic materials, and assign them to objects ``Co`` and ``Py``.
 
@@ -61,7 +63,7 @@ unstable equilibrium direction for the magnetisation anisotropy of the
 Cobalt cube, we slightly distort the initial magnetisation by adding a
 tiny component in +z-direction.
 
-It is instructive to compare the field_\ s and subfield_\ s for this
+It is instructive to compare the :ref:`field`\ s and :ref:`subfield`\ s for this
 particular example with the list of fields and subfields for a
 single-material simulation. In effect, all the fields that are related
 to the properties of some particular magnetic component carry multiple
@@ -76,17 +78,15 @@ the related charge density ``rho`` and magnetic scalar potential
 ``phi``. All the other relevant fields in this example turn out to be
 related to a particular magnetic component.
 
-
-.. include:: ../example_two_materials/table.txt
+.. include:: /example_two_materials/table.txt
 
 The issue of multiple magnetic components becomes much more
 interesting when we study multi-component alloys, i.e. if we associate
 more than one type of magnetisation to a single region in the
 mesh. Usually, we will then also have to introduce some "generalized
 anisotropy energy" term of the form ``E=c*M_a*M_b`` that depends on
-more than a single magnetisation subfield (see `More than one magnetic
-material, exchange coupled`_).
-
+more than a single magnetisation subfield (see :ref:`More than one magnetic
+material, exchange coupled`).
 
 Once we have run the simulation using::
 
@@ -95,7 +95,7 @@ Once we have run the simulation using::
 we can analyse the results. For example, we can plot the magnetisation
 of the two materials against time:
 
-.. image:: ../example_two_materials/results.png
+.. image:: /example_two_materials/results.png
    :align: center
    :width: 696
    :height: 470
@@ -118,7 +118,7 @@ shown to improve the readability of the plots):
 
 Time T=0 ps:
 
-.. image:: ../example_two_materials/vis1.png
+.. image:: /example_two_materials/vis1.png
    :align: center
    :width: 756
    :height: 669
@@ -127,7 +127,7 @@ Time T=1e-10s=0.1ns: Cobalt is already pointing up, i.e. in the
 direction of the anisotropy axis, while Permalloy has just started to
 rotate.
 
-.. image:: ../example_two_materials/vis2.png
+.. image:: /example_two_materials/vis2.png
    :align: center
    :width: 756
    :height: 669
@@ -137,14 +137,14 @@ and Permalloy is still rotating, but already pointing down (to
 minimise the interaction energy between the cubes to the
 demagnetisation stray fields).
 
-.. image:: ../example_two_materials/vis3.png
+.. image:: /example_two_materials/vis3.png
    :align: center
    :width: 756
    :height: 669
 
 Time T=1 ns: The final configuration has been reached.
 
-.. image:: ../example_two_materials/vis4.png
+.. image:: /example_two_materials/vis4.png
    :align: center
    :width: 756
    :height: 669

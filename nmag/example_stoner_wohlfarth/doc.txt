@@ -1,27 +1,27 @@
-.. _`Stoner-Wohlfarth example`:
+.. _stoner-wohlfarth example:
 
 Example: Hysteresis loop for Stoner-Wohlfarth particle
 ------------------------------------------------------
 
-This example is very similar to `Example: Simple hysteresis loop`_ but
+This example is very similar to :ref:`Example: Simple hysteresis loop <simple hysteresis example>` but
 computes the hysteresis loop of a smaller ellipsoidal magnetic
 object. This allows to compare the results with the analytical
 solution given by the Stoner-Wohlfarth model.  We use an ellipsoid
 whose x,y,z semi-axes have lengths 9 nm, 3 nm and 3 nm,
-respectively. (The mesh is contained in `ellipsoid.nmesh.h5
-<../example_stoner_wohlfarth/ellipsoid.nmesh.h5>`__ and produced with
-Netgen_ from `ellipsoid.geo
-<../example_stoner_wohlfarth/ellipsoid.geo>`__):
+respectively. (The mesh is contained in :download:`ellipsoid.nmesh.h5
+</example_stoner_wohlfarth/ellipsoid.nmesh.h5>` and produced with
+`Netgen`_ from :download:`ellipsoid.geo
+</example_stoner_wohlfarth/ellipsoid.geo>`):
 
-.. image:: ../example_stoner_wohlfarth/ellipsoid_mesh.png
+.. image:: /example_stoner_wohlfarth/ellipsoid_mesh.png
   :align: center
   :width: 488
   :height: 424
 
 To compute the hysteresis loop for the ellipsoid, we use the 
-script `ellipsoid.py <../example_stoner_wohlfarth/ellipsoid.py>`__:
+script :download:`ellipsoid.py </example_stoner_wohlfarth/ellipsoid.py>`:
 
-.. include:: ../example_stoner_wohlfarth/ellipsoid.py
+.. include:: /example_stoner_wohlfarth/ellipsoid.py
   :literal:
 
 We apply external magnetic fields in [110] direction (i.e. 45 degrees
@@ -33,31 +33,33 @@ data to save, and how often. Here, we are only interested in saving
 the spatially averaged magnetisation values for every stage (i.e.
 meta-stable equilibrium before the applied field is changed).
 
+.. _Plotting the hysteresis loop:
+
 Plotting the hysteresis loop
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To extract the data needed for plotting the hysteresis loop
 we proceed as explained in the previous
-example `Example: Simple hysteresis loop`_.
-We use the ncol_ command and extract the data into a text file
-named `plot.dat <../example_stoner_wohlfarth/plot.dat>`__::
+example :ref:`Example: Simple hysteresis loop <simple hysteresis example>`.
+We use the :ref:`ncol` command and extract the data into a text file
+named :download:`plot.dat </example_stoner_wohlfarth/plot.dat>`::
 
  $ ncol ellipsoid H_ext_0 H_ext_1 H_ext_2 m_Py_0 m_Py_1 m_Py_2 > plot.dat
 
-We then use Gnuplot_ to plot the loop::
+We then use `Gnuplot`_ to plot the loop::
 
   $ gnuplot make_plot.gnu
 
-The gnuplot script `make_plot.gnu <../example_stoner_wohlfarth/make_plot.gnu>`__ is:
+The gnuplot script :download:`make_plot.gnu </example_stoner_wohlfarth/make_plot.gnu>` is:
 
-.. include:: ../example_stoner_wohlfarth/make_plot.gnu
+.. include:: /example_stoner_wohlfarth/make_plot.gnu
   :literal:
 
 Note that within the gnuplot file, we project the magnetisation data
 in the ``[1,1,0]`` direction because the applied field was acting
 in this direction. We obtain this hysteresis loop:
 
-.. image:: ../example_stoner_wohlfarth/hysteresis.png
+.. image:: /example_stoner_wohlfarth/hysteresis.png
   :align: center
   :width: 718
   :height: 508
@@ -71,8 +73,13 @@ z in this case), it is sufficient to compute the factor along the
 longest axis (x axis). The other two are easily derived from the
 relation Nx + Ny + Nz = 1.  The expression to compute Nx is
 
-.. figure:: ../example_stoner_wohlfarth/demag_nz.png
-  :align: center
+.. math::
+
+   N_x = \frac{1}{m^2-1} \cdot \left[ \frac{m}{2\sqrt{m^2-1}} \cdot \ln\left( \frac{m+\sqrt{m^2-1}}{m-\sqrt{m^2-1}} \right) - 1 \right]
+
+.. todo-remove
+  .. figure:: /example_stoner_wohlfarth/demag_nz.png
+    :align: center
 
 where we call the length of the x semi-axis ``a``, the length of the y
 (or z) semi-axis ``c``, and take ``m`` to be the ratio 
@@ -80,15 +87,25 @@ where we call the length of the x semi-axis ``a``, the length of the y
 Ny = Nz = 0.4456. With these values the shape anisotropy is easily 
 computed according to the expression:
 
-.. figure:: ../example_stoner_wohlfarth/Ha.png
-  :align: center
+.. math::
+
+   H_a = M_s \cdot \Delta N = M_s \cdot \left(N_z-N_x\right)
+
+.. todo-remove
+  .. figure:: /example_stoner_wohlfarth/Ha.png
+    :align: center
 
 This gives Ha = 337 kA/m in the case of Ms = 1000 kA/m.  The final
 step is to compute the coercive field hc using this analytical
 (Stoner-Wohlfarth) result:
 
-.. figure:: ../example_stoner_wohlfarth/hc.png
-  :align: center
+.. math::
+
+   h_c = \frac{H_c}{H_a} = \sin \theta_0 \cdot \cos \theta_0
+
+.. todo-remove
+  .. figure:: /example_stoner_wohlfarth/hc.png
+    :align: center
 
 Here, theta_0 is the angle between the easy-axis of the particle
 (x-axis in our case) and the direction of the applied

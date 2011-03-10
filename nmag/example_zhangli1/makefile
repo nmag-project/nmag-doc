@@ -25,13 +25,13 @@ pyfilm.nmesh.h5: $(EXAMESH)
 remesh: netgen meshconvert
 
 pngformulae:
-	$(LATEXPNG) -f eq_zhangli_llg.tex eq_zhangli_llg.png $(BORDER)
-	python ../tools/scalepng eq_zhangli_llg.png 15
+#	$(LATEXPNG) -f eq_zhangli_llg.tex eq_zhangli_llg.png $(BORDER)
+#	python ../tools/scalepng eq_zhangli_llg.png 15
 	$(LATEXPNG) -f quant_table1.tex eq_zhangli_llg_d.png $(BORDER)
 	python ../tools/scalepng eq_zhangli_llg_d.png 11
-	EQ="v=\frac{P j \mu_B}{e M_{\mathrm{sat}} (1 + \xi^2)}"; \
-	$(LATEXPNG) eq_v.png "$$EQ" $(BORDER)
-	python ../tools/scalepng eq_v.png 4
+#	EQ="v=\frac{P j \mu_B}{e M_{\mathrm{sat}} (1 + \xi^2)}"; \
+#	$(LATEXPNG) eq_v.png "$$EQ" $(BORDER)
+#	python ../tools/scalepng eq_v.png 4
 	$(LATEXPNG) -f quant_table2.tex eq_v_d.png $(BORDER)
 	python ../tools/scalepng eq_v_d.png 11
 

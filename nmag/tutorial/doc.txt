@@ -1,3 +1,4 @@
+.. _Mini tutorial micromagnetic modelling:
 
 Mini tutorial micromagnetic modelling
 =====================================
@@ -5,8 +6,10 @@ Mini tutorial micromagnetic modelling
 This section is intended for researchers who are just beginning to
 explore micromagnetic modelling. It is assumed that you have some
 knowledge on micromagnetics. We advise to read this whole section, and
-then to look the `Guided tour`_ examples (or to explore other
-`micromagnetic packages`_ at that point).
+then to look the :ref:`Guided tour` examples (or to explore other
+:ref:`micromagnetic packages` at that point).
+
+.. _Introduction micromagnetic modelling:
 
 Introduction micromagnetic modelling
 ------------------------------------
@@ -19,7 +22,7 @@ so-called finite difference (FD) method and the finite element (FE)
 method. With either the FD or the FE method, we need to integrate the
 Landau-Lifshitz and Gilbert equation numerically over time (this is a
 coupled set of ordinary differential equations). All these
-calculations are carried out by the `micromagnetic packages`_ and the
+calculations are carried out by the :ref:`micromagnetic packages` and the
 user does not have to worry about these.
 
 The finite difference method subdivides space into many small
@@ -33,7 +36,7 @@ for such a cell could be a cube of dimensions 3nm by 3nm by 3nm.
 
 Let's assume we would like to simulate a sphere. The following picture 
 
-.. image:: ../tutorial/fd.png
+.. image:: fd.png
    :align: center
    :width: 200
    :height: 180
@@ -53,7 +56,7 @@ complicated geometries.
 
 Using tetrahedra, the a discretised sphere looks like this:
 
-.. image:: ../tutorial/fe.png
+.. image:: fe.png
    :align: center
    :width: 200
    :height: 186
@@ -61,15 +64,16 @@ Using tetrahedra, the a discretised sphere looks like this:
 The spherical shape is approximated better than with the finite
 differences.
 
-
 The first step in setting up a micromagnetic simulation is to describe
 the geometry. In the case of finite difference calculations, it will
-depend on the package you use (currently there is only OOMMF_ freely
+depend on the package you use (currently there is only `OOMMF`_ freely
 available) how to tell the package what geometry you would like to
 use, and how small your simulation cells should be.
 
 In the case of finite element calculations, you need to create a
-finite element mesh (see `Finite element mesh generation`_).
+finite element mesh (see :ref:`Finite element mesh generation`).
+
+.. _What is better finite differences or finite elements?:
 
 What is better: finite differences or finite elements?
 ------------------------------------------------------
@@ -85,13 +89,13 @@ This depends on what you want to simulate. Here are some points to consider.
 
 * Finite difference simulations need generally less computer memory
   (RAM). This is in particular the case if you simulate geometries
-  with a big surface (such as thin films). See `Memory requirements of
-  boundary element matrix`_ for a description of the memory
+  with a big surface (such as thin films). See :ref:`Memory requirements of
+  boundary element matrix` for a description of the memory
   requirements of the hybrid finite element/boundary element simulations (both
-  |Nmag| and Magpar_ are in this category).
+  |Nmag| and `Magpar`_ are in this category).
 
   If this turns out to be a problem for you, we suggest to read the section
-  `Compression of the Boundary Element Matrix using HLib`_.
+  :ref:`Compression of the Boundary Element Matrix using HLib`.
 
 * Finite element simulations are best suited to describe geometries
   with some amount of curvature, or angles other than 90 degrees. For
@@ -109,6 +113,7 @@ This depends on what you want to simulate. Here are some points to consider.
   meshing package), and in practice will take a significant amount of
   the time required to set up a finite element simulation. 
 
+.. _What size of the cells (FD) and tetrahedra (FE) should I choose?:
 
 What size of the cells (FD) and tetrahedra (FE) should I choose?
 ----------------------------------------------------------------
@@ -143,10 +148,10 @@ There are several things to consider:
 
   How much variation is acceptable, i.e. how big is the spin angle
   allowed to be? It depends on the accuracy required. Some general
-  guidelines from  M Donahue [in email to H Fangohr on 26 March
+  guidelines from M. Donahue [in email to H. Fangohr on 26 March
   2002 referring to OOMMF] which we fully endorse :
 
-  ``[Begin quote M Donahue]``
+  ``[Begin quote M. Donahue]``
 
   * if the spin angle is approaching 180 degrees, then the results are
     completely bogus.
@@ -169,17 +174,17 @@ There are several things to consider:
   Because this is such an important issue, OOMMF -- for example --
   provides ``Max Spin Ang`` data in its ``odt`` data table file (for
   the current configuration, the last stage, and the overall
-  run). |Nmag| has a columns ``maxangle_m_X`` in the ndt_ file that
+  run). |Nmag| has a columns ``maxangle_m_X`` in the :ref:`ndt` file that
   provide this information (where ``X`` is the name of the magnetic
   material).
 
   You will probably find that often a discretisation length of half
-  the `exchange length`_ or even about the `exchange length`_ is
+  the :ref:`exchange length` or even about the :ref:`exchange length` is
   chosen. If the spin angle stays sufficiently low during the whole
   simulation (including intermediate non-equilibrium configurations),
   then this may be acceptable.
 
-  The ultimate test (recommended by -- among others -- M Donahue and the
+  The ultimate test (recommended by -- among others -- M. Donahue and the
   nmag team) is the following:
 
 * cell size dependence test
@@ -187,7 +192,7 @@ There are several things to consider:
   The best way to check whether the cell size has been chosen small
   enough, is to perform a series of simulations with increasing cell
   size. Suppose we are simulating Permalloy (Ni80Fe20 with Ms=8e5 A/m,
-  A=1.3e-11) and the `exchange length`_ l\ :sub:`1` is about 5nm. Suppose further
+  A=1.3e-11) and the :ref:`exchange length` l\ :sub:`1` is about 5nm. Suppose further
   we would like to use a cell size of 5nm for our simulations. 
 
   We should then carry out the same simulation with smaller cell
@@ -213,7 +218,6 @@ There are several things to consider:
   of the validity of simulation results is a fundamental part of any
   simulation work.
 
-
 In summary, it is vital to keep the maximum spin angle small to obtain
 accurate results. One should always (!) check the value of the spin
 angle in the data files. One should also carry out a series of
@@ -222,7 +226,7 @@ next while keeping all other parameters and the geometry the
 same. This should reveal any changes in the results that depend on the
 discretisation length.
 
-
+.. _Exchange length:
 
 Exchange length
 ~~~~~~~~~~~~~~~
@@ -232,24 +236,34 @@ compute the exchange length. In this document, we refer to this
 equation for soft materials (where the demagnetisation energy is
 driving domain wall formation)
 
-.. image:: ../tutorial/l_ex_soft.png
-   :align: center
-   :width: 109
-   :height: 56
+.. math::
+
+   l_\mathrm{1} = \sqrt{\frac{2A}{\mu_0 M^2_\mathrm{s}}}
+
+.. todo-remove
+  .. image:: l_ex_soft.png
+     :align: center
+     :width: 109
+     :height: 56
 
 and this equation for hard materials (with uniaxial pinning) where the
 crystal anisotropy governs domain wall lengths
 
-.. image:: ../tutorial/l_ex_hard.png
-   :align: center
-   :width: 84
-   :height: 45
+.. math::
+
+   l_2 = \sqrt{\frac{A}{K_1}}
+
+.. todo-remove
+  .. image:: l_ex_hard.png
+     :align: center
+     :width: 84
+     :height: 45
 
 If in doubt which of the two equations is the right one, compute both
 |l1| and |l2| and choose the minimum length as the relevant exchange
 length for this system.
 
-
+.. _Further reading:
 
 Further reading
 ~~~~~~~~~~~~~~~
@@ -267,17 +281,16 @@ collapse
   * `M. J. Donahue, Journal of Applied Physics, 83, 6491-6493 (1998) <http://math.nist.gov/~MDonahue/publications.html#Donahue199710>`__
   
 
-
-
+.. _Micromagnetic packages:
 
 Micromagnetic packages
 ----------------------
 
 The following micromagnetic simulation packages are freely available on the internet:
 
- * OOMMF_ (finite differences)
+ * `OOMMF`_ (finite differences)
 
- * Magpar_ (finite elements)
+ * `Magpar`_ (finite elements)
 
  * |Nmag_url| (finite elements)
 
@@ -285,8 +298,7 @@ These are general purpose packages. Some other (and partly closed
 source/commercial packages) are listed at
 http://math.nist.gov/oommf/otherlinks.html.
 
-
-
+.. _Summary:
 
 Summary
 -------

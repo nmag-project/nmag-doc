@@ -1,3 +1,5 @@
+.. _Example: Utilizing Python Libraries:
+
 Example: Utilizing Python Libraries
 -----------------------------------
 
@@ -6,7 +8,7 @@ programming language (as many other simulation utilities do), |Nmag|
 is built on top of the Python library and as such allows tight
 integration with other Python software. This means in particular 
 that functionally advanced packages such as 
-`Scientific Python <http://www.scipy.org>'__ can be utilized for data 
+`Scientific Python <http://www.scipy.org>':ref:`_` can be utilized for data 
 generation, analysis, and post-processing.
 
 Despite |Nmag| being a MPI-based parallel application, it behaves like

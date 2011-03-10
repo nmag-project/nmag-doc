@@ -1,3 +1,5 @@
+.. _Mesh distortion for edge roughness simulation:
+
 Mesh distortion for edge roughness simulation
 ---------------------------------------------
 
@@ -9,7 +11,7 @@ processes (e.g., electron beam lithography or sputter
 deposition). This can potentially have a significant impact on the
 magnetization dynamics.  The advantage of finite element-based
 simulations is that such effects can be simulated (at least
-qualitatively) by distorting the mesh in a suitable way. ``nmeshpp``
+qualitatively) by distorting the mesh in a suitable way. :ref:`nmeshpp <nmeshpp>`
 provides a means of distorting a given mesh in order to imitate
 roughness so that the resulting effects on simulations can be
 explored. Note that at the moment only edge roughness is supported.
@@ -17,19 +19,21 @@ We first present an example in the following section and then go into
 the details of the command line interface and how the distortion
 process works.
 
+.. _Example:
 
 Example
 ~~~~~~~
 
 Consider a nanowire with dimensions 800nm x 20nm x 5nm (for
 convenience we provide the corresponding mesh in the file
-`nanowire_800x20x5.nmesh <../mesh_distortion/nanowire_800x20x5.nmesh>`__). [#]_
+:download:`nanowire_800x20x5.nmesh </mesh_distortion/nanowire_800x20x5.nmesh>`). [#examesh]_
 
 We distort this mesh using the following command:
 
 :: 
 
-  nmeshpp --distort 0.4 --correlation-length 2.0 --seed 23 nanowire_800x20x5.nmesh nanowire_800x20x5_distorted.nmesh
+  nmeshpp --distort 0.4 --correlation-length 2.0 --seed 23 nanowire_800x20x5.nmesh \
+            nanowire_800x20x5_distorted.nmesh
 
 Intuitively, what this command does is to randomly displace the
 "front" and "rear" nodes of the mesh and to stretch/shrink the middle
@@ -41,18 +45,19 @@ is shown):
 .. comment:
    XXX TODO: Add coordinate axes to the images.
 
-.. image:: ../mesh_distortion/smooth_wire_3D_view.png
+.. image:: /mesh_distortion/smooth_wire_3D_view.png
    :align: center
    :width: 500
    :height: 200
 
-.. image:: ../mesh_distortion/rough_wire_3D_view.png
+.. image:: /mesh_distortion/rough_wire_3D_view.png
    :align: center
    :width: 500
    :height: 200
 
-.. [#] The mesh file for the nanowire was produced using the ``examesh`` tool, which is included in the nmag distribution in the directory ``utils/cubicmesh/`` (note that it needs to be compiled before it can be used - just ``cd`` into this directory and type ``make``). The exact command used to produce the mesh file was ``examesh nanowire_800x20x5.nmesh,800:450,20:15,5:3``.
+.. [#examesh] The mesh file for the nanowire was produced using the ``examesh`` tool, which is included in the nmag distribution in the directory ``utils/cubicmesh/`` (note that it needs to be compiled before it can be used - just ``cd`` into this directory and type ``make``). The exact command used to produce the mesh file was ``examesh nanowire_800x20x5.nmesh,800:450,20:15,5:3``.
 
+.. _Details and command line options:
 
 Details and command line options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -67,7 +72,8 @@ explain the relevant command line options. The general usage is:
 
 ::
 
-  nmeshpp --front-rear-axis [X|Y|Z] --distort-along-axis [X|Y|Z] --distort D --correlation-length C --seed S mesh_orig.nmesh mesh_distorted.nmesh
+  nmeshpp --front-rear-axis [X|Y|Z] --distort-along-axis [X|Y|Z] --distort D \
+          --correlation-length C --seed S mesh_orig.nmesh mesh_distorted.nmesh
 
 Only ``--distort``, ``--correlation-length`` and the name of the input
 mesh are required arguments.
@@ -95,7 +101,7 @@ the right hand side shows the mesh after distortion with the function
 ``g``, which is depicted in the middle. Note that the contour of the
 distorted mesh follows the outline of ``g``.
 
-.. image:: ../mesh_distortion/steps_illustrated.png
+.. image:: /mesh_distortion/steps_illustrated.png
    :align: center
    :width: 1194
    :height: 149

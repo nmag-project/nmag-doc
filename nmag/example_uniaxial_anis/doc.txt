@@ -1,11 +1,14 @@
+.. _Example: Uniaxial anisotropy:
+
 Example: Uniaxial anisotropy
 ----------------------------
 
 In this example we would like to simulate the development of a Bloch type
 domain wall on a thin cobalt bar of dimension 504 x 1 x 1 nm
-(`bar.nmesh.h5 <../example_uniaxial_anis/bar.nmesh.h5>`__) due to uniaxial
+(:download:`bar.nmesh.h5 </example_uniaxial_anis/bar.nmesh.h5>`) due to uniaxial
 anisotropy.
 
+.. _Uniaxial anisotropy simulation script:
 
 Uniaxial anisotropy simulation script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -13,7 +16,7 @@ Uniaxial anisotropy simulation script
 .. include:: bar.py
   :literal:
 
-We shall now discuss the `bar.py <../example_uniaxial_anis/bar.py>`__  script 
+We shall now discuss the :download:`bar.py </example_uniaxial_anis/bar.py>`  script 
 step-by-step:
 
 In this particular example we are solely interested in energy terms resulting
@@ -53,12 +56,14 @@ value rather than the number 0.0 or 1.0)::
 
 Finally, we relax the system to find the equilibrium magnetisation
 configuration, which is saved to the file ``bar_mag_x.dat`` in a format
-understandable by Gnuplot_.
+understandable by `Gnuplot`_.
+
+.. _Visualization:
 
 Visualization
 ~~~~~~~~~~~~~
 
-We can then use the following Gnuplot_ script to visualize
+We can then use the following `Gnuplot`_ script to visualize
 the equilibrium magnetisation:
 
 .. include:: bar_mag_x.gnu
@@ -66,7 +71,7 @@ the equilibrium magnetisation:
 
 The resulting plot clearly shows that a Bloch type domain wall has developed:
 
-.. image:: ../example_uniaxial_anis/bar_mag_x.png
+.. image:: /example_uniaxial_anis/bar_mag_x.png
   :align: center
   :width: 800
   :height: 600
@@ -74,19 +79,21 @@ The resulting plot clearly shows that a Bloch type domain wall has developed:
 The figure shows also that the Bloch domain wall is well localized at the center
 of the bar, in the region where x goes from 200 to 300 nm.
 
+.. _Comparison:
+
 Comparison
 ~~~~~~~~~~
 
 After simulating the same scenario with
-OOMMF (see `oommf/bar.mif <../example_uniaxial_anis/oommf/bar.mif>`__),
-we can compare results using another Gnuplot_ script:
+OOMMF (see :download:`oommf/bar.mif </example_uniaxial_anis/oommf/bar.mif>`),
+we can compare results using another `Gnuplot`_ script:
 
 .. include:: bar_mag_x_compared.gnu
   :literal:
 
 which generates the following plot showing good agreement of both systems:
 
-.. image:: ../example_uniaxial_anis/bar_mag_x_compared.png
+.. image:: /example_uniaxial_anis/bar_mag_x_compared.png
   :align: center
   :width: 800
   :height: 600

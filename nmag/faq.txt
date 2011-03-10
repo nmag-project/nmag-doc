@@ -1,0 +1,255 @@
+.. _Frequently Asked Questions:
+
+Frequently Asked Questions
+==========================
+
+.. contents::
+  :local:
+
+.. _What is the difference between the OOMMF and |nmag| approach?:
+
+What is the difference between the OOMMF and |nmag| approach?
+-------------------------------------------------------------
+
+There are several aspects. One important point is the calculation of
+the demagnetisation field as this is a computationally very expensive step.
+
+`OOMMF`_ is based on discretising space into small cuboids (often called
+'finite differences'). One advantage of this method is that the demag
+field can be computed very efficiently (via fast Fourier
+transformation techniques). One disadvantage is that this methods
+works less well (i.e. less accurately) if the geometry shape does not
+align with a cartesian grid as the boundary then is represented as a
+staircase pattern.
+
+|nmag|'s finite elements discretise space into many small
+tetrahedra. The corresponding approach towards the computation of the
+demagnetisation field (which is the same as `Magpar`_'s method) is based
+on the Fredkin and Koehler Hybrid Finite Element/Boundary Element
+method. The advantage of this method (over OOMMF's approach) is that
+curved and spherical geometries can be spatially resolved much more
+accurately. However, this method of calculating the demagnetisation
+field is less efficient than OOMMF's approach for thin films. (In
+particular: memory requirements for the boundary element method grow
+as the square of the number of surface points.) Note that for
+simulation of thin films, the hybrid Finite Element/Boundary Element
+(as used by |nmag| and `Magpar`_) is likely to require a lot of memory
+(see :ref:`memory requirements of boundary element matrix`).
+
+There are other points that are related to the fundamentally different
+discretisation approach used to turn a field theory problem (with a
+conceptually infinite number of degrees of freedom) into a finite
+problem: OOMMF assumes the magnetisation in every cell to be constant
+(with jumps at boundaries), while |Nmag| assumes magnetisation to be
+continuous and vary linearly within cells (thus slightly violating the
+constraint of constant magnitude within a cell of non-constant
+magnetisation).
+
+.. _... So, this means the major difference is "cubes" vs. "tetrahedra"?:
+
+... So, this means the major difference is "cubes" vs. "tetrahedra"?
+--------------------------------------------------------------------
+
+No. Simplicial mesh discretisation is fundamentally different from
+finite-difference discretisation. With OOMMF, say, magnetisation
+degrees of freedom are associated with the centers(!) of the cells,
+while with nmag, they are associated with corners. This conceptual
+difference has many implications, e.g. for the question how to
+conceptually deal with the exchange interaction between different
+materials.
+
+.. _Why do you have your own Python interpreter (=``nsim``)?:
+
+Why do you have your own Python interpreter (=\ ``nsim``\ )?
+------------------------------------------------------------
+
+In order to provide the ability to run code in a distributed
+environment (using MPI), we cannot use the standard Python
+executable. (Technically speaking, a program started under MPI control
+will receive extra MPI-related command line arguments which upset the
+standard Python interpreter.) It so happens that -- by providing our
+own Python executable which is called ``nsim`` -- we have easier
+access to the low-level library of |nsim| which is written in
+Objective Caml.
+
+.. _What is nsim - I thought the package is called |nmag|?:
+
+What is nsim - I thought the package is called |nmag|?
+------------------------------------------------------
+
+The :ref:`nsim library` is our general purpose multi-physics simulation
+environment. The corresponding executable is started through the :ref:`nsim`
+command. |Nmag| is a collection of scripts that provide micromagnetic
+functionality on top of nsim. For this reason, nsim is being mentioned
+a lot in the manual.
+
+.. _How fast is nmag in comparison to magpar?:
+
+How fast is nmag in comparison to magpar?
+-----------------------------------------
+
+Internally, some of the magpar and nmag core components are
+structurally very similar. In particular, the time integration routine
+is almost identical up to some philosophical issues such as how to
+keep the length of the magnetisation vector constant, and whether or
+not to use a symmetrical exchange matrix and a post-processing step
+rather than combining these into an asymmetrical matrix, etc. The
+actual wall clock time used will depend to a large degree on the
+requested accuracy of the calculations (see :ref:`example timestepper
+tolerances <example tolerances>`).
+
+Given equivalent tolerance parameters, we have found (the
+single-process version of) nmag to be about as fast as magpar. The
+computation of an individual velocity dM/dt is very similar in nmag
+and magpar, and about equally efficient. However, we observe that,
+depending on the particular problem, subtle differences in the
+philosophies underlying time integration can lead to noticeable
+differences in the number of individual steps required to do some
+particular simulation, which can be up to about 25% of simulation time
+in either direction.
+
+Setup time is a different issue: nmag derives its flexibility from
+abstract approaches where magpar uses hard-coded compiled
+functions. Where magpar uses a hand-coded Jacobian, nmag employs the
+nsim core to symbolically compute the derivative of the equations of
+motion. There is a trade-off: the flexibility of being able to
+introduce another term into the equations of motion without having to
+manually adjust the code for the Jacobian comes at a price in
+execution time. Therefore, nmag's setup time at present is far larger
+than magpar's. This can be alleviated to a considerable degree by
+providing hard-coded "bypass routines" which can be used as
+alternatives to the symbolically founded methods for special
+situations that are frequently encountered (such as setting up a
+Laplace operator matrix). Conceptually, it is easy to add support for
+this but due to limited manpower, it has not happened yet.
+
+In short: once the setup stage is over, nmag is about as fast as
+magpar. Magpar's setup time, however, is much smaller.
+
+.. _How do I start a time-consuming nmag run in the background?:
+
+How do I start a time-consuming nmag run in the background?
+-----------------------------------------------------------
+
+While this is a Unix rather than a nmag issue, it comes up
+sufficiently often to address it here.
+
+Well-known techniques to run programs in the background are:
+
+  - Using the "nohup" (no-hangup) command, as in::
+
+      nohup nsim sphere1.py &
+
+  - Using the at-daemon for scheduling of command execution at
+    given times::
+
+         at now
+         warning: commands will be executed using /bin/sh
+         at> nsim example1.py
+         at> <EOT>
+         job 2 at Fri Dec 14 12:08:00 2007
+
+  - Manual daemonization by using a parent process which forks & exits,
+    as in::
+
+      perl -e 'exit(0) if fork(); exec "nsim sphere1.py"'
+
+    (But if you know Unix to that degree, you presumably would
+    not have asked in the first place.)
+
+  - One of the most elegant ways to start a process in the background
+    is by using the "screen" utility, which is installed on a number of
+    Unix systems. With "screen", it becomes possible to start a text
+    terminal session in such a way that one can "detach" from it while
+    keeping the session alive, and even log out and log in again much
+    later and from a different machine, re-attaching the terminal
+    session and continuing work from the point where it was left.
+
+    While it is a good idea to read the documentation, most basic usage of
+    "screen" requires the knowledge of three commands only:
+    
+      - With "screen -R", one can re-attach to a running session,
+        automatically creating a new one if none was created before.
+    
+      - Within a "screen" session, Control+a is a prefix keyboard command
+        for controlling "screen": Pressing Control-a and then Control-d
+        will detach the session.
+    
+      - Control-a ? will being up a help screen showing all "screen"
+        keyboard commands.
+    
+
+.. comment:
+       Furthermore, once one exits a shell which was started under "screen"
+       control, this will kill the "screen" session as well.
+     
+
+.. _nmag claims to support MPI. So, can I run simulation jobs on multiple processors?:
+
+nmag claims to support MPI. So, can I run simulation jobs on multiple processors?
+---------------------------------------------------------------------------------
+
+Yes. See :ref:`Example: Parallel execution (MPI) <example parallel execution (MPI)>`.
+
+.. _How should I cite nmag?:
+
+How should I cite nmag?
+-----------------------
+
+For the time being, please cite: 
+
+* Thomas Fischbacher, Matteo Franchin, Giuliano Bordignon, and Hans
+  Fangohr.  *A Systematic Approach to Multiphysics Extensions of
+  Finite-Element-Based Micromagnetic Simulations: Nmag*, in IEEE
+  Transactions on Magnetics, **43**, 6, 2896-2898 (2007). (Available `online <http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=4202717>`__)
+  
+A more substantial publication is in preparation.
+
+.. _Why can you not use the step as a unique identifier?:
+
+Why can you not use the step as a unique identifier?
+----------------------------------------------------
+
+There are two reasons. Firstly, |nmag| may be extended in future to
+support effective energy minimisation in which case the ``step``
+becomes somewhat meaningless (although it could probably still be used
+as an identifier if we identify minimisation iterations with
+steps). Secondly (and more importantly), in |nmag|, the user can modify
+the magnetisation directly using :ref:`set_m` (either scripted or
+interactively). This will change the configuration of the system
+without increasing the step counter of the time integrator. For this
+reason, we have the :ref:`unique identifier id <unique identifier id>`.
+
+.. _How to generate a mesh with more than one region using GMSH?:
+
+How to generate a mesh with more than one region using GMSH?
+------------------------------------------------------------
+
+To assign different material properties to different objects, the mesher needs to assign different region number to different simplices of the mesh. The manual shows how to do this for netgen (see :download:`two_cubes.geo <example_two_materials/two_cubes.geo>`) file in example :ref:`Example: two different magnetic materials <example two different magnetic materials>`). 
+
+How does one define different regions using GMSH? User Xu Shu (Wuhan,
+China) kindly provides this solution:
+
+  Within GMSH, one has to firstly "add physical groups" and choose the
+  two detached volumes separately to add them into different groups,
+  then choose "edit" to redefine the number of the two groups, thus you
+  can get two physical objects as you want.
+
+.. _Can I run more than one simulation in one directory?:
+
+Can I run more than one simulation in one directory?
+----------------------------------------------------
+
+If you want to run two (or more) simulations in the same directory,
+then this is fine as well as long as they have different *simulation names*.
+ 
+The simulation name is either the string given to the constructor of
+the simulation object, or -- if no name is defined explicitly -- the
+name of the python file that contains the simulation script (without
+the ``.py`` extension). See :ref:`File names for data files` for a detailed
+example for this. 
+ 
+Data and log files will all start with the simulation name, followed
+by some specific appended string and specific file extensions. It is
+thus safe to run simulations with different names in the same
+directory.

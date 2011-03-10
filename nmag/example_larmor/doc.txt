@@ -1,18 +1,17 @@
-.. comment:
-  .. _`Example Larmor precession`:
+.. _Example: Larmor precession:
 
 Example: Larmor precession
 -----------------------------------------------------
 
 This example shows how to derive the period of the Larmor precession
 for the magnetisation and compare the result from simulation to the
-analytical solution. It is inspired by an example from the magpar_
+analytical solution. It is inspired by an example from the `magpar`_
 documentation
 (http://magnet.atp.tuwien.ac.at/scholz/magpar/doc/html/examples.html#sphere_larmor).
 
-We us the `larmor.py <../example_larmor/larmor.py>`__ script:
+We us the :download:`larmor.py </example_larmor/larmor.py>` script:
 
-  .. include:: ../example_larmor/larmor.py
+  .. include:: /example_larmor/larmor.py
     :literal:
 
 We turn off computation of the demagnetising field::
@@ -23,11 +22,10 @@ and set the damping term in the LLG equation to zero::
 
   llg_damping = SI(0.0)
 
-We set saturation magnetisation to Js = 1 T (see `Library of useful si
-constants`_)::
+We set saturation magnetisation to Js = 1 T (see :ref:`Library of useful si
+constants`)::
 
   Ms=1.0*si.Tesla/si.mu0	
-
 
 We use a sphere as the magnetic object and, starting from a uniform
 magnetic configuration along the [1,1,1] direction::
@@ -47,36 +45,47 @@ and then use the hysteresis command::
                  save=[('averages', every('time', 0.1*ps))],
                  do=[('exit', at('time', 300*ps))])
 
-The hysteresis_ command will save the averages (which is what we need
+The :ref:`hysteresis` command will save the averages (which is what we need
 to for the fit below) every 0.1 pico seconds. Once we reach the time
 of 300 pico seconds, the method will exit.
 
 The dynamics of the magnetisation is driven only by the
 Zeeman effect, with a torque:
 
-.. image:: ../example_larmor/torque.png
-   :align: center
-   :width: 133
-   :height: 18
+.. math::
+   {\mathbf T} = \mu_0 {\mathbf m} \times {\mathbf H}_{\rm ext}
 
+.. todo-remove
+  .. image:: /example_larmor/torque.png
+     :align: center
+     :width: 133
+     :height: 18
 
 acting on the magnetisation m which is orthogonal to both m and H;
 thus causing the magnetisation to precess around the applied field
 direction. The frequency of the precession, called f_Larmor, is given
 by:
 
-.. image:: ../example_larmor/frequency.png
-   :align: center
-   :width: 186
-   :height: 35
+.. math::
+   f_{\rm Larmor} = \frac{\gamma}{2\pi} \cdot \mu_0 \left|{\mathbf H}_{\rm ext}\right|
+
+.. todo-remove
+  .. image:: /example_larmor/frequency.png
+     :align: center
+     :width: 186
+     :height: 35
 
 where the parameter gamma, called gyromagnetic ratio, is taken to
-have the following value (see [#]_ ):
+have the following value (see [#llggamma]_ ):
 
-.. image:: ../example_larmor/gamma.png
-   :align: center
-   :width: 264
-   :height: 38
+.. math::
+   \gamma = \frac{g \cdot e}{2m_e} \approx 1.7588 \times10^{11}\,{\rm T}^{-1}{\rm s}^{-1}
+
+.. todo-remove
+  .. image:: /example_larmor/gamma.png
+     :align: center
+     :width: 264
+     :height: 38
 
 so that f_Larmor = 35.176 GHz and the period T = 1/f_Larmor =
 0.0284284 ns. 
@@ -92,7 +101,7 @@ and extract the (spatially averaged) magnetisation data for all save time steps:
 
   $ ncol larmor time m_Py_0 m_Py_1 m_Py_2 > data.txt
 
-Using Gnuplot_, we extract the value of the Larmor period T from the x-component of the magnetisation::
+Using `Gnuplot`_, we extract the value of the Larmor period T from the x-component of the magnetisation::
 
   $ gnuplot
 
@@ -107,19 +116,17 @@ function ``f(x)`` (where ``x`` represents time)::
 
 The result is the following image:
 
-.. image:: ../example_larmor/larmor_plot.png
+.. image:: /example_larmor/larmor_plot.png
    :align: center
    :width: 800
    :height: 600
 
 The values for B in the fit, which corresponds to the unknown period
-T, is initially set to 30 in order to help Gnuplot_ fit the curve.
+T, is initially set to 30 in order to help `Gnuplot`_ fit the curve.
 Such fit on T gives the value 28.4293; this value
 corresponds to 0.0284293 ns when rescaled by the 10e12 factor used for
 the plotting, and shows a difference starting from the 5th digit when
 compared to the analytical solution of 0.0284284 ns.  
 
-
-
-.. [#]  see the OOMMF manual, and in Werner Scholz thesis, after (3.7), llg_gamma_G = 2.210173e5 m/(As)
+.. [#llggamma]  See the OOMMF manual, and in Werner Scholz thesis, after (3.7), llg_gamma_G = 2.210173e5 m/(As).
 

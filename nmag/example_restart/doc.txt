@@ -1,3 +1,5 @@
+.. _restart example:
+
 Restart example
 ---------------
 
@@ -12,13 +14,15 @@ is to periodically save the state of the simulation in what we call
 a "restart file". The simulation can then be restarted
 using the appropriate command line option.
 
-The restart feature applies only to the hysteresis_ method.
+The restart feature applies only to the :ref:`hysteresis` method.
+
+.. _Saving the state of the simulation:
 
 Saving the state of the simulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We re-consider the cubic anisotropy example
-(`Cubic anisotropy simulation script`_)
+(:ref:`Cubic anisotropy simulation script`)
 and replace the last line:
 
 .. include:: last_line.py
@@ -34,10 +38,12 @@ the fields and their averages are saved at the end of each stage.
 The third line specifies that the restart file should be saved
 at the end of each stage and also every 1000 steps.
 
-For convenience the modified script `cube_restartable.py <../example_restart/cube_restartable.py>`__ is shown below:
+For convenience the modified script :download:`cube_restartable.py </example_restart/cube_restartable.py>` is shown below:
 
 .. include:: cube_restartable.py
   :literal:
+
+.. _Starting and restarting the simulation:
 
 Starting and restarting the simulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -128,7 +134,6 @@ the following output::
 
 The two lines between stage 17 and 18 stand as a reminder that the
 simulation was restarted at that point. (They need to be removed
-manually from the ``cube_restartable_dat.ndt`` file, before ncol_ can
+manually from the ``cube_restartable_dat.ndt`` file, before :ref:`ncol` can
 work in the usual way on the ndt file.)
-
 

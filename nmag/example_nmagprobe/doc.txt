@@ -1,3 +1,5 @@
+.. _Example: Calculation of dispersion curves:
+
 Example: Calculation of dispersion curves
 -----------------------------------------
 
@@ -58,25 +60,26 @@ two commands on the shell, one for each part of the simulation::
 "included" by the other two). In the next sections we will go through the
 three files which make up the numerical experiment.
 
+.. _The system: ``thesystem.py``:
+
 The system: ``thesystem.py``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The system under investigation is a cylindrical nanopillar of radius r=3 nm
 and length l=100 nm. The mesh file ``cylinder.nmesh.h5`` is obtained (using
-Netgen_).
+`Netgen`_).
 
 .. figure:: ../example_nmagprobe/cylinder.png
   :align: center
   :alt: magnonics-1
 
-
-The geometry file given to Netgen_ `cylinder.geo <../example_nmagprobe/cylinder.geo>`__ is shown below:
+The geometry file given to `Netgen`_ `cylinder.geo <../example_nmagprobe/cylinder.geo>`:ref:`_` is shown below:
 
 .. include:: cylinder.geo
   :literal:
 
 The cylinder is made of Permalloy and as specified in the file
-`thesystem.py <../example_nmagprobe/thesystem.py>`__ shown below:
+`thesystem.py <../example_nmagprobe/thesystem.py>`:ref:`_` shown below:
 
 .. include:: thesystem.py
   :literal:
@@ -95,10 +98,12 @@ we do it inside a function and return the created simulation object
 as a result of the function. The file defined here is not supposed
 to be run by itself, but rather to be used in part I and II.
 
+.. _Part I: ``relaxation.py``:
+
 Part I: ``relaxation.py``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The source for the file `relaxation.py <../example_nmagprobe/relaxation.py>`__
+The source for the file `relaxation.py <../example_nmagprobe/relaxation.py>`:ref:`_`
 is shown below:
 
 .. include:: relaxation.py
@@ -132,10 +137,12 @@ we then relax the system to find the equilibrium magnetisation.
 We finally save such a configuration in the file ``m0_filename``, i.e. with
 the name specified in ``thesystem.py``.
 
+.. _Part II: ``dynamics.py``:
+
 Part II: ``dynamics.py``
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The source for the file `dynamics.py <../example_nmagprobe/dynamics.py>`__
+The source for the file `dynamics.py <../example_nmagprobe/dynamics.py>`:ref:`_`
 is shown below:
 
 .. include:: dynamics.py
@@ -223,6 +230,8 @@ The function checks whether the x component in the given point is lower
 than ``pulse_amplitude`` and sets the applied field to a value differt
 from zero only if that is really the case.
 
+.. _Postprocessing the data:
+
 Postprocessing the data
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -274,7 +283,7 @@ from the file ``dynamics_dat.h5``.
   ``real-space.dat`` will be filled with the values of the y-component
   of dm(t, x, y, z) along the selected lattice. That will be a text file
   which can be inspected with a text editor and used within plotting programs
-  such as Gnuplot_;
+  such as `Gnuplot`_;
 
 * ``--ft-axes=0,1`` specifies that the selected data should be Fourier
   transformed along the axis 0 (time) and 1 (x-space);
@@ -290,8 +299,8 @@ The command creates two files: ``real-space.dat``, containing the y component
 of the magnetisation variation as a function of time and space,
 and ``rec-space.dat``, containing the Fourier transform of such a quantity.
 
-To plot the data in the two files we use the Gnuplot_ script
-`plot.gnp <../example_nmagprobe/plot.gnp>`__ :
+To plot the data in the two files we use the `Gnuplot`_ script
+`plot.gnp <../example_nmagprobe/plot.gnp>`:ref:`_` :
 
 .. include:: plot.gnp
   :literal:

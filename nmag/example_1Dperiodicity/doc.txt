@@ -1,8 +1,9 @@
-.. comment:
-  .. _`example 1Dperiodicity`:
+.. _Example: 1D periodicity:
 
 Example: 1D periodicity
 -------------------------
+
+.. _Introduction periodic boundary conditions ("macro geometry"):
 
 Introduction periodic boundary conditions ("macro geometry")
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,12 +35,12 @@ effects into account by allowing the user to provide a geometrical
 layout for a finite number (say, 100-1000) of cells that approximates
 the shape of the faraway outer boundary of the system.
 
-The macro geometry approach is described in [#]_ which may serve as a
+The macro geometry approach is described in [#Fangohretal]_ which may serve as a
 more detailed instruction to the concept.
 
-.. [#] Hans Fangohr, Giuliano Bordignon, Matteo Franchin, Andreas Knittel, Peter A. J. de Groot, Thomas Fischbacher. *A new approach to (quasi) periodic boundary conditions in micromagnetics: the macro geometry*, Journal of Applied Physics **105**, 07D529 (2009), Online at http://link.aip.org/link/?JAP/105/07D529
+.. [#Fangohretal] Hans Fangohr, Giuliano Bordignon, Matteo Franchin, Andreas Knittel, Peter A. J. de Groot, Thomas Fischbacher. *A new approach to (quasi) periodic boundary conditions in micromagnetics: the macro geometry*, Journal of Applied Physics **105**, 07D529 (2009), Online at http://link.aip.org/link/?JAP/105/07D529
 
-
+.. _1d example:
 
 1d example
 ~~~~~~~~~~
@@ -52,25 +53,24 @@ applications, one would use more copies. The only effect of additional
 copies are to increase the setup time needed to compute an internal
 boundary/boundary interaction matrix.) 
 
-The next `example 2D periodicity`_ demonstrates the macro geometry
-concept for a thin film. This is followed by the `Spin-waves example`_
+The next :ref:`example 2D periodicity` demonstrates the macro geometry
+concept for a thin film. This is followed by the :ref:`Spin-waves example <spin-waves example>`
 which includes exchange coupling between periodic copies (and is of
 more practical value).
 
+The mesh of the central simulation cell used is described in :download:`cube.geo </example_1Dperiodicity/cube.geo>` which reads:
 
-The mesh of the central simulation cell used is described in `cube.geo <../example_1Dperiodicity/cube.geo>`__ which reads:
-
-.. include:: ../example_1Dperiodicity/cube.geo
+.. include:: cube.geo
    :literal:
 
 Note that the mesh is centered around the origin. This is recommended for periodic simulations. (We need to document this better.) The resulting mesh is this (the periodic copies are not shown):
 
-.. figure:: ../example_1Dperiodicity/mesh.png
+.. figure:: /example_1Dperiodicity/mesh.png
    :align: center
 
-The script `periodic1.py <../example_1Dperiodicity/periodic1.py>`__ reads:
+The script :download:`periodic1.py </example_1Dperiodicity/periodic1.py>` reads:
 
-.. include:: ../example_1Dperiodicity/periodic1.py
+.. include:: periodic1.py
   :literal:
 
 Setup can be splitted into three steps. In the first step we set the
@@ -78,7 +78,6 @@ x_lattice parameter to be slightly larger than the dimension of the
 unit cell (in order not to have any overlap between the cells) and set
 the y_lattice and z_lattice parameters to zero to indicate no
 periodidicity along these directions ::
-
 
    x_lattice = 15.01 # the spacing is 0.01
    y_lattice = 0.0
@@ -111,9 +110,8 @@ crosses that have been obtained by computing the demagfield using
 OOMMF (where in OOMMF we have actually made the simulation cell larger
 and larger to represent the growing number of periodic copies).
 
-
  
-.. image:: ../example_1Dperiodicity/periodic1_in_axis.png
+.. image:: /example_1Dperiodicity/periodic1_in_axis.png
   :align: center
   :width: 726
   :height: 513
@@ -122,7 +120,7 @@ Demagnetising field as a function of the number of periodic
 copies with the magnetisation aligned along the periodic axis.
 
  
-.. image:: ../example_1Dperiodicity/periodic1_out_of_axis.png
+.. image:: /example_1Dperiodicity/periodic1_out_of_axis.png
   :align: center
   :width: 726
   :height: 513

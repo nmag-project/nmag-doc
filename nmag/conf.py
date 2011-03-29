@@ -70,12 +70,11 @@ exclude_patterns = ['dyn/svnversion.txt', 'dyn/nmagverstr.txt', 'example_nmagpro
                     'example_hysteresis_disk/plot_head.txt', 'example2/data_M.txt',
                     'example_2Dperiodicity/plot.txt', 'example_cubic_anis/cube_hext_vs_m.txt',
                     'example_cubic_anis/oommf/cube_hext_vs_m.txt', 'example_parameters/data_*.txt',
-                    'example_parameters/iterations.txt', 'example_pylibraries/*',
-                    'example_stoner_wohlfarth/ellipsoid_progress.txt', 'example_thermal_cube/*',
+                    'example_parameters/iterations.txt', 'example_pylibraries/*', 'example_thermal_cube/*',
                     'example_tolerances/resultsummary*.txt', 'example_two_materials/oommf-data.txt',
                     'example_two_materials/table.txt', 'example_uniaxial_anis/oommf/bar_mag_x.txt',
                     'under_construction/*', 'example1/example1_sphere.txt', 'example_vortex/allopt.txt',
-                    'dyn/nmag.txt']
+                    'dyn/nmag.txt', '**/*_progress.txt']
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.

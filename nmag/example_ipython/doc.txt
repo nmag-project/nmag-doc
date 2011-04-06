@@ -1,20 +1,19 @@
-.. comment:
-  .. _`Example ipython`:
+.. _example IPython:
 
 Example: IPython
 ----------------
 
-The basics of this file are as in `Example: Demag field in uniformly
-magnetised sphere`_: a ferromagnetic sphere is studied, and initially
+The basics of this file are as in :ref:`Example: Demag field in uniformly
+magnetised sphere <example 1>`: a ferromagnetic sphere is studied, and initially
 configured to have homogeneous magnetisation. 
 
-Here is the source code of `sphere_ipython.py
-<../example_ipython/sphere_ipython.py>`__
+Here is the source code of :download:`sphere_ipython.py
+</example_ipython/sphere_ipython.py>`
 
-.. include:: ../example_ipython/sphere_ipython.py
+.. include:: sphere_ipython.py
   :literal:
 
-To execute this script, we have to give its name to the nsim_
+To execute this script, we have to give its name to the :ref:`nsim`
 executable, for example (on linux)::
 
   $ nsim sphere_ipython.py
@@ -33,7 +32,6 @@ a session::
   $ nsim sphere_ipython.py
 
   <snip>
-
 
   In [1]: sim.get_subfield("H_demag")
   Out[1]:
@@ -56,7 +54,6 @@ a session::
          [ -1.02055030e+02,  -9.53215211e+01,  -3.30239401e+05],
          [  1.94875407e+02,   1.22757584e+02,  -3.29771010e+05],
          [  6.16259262e+01,   1.66071597e+02,  -3.29848851e+05]])
-
 
 Note that within ipython, one can just press the TAB key to
 autocomplete object names, functions and commands.

@@ -6,13 +6,13 @@ all: pngformulae run ncol plot
 remesh: netgen meshconvert
 
 
-pngformulae:
-	../latex-png demag_nz.png "N_x=\\frac{1}{m^2-1}\\cdot\\left[\\frac{m}{2\\sqrt{m^2-1}}\\cdot\\ln\\left(\\frac{m+\\sqrt{m^2-1}}{m-\\sqrt{m^2-1}}\\right)-1\\right]"
-	python ../tools/scalepng demag_nz.png 11
-	../latex-png Ha.png "H_a=M_s\cdot\Delta N=M_s\cdot\left(N_z-N_x\right)"
-	python ../tools/scalepng Ha.png 7
-	../latex-png hc.png "h_c=\\frac{H_c}{H_a}=\\sin\\theta_0\\cdot\\cos\\theta_0"
-	python ../tools/scalepng hc.png 5
+#pngformulae:
+#	../latex-png demag_nz.png "N_x=\\frac{1}{m^2-1}\\cdot\\left[\\frac{m}{2\\sqrt{m^2-1}}\\cdot\\ln\\left(\\frac{m+\\sqrt{m^2-1}}{m-\\sqrt{m^2-1}}\\right)-1\\right]"
+#	python ../tools/scalepng demag_nz.png 11
+#	../latex-png Ha.png "H_a=M_s\cdot\Delta N=M_s\cdot\left(N_z-N_x\right)"
+#	python ../tools/scalepng Ha.png 7
+#	../latex-png hc.png "h_c=\\frac{H_c}{H_a}=\\sin\\theta_0\\cdot\\cos\\theta_0"
+#	python ../tools/scalepng hc.png 5
 
 
 scalepngs:

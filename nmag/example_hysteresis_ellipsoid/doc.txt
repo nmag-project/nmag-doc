@@ -1,4 +1,4 @@
-.. _`Hysteresis example`:
+.. _simple hysteresis example:
 
 Example: Simple hysteresis loop
 -------------------------------
@@ -6,18 +6,20 @@ Example: Simple hysteresis loop
 This example computes the hysteresis loop of an ellipsoidal magnetic
 object. We use an ellipsoid whose x,y,z semi-axes
 have lengths 30 nm, 10 nm and 10 nm, respectively. (The mesh is contained
-in `ellipsoid.nmesh.h5 <../example_stoner_wohlfarth/ellipsoid.nmesh.h5>`__ 
-and produced with Netgen_ from `ellipsoid.geo 
-<../example_hysteresis_ellipsoid/ellipsoid.geo>`__):
+in :download:`ellipsoid.nmesh.h5 </example_stoner_wohlfarth/ellipsoid.nmesh.h5>`
+and produced with `Netgen`_ from :download:`ellipsoid.geo 
+</example_hysteresis_ellipsoid/ellipsoid.geo>`):
 
-.. image:: ../example_hysteresis_ellipsoid/mesh.png
+.. image:: /example_hysteresis_ellipsoid/mesh.png
   :align: center
+  :width: 800
+  :height: 531
 
-This picture has been obtained by converting the mesh to a vtk_ file using::
+This picture has been obtained by converting the mesh to a :ref:`vtk` file using::
 
   $ nmeshpp --vtk ellipsoid.nmesh.h5 mesh.vtk
 
-and subsequent visualisation with Mayavi_::
+and subsequent visualisation with :ref:`Mayavi`::
 
   $ mayavi -d mesh.vtk -m SurfaceMap
 
@@ -27,20 +29,22 @@ red (Double click on ``SurfaceMap`` in the selected Modules list, then
 uncheck the ``Scalar Coloring`` box, click on ``Change Object Color``
 and select a suitable color).
 
-We provide the mayavi file `mesh.mv
-<../example_hysteresis_ellipsoid/mesh.mv>`__ that shows the
+We provide the mayavi file :download:`mesh.mv
+</example_hysteresis_ellipsoid/mesh.mv>` that shows the
 visulisation as in the figure above. (If you want to load this file
 into MayaVi, just use ``$ mayavi mesh.mv`` but make sure that
 ``mesh.vtk`` is in the same directory as mayavi will need to read
 this.)
 
+.. _Hysteresis simulation script:
+
 Hysteresis simulation script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To compute the hysteresis loop for the ellipsoid, we use the 
-script `ellipsoid.py <../example_hysteresis_ellipsoid/ellipsoid.py>`__:
+script :download:`ellipsoid.py </example_hysteresis_ellipsoid/ellipsoid.py>`:
 
-.. include:: ../example_hysteresis_ellipsoid/ellipsoid.py
+.. include:: /example_hysteresis_ellipsoid/ellipsoid.py
   :literal:
 
 As in the previous examples, we first need to import the modules
@@ -49,6 +53,8 @@ the fields and the averages whenever convergence is reached.
 We then define the material of the magnetic object, load the mesh and set
 the initial configuration of the magnetisation as well as the
 external field.
+
+.. _Hysteresis loop computation:
 
 Hysteresis loop computation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,7 +84,7 @@ Putting all this together, we obtain this command::
 which computes a list of vectors ``Hs``. Each entry in the list
 corresponds to one applied field.
 
-The hysteresis_ command takes this list of applied fields ``Hs`` as
+The :ref:`hysteresis` command takes this list of applied fields ``Hs`` as
 one input parameter, and computes the hysteresis loop for these
 fields::
 
@@ -86,11 +92,11 @@ fields::
 
 The ``save`` parameter is used to tell the hysteresis command what
 data to save, and how often. We have come across this notation when
-explaining the ``relax`` command in the section `"Relaxing" the
-system`_ of the previous example. In the example shown here, we
+explaining the ``relax`` command in the section :ref:`"Relaxing" the
+system` of the previous example. In the example shown here, we
 request that the *fields* and the *restart* data should be saved *at*
 the point in time where we reach *convergence*. (The spatially
-averaged data is saved automatically to the ndt_ file when the
+averaged data is saved automatically to the :ref:`ndt` file when the
 *fields* are saved.) This is done in a compact notation shown above
 which is equivalent to this more explicit version::
 
@@ -101,7 +107,7 @@ which is equivalent to this more explicit version::
 The compact notation can be used because here we want to save
 *fields* and *restart* data at the same time.
 
-The hysteresis_ command computes the time development of the system
+The :ref:`hysteresis` command computes the time development of the system
 for one applied field until a convergence criterion is met. It then
 proceeds to the next external field value provided in ``Hs``. 
 
@@ -121,6 +127,7 @@ If the simulation has been interrupted, it can be continued using
 
  $ nsim ellipsoid.py --restart
 
+.. _Obtaining the hysteresis loop data:
 
 Obtaining the hysteresis loop data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -129,26 +136,29 @@ Once the calculation has finished, we can plot the graph of the
 magnetisation (projected along the direction of the applied field) as a
 function of the applied field.
 
-We use the ncol_ command to extract the data into a text file named `plot.dat <../example_hysteresis_ellipsoid/plot.dat>`__::
+We use the :ref:`ncol` command to extract the data into a text file named :download:`plot.dat </example_hysteresis_ellipsoid/plot.dat>`::
 
  $ ncol ellipsoid H_ext_0 m_Py_0 > plot.dat
+
+.. _Plotting the hysteresis loop with Gnuplot:
 
 Plotting the hysteresis loop with Gnuplot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In this example, rather than using xmgrace_, we show how to plot data
-using Gnuplot_::
+In this example, rather than using `xmgrace`_, we show how to plot data
+using `Gnuplot`_::
 
   $ gnuplot make_plot.gnu
 
-The contents of the gnuplot script `make_plot.gnu <../example_hysteresis_ellipsoid/make_plot.gnu>`__ are:
+The contents of the gnuplot script :download:`make_plot.gnu </example_hysteresis_ellipsoid/make_plot.gnu>` are:
 
-.. include:: ../example_hysteresis_ellipsoid/make_plot.gnu
+.. include:: /example_hysteresis_ellipsoid/make_plot.gnu
   :literal:
 
 which generates the following hysteresis loop graph:
 
-.. image:: ../example_hysteresis_ellipsoid/hysteresis.png
+.. image:: /example_hysteresis_ellipsoid/hysteresis.png
   :align: center
-
+  :width: 725
+  :height: 494
 

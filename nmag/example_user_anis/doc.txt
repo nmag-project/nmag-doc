@@ -1,10 +1,14 @@
+.. _Example: Arbitrary Anisotropy:
+
 Example: Arbitrary Anisotropy
 -----------------------------
 
 In this example we discuss
-the script `coin.py <../example_user_anis/coin.py>`__
+the script :download:`coin.py </example_user_anis/coin.py>`
 which shows how the user can include in his simulations
 a customised magnetic anisotropy.
+
+.. _Arbitrary anisotropy simulation script:
 
 Arbitrary anisotropy simulation script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,7 +30,7 @@ In previous examples we found lines such as::
                                                                      K2=SI(21e3, "J/m^3")))
 
 where the material anisotropy was specified using the provided functions
-``nmag.uniaxial_anisotropy`` (uniaxial_anisotropy_) and ``nmag.cubic_anisotropy`` (cubic_anisotropy_).
+``nmag.uniaxial_anisotropy`` (:ref:`uniaxial_anisotropy`) and ``nmag.cubic_anisotropy`` (:ref:`cubic_anisotropy`).
 In this example we are using a different approach to define the anisotropy.
 First we define the function ``my_anisotropy``, which returns the energy density
 for the magnetic anisotropy::
@@ -86,16 +90,20 @@ In some cases the user may find useful to know that the functions
 can be added: the resulting anisotropy will have as energy
 the sum of the energies of the original anisotropies.
 
+.. _The result:
+
 The result
 ~~~~~~~~~~
 
 The steps involved to extract and plot the data for the simulation discussed
 in the previous section should be familiar to the user at this point of the manual.
 We then just show the graph obtained from the results
-of the script `coin.py <../example_user_anis/coin.py>`__.
+of the script :download:`coin.py </example_user_anis/coin.py>`.
 
-.. image:: ../example_user_anis/coin.png
+.. image:: /example_user_anis/coin.png
   :align: center
+  :width: 730
+  :height: 500
 
 During the switching the system falls into an intermediate state,
 where the magnetisation is nearly aligned with the anisotropy easy axis.

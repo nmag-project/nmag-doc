@@ -1,4 +1,4 @@
-
+.. _Example: Thermal Effects:
 
 Example: Thermal Effects
 ------------------------
@@ -7,9 +7,9 @@ Example: Thermal Effects
 stochastically fluctuating field with proper variance to the effective
 field, following "Micromagnetics and the Microstructure of
 Ferromagnetic solids" (section 14.6) by [Kronmuller]_. This feature is
-enabled by specifying a ``temperature`` when creating the Simulation_
+enabled by specifying a ``temperature`` when creating the :ref:`Simulation`
 object. Since the thermal noise renders |nmag|'s standard time
-integrator sundials_ unusable, it is using a fixed time step and the
+integrator `sundials`_ unusable, it is using a fixed time step and the
 Heun method for the time integration
 [Schrefl_IEEE_TransMag_36_3189]_. Another complication in these kind
 of studies of thermal fluctuations is that the error of the time
@@ -18,7 +18,7 @@ field is adding a stochastic term to the equations of motions) and
 thus a dynamic adaption of the time step is impossible. Instead, one
 needs to determine a fixed time step, and then run the simulation with
 this (the timestep to be used is passed via the ``thermal_delta_t``
-parameter to the Simulation_ object).
+parameter to the :ref:`Simulation` object).
 
 The same considerations and limitations of the stochastic simulation
 of thermal effects apply to the OOMMF "thetaevolve" extension module
@@ -33,7 +33,10 @@ but with small deviations in x and y due to a small temperature of 2K:
 
 .. image:: ../example_thermal_cube/random-noise-netgen-mesh.png
   :align: center
+  :width: 800
+  :height: 719
 
+.. _The zero temperature case:
 
 The zero temperature case
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,16 +53,16 @@ is acting exactly in the z-direction.
 
 Initially, we determine the field at which the magnetisation switches
 from +z to -z without thermal fluctuations. Using nmag at 0K (*i.e.*
-with the usual sundials_ time integrator), we find a switching field
+with the usual `sundials`_ time integrator), we find a switching field
 of 4.94e6 A/m. This script `thermal-0K.py
-<../example_thermal_cube/thermal-0K.py>`__ will repeat the calculation
+<../example_thermal_cube/thermal-0K.py>`:ref:`_` will repeat the calculation
 (with a varying step size in the applied field) up to the switching
 field:
 
 .. include:: ../example_thermal_cube/thermal-0K.py
   :literal:
 
-The hysteresis_ function takes this line::
+The :ref:`hysteresis` function takes this line::
 
    norm_list=[-1,-2, [], -4, -4.2, [], -4.9, -4.91, [], -4.94]
 
@@ -81,11 +84,14 @@ it will not switch at a somewhat smaller value, say 4.92e6 A/m, but
 that increasing the temperature will assist and enable this switching
 process. This is what we will study in this example. 
 
-The `mesh <../example_thermal_cube/cube.nmesh.h5>`__ we use has been created with Netgen_:
-
+The `mesh <../example_thermal_cube/cube.nmesh.h5>`:ref:`_` we use has been created with `Netgen`_:
 
 .. image:: ../example_thermal_cube/netgen-mesh.png
   :align: center
+  :width: 462
+  :height: 446
+
+.. _Choosing the time step:
 
 Choosing the time step
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -96,9 +102,11 @@ step size. For the simulations shown here, we have chosen 1e-15s
 small time steps) and practicability (calling for large time
 steps). The time step is in particular chosen such that when we
 include the thermal fluctuations the max angle stays below 45 degrees
-(see `Max angle requirements`_). We have found that for the
+(see :ref:`Max angle requirements`). We have found that for the
 temperatures used in this example, this is the case for a time step of
 1e-15s.
+
+.. _Finite temperatures:
 
 Finite temperatures
 ~~~~~~~~~~~~~~~~~~~
@@ -112,24 +120,24 @@ and that the switching is likely to take place the faster the higher
 the temperature is.
 
 For each simulation, we have chosen the initial magnetisation
-configuration to be taken from the `The zero temperature case`_ at an
+configuration to be taken from the :ref:`The zero temperature case` at an
 applied field of 4.92e6 A/m. We show one `script
-<../example_thermal_cube/thermal-2K.py>`__ that carries out this
+<../example_thermal_cube/thermal-2K.py>`:ref:`_` that carries out this
 simulation at a temperature of 2K:
 
 .. include:: ../example_thermal_cube/thermal-2K.py
   :literal:
 
-
 We have carried out the simulation three times at 2K with different
 random seeds (this is the ``user_seed_T`` argument in the constructor
-of the Simulation_ object). We have carried out 3 further simulations
+of the :ref:`Simulation` object). We have carried out 3 further simulations
 at 4K and one at 1K. The thermally assisted switching processes are
 summarised in the next figure:
 
-
 .. image:: ../example_thermal_cube/switching-field-4_92-nmag-netgen.png
   :align: center
+  :width: 800
+  :height: 600
 
 It can be seen that 
 
@@ -143,12 +151,11 @@ We also show a snap shot of one of the reversal processes at 2K:
 
 .. image:: ../example_thermal_cube/switch-snapshot-2K-netgen-mesh-4_92.png
   :align: center
-
+  :width: 522
+  :height: 518
 
 ------------------
 
-
 .. [Kronmuller] Kronmüller "Micromagnetics and the Microstructure of Ferromagnetic solids" (Book)
-
 
 .. [Schrefl_IEEE_TransMag_36_3189] Schrefl et al, "Langevin Micromagnetics of Recording Media Using Subgrain Discretization", IEEE Transactions on Magnetics, Vol 36 (5), 3189

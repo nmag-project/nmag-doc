@@ -1,9 +1,12 @@
+.. _Example: Pinning Magnetisation:
+
 Example: Pinning Magnetisation
 ------------------------------
 
 In this example we show how to pin (*i.e.* fix) magnetisation
 in certain parts of a material.
 
+.. _Pinning simulation script:
 
 Pinning simulation script
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -11,6 +14,7 @@ Pinning simulation script
 .. include:: sphere.py
   :literal:
 
+.. _Pinning magnetisation:
 
 Pinning magnetisation
 ~~~~~~~~~~~~~~~~~~~~~
@@ -21,8 +25,8 @@ used as a scale factor for ``dm/dt``, hence by setting it to 0 at
 certain locations of the mesh we can force magnetisation to remain
 constant at these locations for the entire simulation.
 
-We set the pinning field using set_pinning_ (which is used like
-set_m_ and set_H_ext_, except that it is a scalar field whereas the
+We set the pinning field using :ref:`set_pinning` (which is used like
+:ref:`set_m` and :ref:`set_H_ext`, except that it is a scalar field whereas the
 latter are vector fields) such that magnetisation is fixed at sites
 with distance less than 4 nm from the sphere's center. First we define
 a Python function which we decide to call ``pin_at_center``::
@@ -58,15 +62,16 @@ decide where the magnetisation should be pinned::
 Note the slightly counterintuitive fact that value 1 means "no pinning".
 
 Finally we apply an external field of 0.5 T in +y direction, and use
-relax_ to compute the equilibrium configuration.
+:ref:`relax` to compute the equilibrium configuration.
 
-The relax_ command::
+The :ref:`relax` command::
 
   sim.relax()
 
 will save the fields and averages at convergence (this is the default
-of the relax_ command).
+of the :ref:`relax` command).
 
+.. _Visualisation:
 
 Visualisation
 ~~~~~~~~~~~~~
@@ -77,12 +82,14 @@ data to VTK format::
   $ nmagpp --vtk=sphere.vtk sphere
 
 We would first like to verify that the pinning field has been set up
-properly.  Hence we use MayaVi_ to visualise it by showing an
+properly.  Hence we use :ref:`MayaVi` to visualise it by showing an
 isosurface of the pinning field (shown in blue), together with the
 magnetisation vector field.
 
-.. image:: ../example_pinning/pinned_core.png
+.. image:: /example_pinning/pinned_core.png
   :align: center
+  :width: 800
+  :height: 836
 
 The blue blob in the center of the sphere is the collection of those
 tetrahedra that have corners just inside the 4nm sphere. Because we
@@ -107,6 +114,8 @@ corresponds to 1.0 and blue corresponds to 0.73 (we have not shown the
 legend to provide a larger main plot). This demonstrates the gradual
 change from the pinned magnetisation in the centre to the outside.
 
-.. image:: ../example_pinning/magnetisation.png
+.. image:: /example_pinning/magnetisation.png
   :align: center
+  :width: 800
+  :height: 777
 

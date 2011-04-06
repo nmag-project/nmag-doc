@@ -1,7 +1,7 @@
 NSIM_ROOT=../../src
 NSIM_BIN=$(NSIM_ROOT)/bin
 NSIM_PYTHONPATH=$(NSIM_ROOT)/interface
-NSIM=$(NSIM_BIN)/nsim-raw
+NSIM=$(NSIM_BIN)/nsim --nolog -l error --
 
 .PHONY: all pngformulae html examples latex updatefiles
 
@@ -11,19 +11,18 @@ all: update pngformulae html pdf updatefiles
 final: update pngformulae htmlfinal pdffinal
 	echo "Done."
 
-dyn/svnversion.txt:
-	echo ".. |svnversion| replace:: "$$(svnversion -n) > dyn/svnversion.txt
+dyn/nmagverstr.txt:
+	echo ".. |nmagverstr| replace:: "`$(NSIM) dyn/nmagverstr.py` > dyn/nmagverstr.txt
+	echo ".. |nmagverinfo| replace:: "`$(NSIM) dyn/nmagverstr.py --info` >> dyn/nmagverstr.txt
 
-#the file svnversion.txt will be part of the repository for released versions
-#(so we don't overwrite it with current svnversion number)
-dynamic: dyn/svnversion.txt
+dynamic: dyn/nmagverstr.txt
 	cd dyn; ../$(NSIM) make_dyn.py; cd ..
 	cp $(NSIM_PYTHONPATH)/nsim/si_units/si.py dyn/si.py
 
-#developers can force update of manual with proper svnversion number
-#with this (non-default) target.
+# Developers can force update of manual with proper version number
+# with this (non-default) target.
 dev-dynamic: 
-	rm dyn/svnversion.txt
+	rm dyn/nmagverstr.txt
 	make dynamic
 
 update: dynamic
@@ -70,8 +69,8 @@ pngformulae:
 scalepngs:
 	python tools/scalepng images/smallsphere.png 5
 
-#Running examples should not be necessary as all resulting 
-#image files are part of svn. It can be used as a unit test.
+# Running examples should not be necessary as all resulting 
+# image files are included in the repository. It can be used as a unit test.
 examples:
 	cd example2; make all
 	cd example3; make all
@@ -84,3 +83,4 @@ examples:
 	cd example_larmor; make all
 	cd example_zhangli1; make all
 	cd example_zhangli2; make all
+

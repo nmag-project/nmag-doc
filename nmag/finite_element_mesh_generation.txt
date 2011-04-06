@@ -1,0 +1,265 @@
+.. _Finite element mesh generation:
+
+Finite element mesh generation
+==============================
+
+Finite element mesh generation is a difficult business, and one needs
+to get used to using at least one mesh generating software package to
+be able to create meshes for the geometries one wants to simulate.
+
+A list of available free and commercial mesh generators is available at: 
+http://www.andrew.cmu.edu/user/sowen/softsurv.html
+
+For |nmag| one needs to create 'unstructured' meshes which means for
+three dimensional simulations that the mesh simplices are tetrahedra,
+and the surface elements are triangles.
+
+We are not recommending any mesh generating software. We have used
+`Netgen`_ to generate most of the meshes for this manual. The
+Vienna/Sheffield group (Fidler and Schrefl) use the commercial mesh
+generator *GID* (http://gid.cimne.upc.es/).
+
+The mesh format used by |nmag| is called  |nmesh|  and described in
+:ref:`Nmesh file format`.
+
+The :ref:`nmeshimport` tool provides conversion from the following mesh
+formats into nmesh files:
+
+* Netgen (neutral). Create mesh in Netgen, then go to ``File->Export
+  Filetype`` and ensure that ``Neutral Format`` is selected. Then
+  export the mesh with ``File->Export Mesh``. (See also :ref:`Mesh
+  generation` which is part of the :ref:`Guided Tour`.)
+
+* There is a contributed import module for `Gambit`_. Use at your own risk.
+
+* `Gmsh`_ meshes written file format version 1.0 can be imported.
+
+  If you already have the Gmsh mesh file in format 2.0, then you can use ::
+
+    $> gmsh -3 -format msh1 -o outfile.msh infile.msh
+
+  to create 'outfile.msh' which contains the mesh in the gmesh file format 1.0 that can be imported.
+
+  If you create the mesh interactively, then
+    * choose ``FILE -> SAVE AS``,
+    * select ``Gmsh mesh (*.msh)`` from the drop down list,
+    * choose filename and click ``OK``
+    * When the ``MSH Options`` box appears, choose ``Version 1.0`` from the
+      drop down list in the Format field.
+    * click ``OK``
+
+  If you create your meshes automatically from the command line, then add ``--format msh1`` to the command line
+  to instruct `Gmsh`_ to write in the 1.0 format.
+
+.. _Nmesh file format:
+
+Nmesh file format
+-----------------
+
+There are two nmesh file formats: :ref:`ascii nmesh` and :ref:`hdf5 nmesh`.
+
+.. _Ascii nmesh:
+
+Ascii nmesh
+~~~~~~~~~~~
+
+This section describes the syntax of the nmesh ascii files. You only
+need to read this if you would like to know what the nmesh ascii
+format looks like. This is only necessary if you (i) need to convert
+nmesh ascii files into other mesh formats, or (ii) if you have
+generated a mesh in a format that is not supported by :ref:`nmeshimport`.
+
+(You could in principle convert any data into the `nmesh hdf5` format
+but it is expected that it is easier to convert the mesh into a `nmesh
+ascii` file, and then use :ref:`nmeshpp` with option ``--convert`` to
+convert the mesh frnm nmesh ascii to nmesh hdf5.)
+
+We describe the structure of the ascii nmesh file format using the
+following example: A :download:`mesh file <files/smallsphere.nmesh>` for 
+a sphere with radius 1 (with `Netgen`_ and this geometry file 
+:download:`sphere.geo <files/sphere.geo>`):
+
+.. image:: images/smallsphere.png
+   :align: center
+   :width: 480
+   :height: 434
+
+The mesh file looks as follows::
+
+  # PYFEM mesh file version 1.0
+  # dim = 3 	 nodes = 79 	 simplices = 174 	 surfaces = 148 	 periodic = 0
+  79
+           0.000000000000            0.000000000000            0.000000000000 
+           1.000000000000            0.000000000000            0.000000000000 
+           0.911922000000            0.410365000000            0.000000000000 
+           0.941662000000            0.159249000000            0.296499000000 
+  <snip>
+           0.038305000000           -0.552912000000           -0.107777000000 
+          -0.533150000000            0.052091000000           -0.084880000000 
+  174
+       1         58          0         62         78 
+       1         33         78         36         50 
+       1         19         77          0         17 
+       1         67         75         78         72 
+  <snip>
+       1         58          0         53         62 
+       1         77         51         32         39 
+       1         78         67         63         72 
+       1         78         49         63         50 
+  148
+       -1 1	45 51 59 
+       1 -1	5 12 13 
+       1 -1	25 37 39 
+  <snip>
+       1 -1	19 30 34 
+       1 -1	42 44 54 
+       1 -1	32 45 51 
+
+We have removed a significant number of lines for the purpose of
+abbreviation in the places marked with ``<snip>``. We discuss the
+different parts of this file in more detail:
+
+* The file starts with two lines starting with ``#``. 
+
+  * The first line contains a file format version string which needs to have
+    exactly this form.
+
+  * The second line contains a summary of the data, i.e.:
+
+    dim
+      the dimensionality of the space in which the mesh is defined (usually 3, 
+      as we work with meshes in 3d space).
+
+    nodes
+      the number of nodes (also called vertices), here ``79``
+
+    simplices
+      the number of simplices (also called volume elements), here ``174``. 
+      In 3d, a simplex is a tetrahedron.
+
+    surfaces
+      the number of surface elements, here ``148``. In 3d, the surface 
+      elements are triangles.
+
+    periodic
+      the number of periodic identifications of points.
+
+* The next section contains the data for all the nodes. The first line
+  of this section contains (again) the total number of nodes
+  (``79``). All subsequent 79 lines in this section contain each the
+  position of one node. Because the dimensionality of space in this
+  example is 3, there are 3 floating point numbers per node (i.e. the
+  x, y and z-component).
+
+* The next section contains the data for the simplices. The first line
+  of this section contains (again) the total number of simplices (here
+  ``174``). The next 174 lines contain the following information each:
+
+  The first integer is a *region identifier*. In this example, we have
+  only one region (the sphere). This is useful, if different magnetic
+  materials are simulated at the same time. When the mesh is loaded
+  into |nmag|, one assigns material properties to these regions.
+
+  The next 4 integers (in 3 dimensions) are node identifiers. The 4 nodes 
+  listed here, form a simplex. Note that the very first node has index 0.
+
+* The next section contains the data for the surface elements. The
+  first line contains the number of surface elements (``148``). The
+  next 148 lines contain each the following information:
+
+  - The first two integers are the region identifiers between which the
+    surface is sandwiched. If there is no simplex on one side of the surface,
+    then the "outside" region identifier of ``-1`` will be used. (It is possible
+    to use other negative numbers to discern between different parts of the outer 
+    boundary. This is occasionally important in |nsim| to specify Dirichlet and 
+    von Neumann boundary conditions along different parts of a boundary.)
+
+  - The following integers are the node ids of the nodes that define
+    the surface. (In this example, we have three nodes as the surface
+    elements are triangles.)
+
+  Note that this last section is only contained in the file to make the 
+  users' life easier (for, say, plotting of the mesh). This section on 
+  surface elements can be omitted and nmesh will read and process the mesh
+  even if the surface elements are not specified (they can be computed from 
+  the node and simplex data provided in the other sections).
+
+* The next section contains data about periodic points. The first line
+  again is the number of data lines to follow. Each data line gives the 
+  node indices belonging to one set of points that are treated as
+  copies of the same point. (I.e. |Nmag| will know that field degrees of 
+  freedom associated to points from such a set will have "mirage" copies and 
+  use this information internally e.g. in the time integrator and when building
+  finite element matrix operators.)
+
+.. _Hdf5 nmesh:
+
+Hdf5 nmesh
+~~~~~~~~~~
+
+In addition to the :ref:`Ascii nmesh` format, there is another (binary and
+compressed) way of storing nmesh meshes. This is based on the `hdf5`_
+library which often is abbreviated as ``h5``.
+
+We recommend that this file-format to store meshes as it is a
+compressed binary file format, and thus much more space efficient. The
+:ref:`nmeshpp` tool can convert (using ``--convert``) ascii nmesh files into
+hdf5 files. Likewise, using the :ref:`nmeshimport` tool with a target file
+name that ends in ``.h5`` will also choose this file format. We
+strongly recommend to use the extension ``.nmesh.h5`` (but ``.h5`` is
+sufficient to trigger saving meshes in hdf5 format).
+
+For conversion of other mesh formats to a format readable by |nmesh|,
+we suggest to bring data into :ref:`ascii nmesh` format, and then convert
+this ascii nmesh file to a .h5 file.
+
+For completeness, we outline the ``nmesh.h5`` file format
+here. Knowledge of `hdf5`_ or `pytables`_ may be useful to understand the
+underlying concepts.
+
+The nmesh.h5 file contains the following nodes (this is output from
+`pytables`_'s ``ptdump`` program)::
+
+  / (RootGroup) ''
+  /etc (Group) 'Configuration and version data'
+  /etc/filetype (Array(1L,)) 'data file type'
+  /etc/fileversion (Array(1L,)) 'data file type version'
+  /mesh (Group) 'Mesh data'
+  /mesh/points (CArray(1154L, 3L), shuffle, 
+                zlib(5)) 'Positions of mesh nodes (=points)'
+  /mesh/simplices (CArray(4953L, 4L), shuffle, zlib(5)) 
+               'Indices of nodes (starting from zero). 
+                Each row is one simplex.'
+  /mesh/simplicesregions (CArray(4953L,), shuffle, zlib(5)) 
+               'Region ids (one for each simplex).'
+
+In short, the position of the mesh nodes are stored in
+``/mesh/points`` as 8byte-floats. The simplices (i.e. tetrahedra in
+3d) are stored in ``/mesh/simplices`` as a set of integers (4 in 3d)
+per simplex which are the indices of the mesh nodes that form the
+simplex. We also need to store to what physical region each simplex
+belongs. Regions are coded by integer values (with 0 being vacuum, and
+-1 the area outside the mesh) and stored in ``/mesh/simplicesregions``.
+
+.. _mesh file size:
+
+mesh file size
+--------------
+
+The following table shows the size of the mesh file used in :ref:`Example 2` stored in various formats.
+
+  ======================== ========= =============
+  Filename                 size (kB)   type  
+  ======================== ========= =============
+  bar30_30_100.neutral     1036      ascii	 	 
+  bar30_30_100.neutral.gz  246	     gzipped ascii 
+  bar30_30_100.nmesh	   794	     ascii 	 
+  bar30_30_100.nmesh.h5    203	     hdf5 
+  ======================== ========= =============
+
+The ``.neutral`` file is the mesh as written by `Netgen`_ in this
+particular format. The second line shows the file size of the same
+file after compressing with ``gzip``. The third line shows the size of
+the mesh stored as an :ref:`Ascii nmesh` file while the last line gives
+the size of the corresponding :ref:`Hdf5 nmesh` file.
+

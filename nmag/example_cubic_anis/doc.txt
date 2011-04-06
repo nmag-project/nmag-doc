@@ -1,9 +1,12 @@
+.. _Example: Cubic Anisotropy:
+
 Example: Cubic Anisotropy
 -------------------------
 
 In this example we will study the behaviour of a 10 x 10 x 10 nm iron
 cube with cubic anisotropy in an external field.
 
+.. _Cubic anisotropy simulation script:
 
 Cubic anisotropy simulation script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -11,7 +14,7 @@ Cubic anisotropy simulation script
 .. include:: cube.py
   :literal:
 
-We will now discuss the `cube.py <../example_cubic_anis/cube.py>`__ script step-by-step:
+We will now discuss the :download:`cube.py </example_cubic_anis/cube.py>` script step-by-step:
 
 After creating the simulation object we define a magnetic material ``Fe``
 with cubic anisotropy representing iron::
@@ -26,7 +29,7 @@ with cubic anisotropy representing iron::
 We load the mesh and set initial magnetisation pointing in +z direction
 (that is, in a local minimum of anisotropy energy density).
 
-Finally, we use hysteresis_ to apply gradually stronger fields in +x direction (up to 50 mT)::
+Finally, we use :ref:`hysteresis` to apply gradually stronger fields in +x direction (up to 50 mT)::
 
   Hs = nmag.vector_set(direction=[1.0, 0, 0.0001],
                        norm_list=[0, 1, [], 19, 19.1, [], 21, 22, [], 50],
@@ -36,6 +39,7 @@ Note that we sample more often the region between 19 and 21 mT where
 magnetisation direction changes rapidly due to having crossed the anisotropy
 energy "barrier" between +z and +x (as can be seen in the graph below).
 
+.. _Analyzing the result:
 
 Analyzing the result
 ~~~~~~~~~~~~~~~~~~~~
@@ -46,17 +50,19 @@ magnetisation::
   ncol cube H_ext_0 M_Fe_0 > cube_hext_vs_m.txt
 
 Then we compare the result with OOMMF's result (generated from the
-equivalent scene description `oommf/cube.mif <../example_cubic_anis/oommf/cube.mif>`__)
-using the following Gnuplot_ script:
+equivalent scene description :download:`oommf/cube.mif </example_cubic_anis/oommf/cube.mif>`)
+using the following `Gnuplot`_ script:
 
 .. include:: cube_hext_vs_m.gnu
   :literal:
 
 which gives the following result:
 
-.. image:: ../example_cubic_anis/cube_hext_vs_m.png
+.. image:: /example_cubic_anis/cube_hext_vs_m.png
   :align: center
+  :width: 800
+  :height: 600
 
 |Nmag| provides advanced capabilities to conveniently handle
 arbitrary-order anisotropy energy functions. Details can be found in
-the documentation of the MagMaterial_ class.
+the documentation of the :ref:`MagMaterial` class.

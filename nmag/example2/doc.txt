@@ -1,8 +1,7 @@
-.. _`example 2`:
+.. _Example 2:
 
 Example 2: Computing the time development of a system
 -----------------------------------------------------
-
 
 This example computes the time development of the magnetisation in a
 bar with (x,y,z) dimensions 30 nm x 30 nm x 100 nm. The initial
@@ -10,21 +9,20 @@ magnetisation is pointing in the [1,0,1] direction, i.e. 45 degrees
 away from the x axis in the direction of the (long) z-axis. We first
 show the simulation code and then discuss it in more detail.
 
+.. _Mesh generation:
 
 Mesh generation
 ~~~~~~~~~~~~~~~
 
-While it is down to the mesh generation software (see also `Finite
-element mesh generation`_) to explain how to generate finite element
+While it is down to the mesh generation software (see also :ref:`Finite element mesh generation <finite element mesh generation>`) to explain how to generate finite element
 meshes, we briefly summarize the steps necessary to create a mesh for
-this example in Netgen_, and how to convert it into an ``nmesh`` mesh.
-
+this example in `Netgen`_, and how to convert it into an ``nmesh`` mesh.
 
 1. The finite element method requires the domain of interest to be
    broken down into small regions. Such a subdivision of space is
-   known as a mesh or grid. We use Netgen_ to create this mesh.
-   Netgen reads a `geometry file
-   <../example2/bar30_30_100.geo>`__ describing the 
+   known as a mesh or grid. We use `Netgen`_ to create this mesh.
+   Netgen reads a :download:`geometry file
+   </example2/bar30_30_100.geo>` describing the 
    three-dimensional structure. To create the mesh used here, 
    we can start Netgen and load the geometry file by using the menu: 
    ``File-> Load Geometry``. We then tell Netgen that we like the edge 
@@ -33,43 +31,43 @@ this example in Netgen_, and how to convert it into an ``nmesh`` mesh.
    ``Generate Mesh`` button will generate the mesh. Finally, using
    ``File->Export`` will save the mesh as a "*neutral*" file
    (this is the default) under the name ``bar30_30_100.neutral``.
-   (We provide a `gzipped version of this file <../example2/bar30_30_100.neutral.gz>`__
+   (We provide a :download:`gzipped version of this file </example2/bar30_30_100.neutral.gz>`
    for completeness.)
-
 
 2. This neutral file needs to be converted into a nmesh file. We do
    this using the command:: 
 
    $ nmeshimport --netgen bar30_30_100.neutral bar30_30_100.nmesh.h5
 
-
    By providing the ``.h5`` extension, we tell nmeshimport to write a
    compressed mesh file which is significantly smaller than an ascii
-   file (see `mesh file size`_).
+   file (see :ref:`mesh file size <mesh file size>`).
 
 The generated mesh looks like this:
 
-.. image:: ../example2/bar30_30_100.png
+.. image:: /example2/bar30_30_100.png
    :align: center
+   :width: 973
+   :height: 605
 
-We can examine the mesh using nmeshpp_ to obtain information about
+We can examine the mesh using :ref:`nmeshpp` to obtain information about
 mesh quality, the statistical distribution of edge lengths, the
 overall number of points and elements etc.
 
+.. _The simulation:
 
 The simulation
 ~~~~~~~~~~~~~~
 
-Having obtained the mesh file `bar30_30_100.nmesh.h5
-<../example2/bar30_30_100.nmesh.h5>`__, we can use the 
-program `bar30_30_100.py <../example2/bar30_30_100.py>`__ 
+Having obtained the mesh file :download:`bar30_30_100.nmesh.h5
+</example2/bar30_30_100.nmesh.h5>`, we can use the 
+program :download:`bar30_30_100.py </example2/bar30_30_100.py>` 
 to run the simulation:
 
   .. include:: bar30_30_100.py
     :literal:
 
-
-As in `Example demag field in uniformly magnetised sphere`_, we start
+As in :ref:`Example: demag field in uniformly magnetised sphere <example 1>`, we start
 by importing |nmag| and creating the material object.
 
 ::
@@ -95,10 +93,9 @@ The next line creates the simulation object::
 
 Here, we provide a name for the simulation, which is ``bar``. This
 will be used as the stem of the name of any data files that are being
-written. If this name is not specified (as in `Example demag field in
-uniformly magnetised sphere`_), it defaults to the name of the file
+written. If this name is not specified (as in :ref:`Example: demag field in
+uniformly magnetised sphere <example 1>`), it defaults to the name of the file
 that contains the script (but without the ``.py`` extension).
-
 
 Next, we load the mesh file, and set the initial (normalised)
 magnetisation to point in the ``[1,0,1]`` direction, i.e. to have
@@ -123,7 +120,7 @@ In this example, we would like to study a dynamic process and will ask
 
   dt = SI(5e-12, "s") 
 
-simply creates a `SI object`_ which represents our timescale.
+simply creates a :ref:`SI object` which represents our timescale.
 
 We then have a Python ``for``-loop in which ``i`` will take integer
 values ranging from 0 to 60 for subsequent iterations. All indented
@@ -147,7 +144,7 @@ In each iteration, we first call ``sim.advance_time(i*dt)`` which
 instructs |nmag| to carry on time integration up to the time 
 ``i*dt``.
 
-The call to save_data_ will save the average data into the
+The call to :ref:`save_data` will save the average data into the
 ``bar_dat.ndt`` file. 
 
 The last four lines contain an ``if`` statement which is used to save
@@ -158,7 +155,7 @@ case, we call::
 
   sim.save_data(fields='all')
 
-which will save the (spatial) averages of all fields_ (going into the
+which will save the (spatial) averages of all :ref:`fields <field>` (going into the
 ``bar_dat.ndt`` file), *and* the spatially resolved data for all
 fields (that are saved to ``bar_dat.h5``).
 
@@ -168,18 +165,18 @@ If ``i`` is not an integer multiple of 10, then the command::
 
 is called, which only saves spatially averaged data.
 
-
-
+.. _Analysing the data:
 
 Analysing the data
 ~~~~~~~~~~~~~~~~~~
 
+.. _Time dependent averages:
 
 Time dependent averages
 +++++++++++++++++++++++
 
 We first plot the average magnetisation vector against time. To
-see what data is available, we call ncol_ with just the name of the
+see what data is available, we call :ref:`ncol` with just the name of the
 simulation (which here is ``bar``)::
 
   $ ncol bar
@@ -225,7 +222,7 @@ simulation (which here is ``bar``)::
   39:      unixtime            <s>   1187172979.6 
 
 The meaning of the various entries is discussed in detail in section
-ncol_. Here, we simply note that the column indices (given by the
+:ref:`ncol`. Here, we simply note that the column indices (given by the
 number at the beginning of every line) we are most interested in are:
 
 - 0 for the ``time``,
@@ -239,13 +236,13 @@ number at the beginning of every line) we are most interested in are:
 - 23 for ``M_Py_2`` which is the z-component of the magnetisation of
   the Py material, 
 
-We can use ncol_ to extract this data into a file ``data_M.dat`` which
+We can use :ref:`ncol` to extract this data into a file ``data_M.dat`` which
 has the time for each time step in the first column and the x, y and z
 component of the magnetisation in columns 2, 3 and 4, respectively::
 
  $ ncol bar 0 21 22 23 > data_M.txt
 
-This creates a text file `data_M.txt <../example2/data_M.txt>`__ that
+This creates a text file :download:`data_M.txt </example2/data_M.txt>` that
 can be read by other applications to create a plot. 
 
 Note, however, that the order of the entries in the ndt file is not
@@ -257,39 +254,45 @@ extracted (i.e. ``time M_Py_0 M_Py_1 M_Py_2``)::
 
  $ ncol bar time M_Py_0 M_Py_1 M_Py_2 > data_M.txt
 
-We use the xmgrace_ command::
+We use the `xmgrace`_ command::
 
   xmgrace -nxy data_M.txt
 
 to create the following plot (manually adding the legend and axis labels):
 
-.. image:: ../example2/data_M.png
+.. image:: /example2/data_M.png
    :align: center
+   :width: 789
+   :height: 437
+
+.. _Comparison with OOMMF and Magpar:
 
 Comparison with OOMMF and Magpar
 ++++++++++++++++++++++++++++++++
 
-We have carried out the same simulation with Magpar_ and OOMMF_. The
+We have carried out the same simulation with `Magpar`_ and `OOMMF`_. The
 following plot shows the corresponding OOMMF-curves (as spheres)
 together with |nmag|'s results. (The Magpar curve, which is not shown
 here, follows the |nmag| data very closely.)
 
-
-.. image:: ../example2/data_M_OOMMF.png
+.. image:: /example2/data_M_OOMMF.png
    :align: center
+   :width: 789
+   :height: 437
 
+.. _Spatially resolved fields:
 
 Spatially resolved fields
 +++++++++++++++++++++++++
 
-The command ``sim.save_data(fields='all')`` saves all fields_ into the
+The command ``sim.save_data(fields='all')`` saves all :ref:`fields <field>` into the
 file ``bar_dat.h5`` (as explained, the filename is composed of the name
 of the simulation [here ``bar``] and the extension ``_dat.h5``). The
-code ``bar30_30_100.py`` above calls the save_data_ command every 10
+code ``bar30_30_100.py`` above calls the :ref:`save_data` command every 10
 iterations. As every ``dt`` corresponds to 0.5 picoseconds, the
 data hence is saved every 5 picoseconds.
 
-We can confirm this by using the nmagpp_ command::
+We can confirm this by using the :ref:`nmagpp` command::
 
  $ nmagpp --idlist bar
 
@@ -305,10 +308,10 @@ which produces the following output::
     60->    1    762     3e-10 E_anis E_demag E_exch E_ext E_total H_anis H_demag  ... phi pin rho 
   
 
-The first column is a `unique identifier id`_  for a configuration of the
+The first column is a :ref:`unique identifier id <unique identifier id>`  for a configuration of the
 system. We can use the ``--range`` argument to select entries for
 further processing. The ``stage`` is only relevant for calculations of
-hysteresis curves (see `hysteresis example`_). The ``step`` is the
+hysteresis curves (see :ref:`simple hysteresis example`). The ``step`` is the
 time-stepper iteration counter for this calculation. The time is given
 in seconds (``<s>``). (Note the 5 pico-second interval between
 entries.) The stage, step and time data is provided for
@@ -341,9 +344,8 @@ will create the files::
   bar-000050.vtk 
   bar-000060.vtk 
 
-
-Using MayaVi_, we can display this data in a variety of ways. Remember
-that all field values are shown in SI units by default (see nmagpp_),
+Using :ref:`MayaVi`, we can display this data in a variety of ways. Remember
+that all field values are shown in SI units by default (see :ref:`nmagpp`),
 and positions are as provided in the mesh file. In this case,
 positions are expressed in nanometers (this comes from the
 ``unit_length=SI(1e-9,"m")`` expression in the ``sim.load_mesh()``
@@ -352,8 +354,10 @@ command.
 This is the initial configuration with magnetisation pointing in the
 [1,0,1] direction:
 
-.. image:: ../example2/bar_initial_M.png
+.. image:: /example2/bar_initial_M.png
   :align: center
+  :width: 1039
+  :height: 682
 
 The "final" configuration shows that the magnetisation aligns along
 the z-direction. The coloured surface shows the x-component of the
@@ -363,8 +367,10 @@ to minimise the overall energy. (Note that, strictly speaking, this
 system is not yet in a meta-stable state after 300 ps -- but already
 quite close.):
 
-.. image:: ../example2/bar_final_M.png
+.. image:: /example2/bar_final_M.png
   :align: center
+  :width: 1039
+  :height: 682
    
 
 Because we have saved all fields (not just the magnetisation), we can
@@ -375,8 +381,12 @@ magnitude of the vectors), as well as the magnetic scalar potential
 (negative) gradient of the scalar potential, the vectors are
 perpendicular on the isosurfaces:
 
-.. image:: ../example2/bar_final_demag.png
+.. image:: /example2/bar_final_demag.png
   :align: center
+  :width: 1039
+  :height: 682
+
+.. _Higher level functions:
 
 Higher level functions
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -389,17 +399,18 @@ micromagnetic computations. However, there are more advanced functions
 that simplify and automatise the most frequent tasks, such as
 computing a hysteresis loop.
 
+.. _"Relaxing" the system:
 
 "Relaxing" the system
 ~~~~~~~~~~~~~~~~~~~~~
 
-The relax_ command takes the current magnetisation configuration of a
+The :ref:`relax` command takes the current magnetisation configuration of a
 simulation and computes the time development until the torque on each
 mesh site is smaller than a certain threshold. This is useful for this
 particular example as we do not know for how long we need to integrate
 the system until it stops in a local energy minimum configuration. We
 can adjust the code of this example to make use of the ``relax``
-command (`modified source code <../example2/bar_relax.py>`__):
+command (:download:`modified source code </example2/bar_relax.py>`):
 
 .. include:: bar_relax.py
   :literal:
@@ -431,15 +442,15 @@ The syntax used here breaks down into the following parts:
       amount of simulated time has passed, and 
 
     * ``5*ps`` which is the amount of time after which the data
-      should be saved again. This has to be a `SI object`_, which we here
+      should be saved again. This has to be a :ref:`SI object`, which we here
       obtain by multiplying a number (``5``) with the SI object ``ps`` which
       has been defined earlier in our example program to represent a pico-second.
 
     * We can provide further keywords to the ``every`` object (for example 
       to save the data every ``10`` iteration steps we can use ``every(10,'step')``).
 
-Internally, the relax_ command uses the hysteresis_ command, so the documentation of 
-hysteresis_ should be consulted for a more detailed explanation of parameters.
+Internally, the :ref:`relax` command uses the :ref:`hysteresis` command, so the documentation of 
+:ref:`hysteresis` should be consulted for a more detailed explanation of parameters.
 
 The second relax instruction is::
 
@@ -455,7 +466,7 @@ has converged to its (meta)stable configuration:
   * ``at('convergence')`` is a special object that indicates that this
     should happen exactly when the relaxation process has converged.
 
-After running this program, we can use the ncol_ tool to look at
+After running this program, we can use the :ref:`ncol` tool to look at
 the averages saved::
 
  $ ncol bar_relax step time 
@@ -485,23 +496,25 @@ the requested time, i.e.::
 The middle line shows that the data has been saved when the simulated
 time was approximately 7.05e-11 seconds whereas we requested 7e-11
 seconds. Such small deviations are tolerated by the system to improve
-performance [#]_.
+performance [#timeintegrator]_.
 
 From the data saved, we can obtain the following plot:
      
-.. image:: ../example2/bar_relax_data_M.png
+.. image:: /example2/bar_relax_data_M.png
   :align: center
+  :width: 789
+  :height: 437
 
-In summary, the relax_ function is useful to obtain a meta-stable
+In summary, the :ref:`relax` function is useful to obtain a meta-stable
 configuration of the system. In particular, it will carry out the time
 integration until the remaining torque at any point in the system has
 dropped below a certain threshold.
 
-
-.. [#] The time integrator (here, Sundials_ CVODE) would have to do an
+.. [#timeintegrator] The time integrator (here, `Sundials`_ CVODE) would have to do an
        extra step to get to the requested time. If the current time is
        very close to the requested time, it will simply report this value.
 
+.. _"Relaxing" the system faster:
 
 "Relaxing" the system faster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -518,8 +531,10 @@ The new option is ``do_precession=False`` in the constructor of the
 PermAlloy material ``mat_Py``. As a result, there will be no
 precession term in the equation of motion:
 
-.. image:: ../example2/bar_relax2_data_M.png
+.. image:: /example2/bar_relax2_data_M.png
   :align: center
+  :width: 789
+  :height: 437
 
 While the time-development of the system happens at the same time
 scale as for the system with the precession term (see `"Relaxing" the
@@ -532,15 +547,17 @@ Note, that the ''dynamics'' shown here are of course artificial and
 only used to obtain a meta-stable physical configuration more
 efficiently!
 
+.. _Decreasing execution time:
+
 Decreasing execution time
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Note that the execution time can generally be reduced significantly by
 decreasing the tolerances for the time integrator. In short, one has
-to use the set_params_ function (after set_m_ has been called).
+to use the :ref:`set_params` function (after :ref:`set_m` has been called).
 Decreasing the requested accuracy will of course make the simulation
 results less accurate but this is often acceptable. An example of how
-to use the set_m_ function and detailed discussion of the
+to use the :ref:`set_m` function and detailed discussion of the
 micromagnetic example shown in this section for a variety of tolerance
-values is given in the section `Example timestepper tolerances`_.
+values is given in the section :ref:`Example timestepper tolerances <example tolerances>`.
 

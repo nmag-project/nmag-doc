@@ -1,0 +1,137 @@
+.. _Files and file names:
+
+Files and file names
+====================
+
+.. _mesh files (``.nmesh``, ``.nmesh.h5``):
+
+mesh files (``.nmesh``, ``.nmesh.h5``)
+---------------------------------------
+
+Files that contain a finite element mesh. See :ref:`Nmesh file format`.
+
+.. _Simulation scripts (``.py``):
+
+Simulation scripts (``.py``)
+----------------------------
+
+Files that contain simulation program code. The ending is (by
+convention) ``.py`` which reflects that the programming language used
+is Python.
+
+All the example codes provided in the :ref:`Guided tour` are such simulation scripts.
+
+.. _ndt:
+
+Data files (``.ndt``)
+---------------------
+
+``ndt`` stands for |Nmag| Data Table, analog to ``odt`` files (`OOMMF`_
+Data Table) for the OOMMF project. In fact, ``ndt`` and ``odt`` files
+are very similar.
+
+``ndt`` files are ascii files where each row corresponds to one time
+step (or, more generally, configuration of the system). The columns
+contain:
+
+- metadata such as
+
+  - a unique identifier for every row
+
+  - the time at which the row was written
+
+- (spatially) averaged :ref:`field <field>` data
+
+The first two lines contain information about what data is stored in the various columns:
+
+ 1. The first line provides a header
+
+ 2. The second line provides the SI units 
+
+All other lines contain the actual data.
+
+The file can be loaded into any data processing software (such as MS
+Excel, Origin, Matlab, Gnuplot, ...). However, often it is more
+convenient to use the :ref:`ncol` tool to select the relevant columns, and
+only to pass the filtered data to a post-processing (e.g. plotting)
+program.
+
+Data is written into the ``ndt`` file whenever the :ref:`save_data` method
+of the simulation object is called.   
+
+.. _h5 data files:
+
+Data files (``.h5``)
+---------------------
+
+The ``h5`` data files store spatially resolved :ref:`fields <field>`. The format is
+a binary and compressed `hdf5`_ format to which we have convenient
+access via the `pytables`_ package for Python. The user should not have
+to worry about reading this file directly, but use the :ref:`nmagpp` tool to
+access the data.
+
+.. _File names for data files:
+
+File names for data files
+-------------------------
+
+The filenames for the :ref:`ndt` and :ref:`h5 data files` are given by
+concatenation of the *simulation name*, the extension ``_dat.`` and
+the extension (``.h5`` or ``.ndt``).
+
+When a simulation object is created, for example in a file called
+``mybar.py`` starting like this::
+
+  import nmag
+  sim = nmag.Simulation(name="bar")
+
+then the simulation name is ``bar``.
+
+If no name is provided, i.e. the file ``mybar.py`` starts like this::
+
+  import nmag
+  sim = nmag.Simulation()
+
+then the simulation name will be the *run id*. The *run id* is the
+filename of the simulation script (without the ``.py`` extension),
+i.e. the simulation name then will be ``mybar``.
+
+Let us assume for the rest of this section that the simulation name
+is ``bar``.  Once we use the :ref:`save_data` command, for example like this::
+
+  sim.save_data()
+
+an ``ndt`` file will be created, with name ``bar_dat.ndt`` (= ``bar``
++ ``_dat.`` + ``ndt``).
+
+Similarly, if we write the fields spatially resolved::
+
+  sim.save_data(fields='all')
+
+a :ref:`h5 data file <h5 data files>` with name ``bar_dat.h5`` (= ``bar`` + ``_dat.`` + ``h5``)
+will be created.
+
+.. _File names for log files:
+
+File names for log files
+------------------------
+
+A log file is created that stores (most of) the messages displayed to
+stdout (i.e. the screen). The name of the log file starts with the
+name of the simulation script (without the ``.py`` extension), and ends with ``_log.log``.
+
+For example, a simulation script with name ``mybar.py`` will have an
+associated log file with name ``mybar_log.log``.
+
+Another three files will be created if the (undocumented)
+``--dumpconf`` switch is provided. This are primarily of use to the
+developers and can usually be ignored:
+
+- ``mybar_log.conf``:
+  This can be used to configure what data is logged.
+
+- ``mybar_ocaml.conf``:   
+  Configuration of some variables used in the ocaml code
+
+- ``mybar_nmag.conf``:
+  Some variables used in the nmag code

@@ -1,0 +1,46 @@
+.. _Useful tools:
+
+Useful tools
+============
+
+.. _vtk:
+
+vtk
+---
+
+The homepage of the Visualisation ToolKit (vtk) is
+http://www.vtk.org. VTK provides is is an open source, freely
+available software system for 3D computer graphics, image processing,
+and visualization. It also provides a file-format which is called
+'vtk'. A number of high-level user interfaces exist to visualise data
+provided in such vtk files. These include:
+
+- :ref:`MayaVi` (http://mayavi.sourceforge.net/)
+- VisIt (http://www.llnl.gov/visit/)
+- ParaView (http://www.paraview.org/)
+
+.. _MayaVi:
+
+MayaVi
+------
+
+"MayaVi is a free, easy to use scientific data visualizer. It is
+written in Python and uses the Visualization Toolkit (VTK) for
+graphical rendering. MayaVi is free and distributed under the
+conditions of the BSD license. It is also cross platform and should
+run on any platform where both Python and VTK are available (which is
+almost any Unix, Mac OSX or Windows)." The MayaVi web page is
+http://mayavi.sourceforge.net/.
+
+MayaVi has been used to generate many of the plots in this manual.
+Other tools are available for visualisation of vtk files (see :ref:`vtk`).
+
+.. _NumPy:
+
+NumPy
+-----
+
+Numerical Python (short *numpy*) is an extension library to Python
+that provides fast array operations and is designed for numerical
+work. This Python extension and documentation can be found at
+http://numpy.scipy.org/

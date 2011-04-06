@@ -1,0 +1,26 @@
+.. _Acknowledgements:
+
+Acknowledgements
+================
+
+This work has been financially supported by the `Engineering and
+Physical Science Research Council (EPSRC) <http://www.epsrc.ac.uk>`__
+(GR/T09156/01,EP/E0400631/1) in the United Kingdom, through funding
+from the European Community's Seventh Framework Programme
+(FP7/2007-2013) under Grant Agreement no 233552, and by the
+`University of Southampton`_.
+
+We thank Thomas Schrefl, Wyn Williams, Michael Donahue, Richard
+Boardman and Jürgen Zimmermann for useful discussion that have
+supported the development of this tool.
+
+Further acknowledgements go to the `Magpar`_ software and its main
+author Werner Scholz. Magpar has provided a finite element
+implementation of micromagnetics that has proved very useful in the
+development of nmag. Special thanks to Werner Scholz who has discussed
+various numerical problems with the nmag team in great depth.
+
+We further thank the beta users for their helpful feedback, in
+particular Michael Martens, David Vokoun, Niels Wiese, Gabriel David
+Chaves O'Flynn and David Gonzales at the very early stages of the
+project.

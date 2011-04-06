@@ -1,0 +1,673 @@
+.. _Executables:
+
+Executables
+===========
+
+.. _ncol:
+
+ncol
+----
+
+``ncol`` is a utility to conveniently analyse :ref:`ndt` files.
+
+Suppose we have data file with name X_dat.ndt. We can then use::
+
+  ncol X_dat.ndt
+
+or simply::
+
+  ncol X
+
+to display the content of the file. This is useful to quickly gain an
+overview of the data in the file.  For the :ref:`Example 2: Computing the
+time development of a system <example 2>`, the command is::
+
+  ncol bar
+
+which produces this output::
+
+  0 :         #time           #<s>              0 
+  1 :            id             <>              0 
+  2 :          step             <>              0 
+  3 :  last_step_dt            <s>              0 
+  4 :    stage_time            <s>              0 
+  5 :    stage_step             <>              0 
+  6 :         stage             <>              0 
+  7 :    E_total_Py      <kg/ms^2>  -260346.5776034 
+  8 :           phi            <A>  2.50626665111e-07 
+  9 :      E_ext_Py      <kg/ms^2>              0 
+  10:     H_demag_0          <A/m>  -263661.6673782 
+  11:     H_demag_1          <A/m>  -8.212128727093 
+  12:     H_demag_2          <A/m>  -77027.64089399 
+  13:     dmdt_Py_0         <A/ms>  -8.250903922407e+15 
+  14:     dmdt_Py_1         <A/ms>  2.333345040949e+16 
+  15:     dmdt_Py_2         <A/ms>  8.250903922407e+15 
+  16:           pin             <>              1 
+  17:   H_anis_Py_0          <A/m>              0 
+  18:   H_anis_Py_1          <A/m>              0 
+  19:   H_anis_Py_2          <A/m>              0 
+  20:        m_Py_0             <>  0.7071067811865 
+  21:        m_Py_1             <>              0 
+  22:        m_Py_2             <>  0.7071067811865 
+  23:        M_Py_0          <A/m>  608111.8318204 
+  24:        M_Py_1          <A/m>              0 
+  25:        M_Py_2          <A/m>  608111.8318204 
+  26:     E_anis_Py      <kg/ms^2>              0 
+  27:     E_exch_Py      <kg/ms^2>  3.114630036477e-11 
+  28:           rho        <A/m^2>  3.469702141876e+13 
+  29:       H_ext_0          <A/m>              0 
+  30:       H_ext_1          <A/m>              0 
+  31:       H_ext_2          <A/m>              0 
+  32:  H_total_Py_0          <A/m>  -263661.6673782 
+  33:  H_total_Py_1          <A/m>  -8.212128727085 
+  34:  H_total_Py_2          <A/m>  -77027.64089399 
+  35:    E_demag_Py      <kg/ms^2>  -260346.5776034 
+  36:   H_exch_Py_0          <A/m>  2.037901097873e-11 
+  37:   H_exch_Py_1          <A/m>              0 
+  38:   H_exch_Py_2          <A/m>  2.037901097873e-11 
+  39: maxangle_m_Py          <deg>              0 
+  40:     localtime             <>  2007/10/04-20:46:28 
+  41:      unixtime            <s>  1191527188.269 
+  
+
+The four columns above show the following data: the first is just a
+line number count. The second is the *name* of the data. The third
+provides the *units* of this data type. The fourth displays the first
+data value in the file (typically corresponding to the configuration
+of the simulation when :ref:`save_data` was called the first time).
+
+The meaning of the keywords ``time``, ``id``, ``step``, ``stage_time``,
+``stage_step``, ``stage``, ``localtime`` and ``unixtime`` is explained
+in section :ref:`Stage, Step, iteration, time, etc.`.
+
+.. _`unique identifier id`:
+
+The role of the **id** counter is to provide a reference to the
+configuration that was saved, and it is a **unique identifier** of a
+physical configuration. It is used to identify configurations in the
+``_dat.h5`` file (which stores spatially resolved fields) and to
+identify the corresponding (spatially averaged) data in the
+``_dat.ndt`` file. This ``id`` is used to uniquely identify physical
+configurations in nmag.  (See also: :ref:`Why can you not use the step as a
+unique identifier?`)
+
+``last_step_dt`` is the length of the last time step carried out by
+the timestepper. This is a useful indicator to learn about the
+stiffness of the system: the time step is adjusted automatically to
+achieve a certain accuracy, and thus the size of the time step
+reflects how hard it is to integrate the equations of motion.
+
+The fields starting with ``E_total_Py`` down to ``H_exch_Py_2`` are
+all nsim subfields (see :ref:`fields <field>`), and the data stored for these are
+spatially averaged numbers. For example, the subfield ``M_Py_0`` is
+the x-component of the Magnetisation of the material ``Py`` averaged
+over all the space where this material is defined.
+
+The ``maxangle_m_Py`` is the maximum angle (in degree) of the change
+of the magnetisation from one node in the mesh to the next. It is
+important that this number is small: the equations on which the
+micromagnetic theory is based assume that the magnetisation changes
+slowly as a function of space. In the discretised solvers (this
+applies to |nmag| as it applies to OOMMF, Magpar and other codes),
+this means that the maximum angle between neighbouring sites should be
+kept small. How small is good enough? This is hard to say in
+general. We provide some (subjective) guidance: Values of 180 degrees
+(or -180 degrees) quite clearly indicate that the results of the
+calculations must not be trusted (i.e. they are wrong). Values around
+90 degrees make the results highly questionable. Values of below 30
+degrees indicate that the results are probably reliable. The smaller
+the value, the more accurate the results will be. If this is new to you, you may want to read the :ref:`Mini tutorial micromagnetic modelling` and in particular the section :ref:`What size of the cells (FD) and tetrahedra (FE) should I choose?`.
+
+The general syntax for calling ``ncol`` is::
+
+  ncol [OPTIONS] datafile [COLS]
+
+A list of options can be obtained with::
+
+  ncol --help
+
+.. comment:
+  [Note for developers] In principle we could have used the 
+  iteration counter of the
+  time integration as this unique identifier. However, because the
+  user can interactively modify :ref:`primary fields`, and the secondary
+  fields are updated without calling the time integration, the
+  timestepper's iteration counter would not provide a unique
+  reference. Similarly, |nmag| could be extended to include more
+  sophisticated energy minimisation routines.
+
+.. _nmagpp:
+
+nmagpp
+------
+
+The stage ``nmagpp`` program is the NMAG data PostProcessor. It can be used to 
+
+- convert data stored in ``RUNID_dat.h5`` files into vtk files
+
+- dump the data to the screen.
+
+The documentation is available with the ``--help`` switch::
+
+  nmagpp --help
+
+.. _Inspecting the content:
+
+Inspecting the content
+~~~~~~~~~~~~~~~~~~~~~~
+
+We describe some typical scenarios, using the data file ``bar_dat.h5``
+that is generated in :ref:`Example 2: Computing the time development of a
+system <example 2>`.
+
+The ``bar_dat.h5`` file contains spatially resolved data for all
+fields in the simulation (because we have used the
+``save_data(fields='all')`` command). Some of the functions of
+``nmagpp`` apply to one or more fields (such as ``--dump`` and
+``--vtk``) and these can be specified through a ``--fields`` command
+line parameter. Similarly, the ``--range`` command will limit the number of saved configurations which will be processed.
+
+Try ``nmagpp --help`` for further documentation. Some examples:
+
+* Checking what at what configurations have been saved::
+  
+    nmagpp --idlist bar
+
+  produces::
+  
+     id   stage   step     time fields
+      0->    1      0         0 E_anis E_demag E_exch E_ext E_total H_anis H_demag  ... phi pin rho
+     10->    1    312     5e-11 E_anis E_demag E_exch E_ext E_total H_anis H_demag  ... phi pin rho
+     20->    1    495     1e-10 E_anis E_demag E_exch E_ext E_total H_anis H_demag  ... phi pin rho
+     30->    1    603   1.5e-10 E_anis E_demag E_exch E_ext E_total H_anis H_demag  ... phi pin rho
+     40->    1    678     2e-10 E_anis E_demag E_exch E_ext E_total H_anis H_demag  ... phi pin rho
+     50->    1    726   2.5e-10 E_anis E_demag E_exch E_ext E_total H_anis H_demag  ... phi pin rho
+     60->    1    762     3e-10 E_anis E_demag E_exch E_ext E_total H_anis H_demag  ... phi pin rho
+     
+The ``id`` is the same :ref:`unique identifier id <unique identifier id>` used in the :ref:`ndt` files that can be
+read with the :ref:`ncol` command. In particular, its purpose is to identify
+time steps saved in the ndt file with the corresponding data saved in
+the h5 data file.
+
+Columns ``time`` (measured in seconds), ``step`` and ``stage`` are
+just providing some further information (see :ref:`Stage, Step, iteration,
+time, etc.`) Finally, the available (i.e. saved) fields for every
+configuration are listed. The list of fields is not displayed
+completely if it is long (unless the ``--printall`` switch is used).
+
+.. _Dumping data:
+
+Dumping data
+~~~~~~~~~~~~
+
+Suppose we are interested in the magnetisation data stored at id
+0. We restrict the data to the ``m`` field using the ``--fields m`` switch, and restrict the number ``ids`` to dump using ``--range 0``::
+
+  nmagpp --fields m --range 0 --dump bar
+
+produces output that starts like this::
+
+  field    : m
+  subfield : m_Py
+  time     : 0 * <SI: 1  s >
+  id       : 0
+  step     : 0
+  stage    : 0
+  field unit: <SI: 1  >
+  position unit: <SI: 1e-09  m >
+  row: 0
+  #Start (index in h5 table, dofsite, pos, data)
+     0:   0 : (  0,  0,  0) : (    0.707107,            0,     0.707107)
+     1:   1 : (  3,  0,  0) : (    0.707107,            0,     0.707107)
+     2:   2 : (  6,  0,  0) : (    0.707107,            0,     0.707107)
+     3:   3 : (  9,  0,  0) : (    0.707107,            0,     0.707107)
+  
+The first few rows provide some metadata such as which field and
+subfield the data is about, at what simulation time it was saved (here
+0 seconds), what the id, step and stage is. It further shows the
+``field unit`` and the ``position unit``. These give the physical
+dimensions with which the numerical quantities from the table have to
+be multiplied to get dimensionful physical quantities. For example,
+the positions in the table are provided as ``(0,0,0)``, ``(3,0,0)``,
+``(6,0,0)`` etc. These numbers have to be multiplied by 
+``<SI: 1e-09 m >`` = 1e-9 meters to obtain the actual positions 
+in SI units. In other words, the position coordinate data is expressed in 
+nanometers. In this particular example, the field data -- the normalised
+magnetisation -- is dimensionless.
+
+Followed by the keyword ``#Start`` the actual data starts (in the next
+line).  The format of the subsequent data lines is as follows:
+
+* Column 1: index of the site in the h5 file. This mostly relevant for
+  developers.
+
+* Column 2: the index of the site. As long as we are dealing with
+  first order basis functions (as is nearly always the case in
+  micromagnetics), this is equivalent to the node id in the mesh.
+
+* Columns 3, 4, 5: enclosed in parentheses, the position of the site
+  is expressed in units of the ``position unit``.
+
+* Columns 6, 7, 8: enclosed in parentheses, the actual field data
+  expressed in units of the ``field unit``.
+
+In short, the first line of the actual data::
+
+     0:   0 : (  0,  0,  0) : (    0.707107,            0,     0.707107)
+
+tells us that the normalised magnetisation at node id ``0``, and
+position ``(0,0,0) nm`` is pointing in the direction 
+``(0.707107,0,0.707107)``.
+
+Another example: Suppose we are interested in the magnetisation field
+``M`` (this is the non-normalised magnetisation measured in Ampere per
+meter) at time 1e-10 seconds (i.e. id=20). We use this
+command::
+
+ nmagpp --fields M --dump --range 20 bar
+
+to obtain output beginning like this::
+
+  
+   field    : m
+   subfield : m_Py
+   time     : 1e-10 * <SI: 1  s >
+   id       : 20
+   step     : 495
+   stage    : 1
+   field unit: <SI: 1  >
+   position unit: <SI: 1e-09  m >
+   row: 2
+   #Start (index in h5 table, dofsite, pos, data)
+      0          0 (           0            0            0 ) (    0.182556     0.525948     0.830694 )
+      1          1 (           3            0            0 ) (    0.165008     0.534525     0.828888 )
+      2          2 (           6            0            0 ) (    0.104837     0.544846     0.831957 )
+      3          3 (           9            0            0 ) (    0.029925     0.552054     0.833272 )
+      4 
+
+In principle, this output data can be parsed by other tools to extract
+the positions and the data. However, it is hoped that other options of
+the nmagpp tool (such as the ``--vtk`` switch ) already cover most of
+the situations where the need to convert data may arise. (If you would
+like to export the raw data into another file format or application,
+please contact the :ref:`nmag team <contact>` to request this feature, as it may be
+of interest to other people as well.)
+
+It is further possible to access the data in the ``_dat.h5`` files
+directly from tailor written post-processing scripts. See :ref:`example:
+post processing of saved field data <example post processing of saved field data>`.
+
+.. _Range of data to be processed:
+
+Range of data to be processed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``--range`` switch allows a variety of ways to express which of
+the ``ids`` in the data file should be selected (for dumping to the
+screen, or conversion to a vtk file). Here are some examples::
+
+  --range 17                        #will select 17
+  --range "range(5,10)"             #will select [5,6,7,8,9]
+  --range "[2,5,10,42]"             #will select [2,5,10,42]
+  --range "range(10)+[20,25,31,42]" #will select [0,1,2,3,...,9,10,20,25,31,42]
+  --range "max(ids)"                #will select the last saved id
+
+.. _Conversion to vtk file:
+
+Conversion to vtk file
+~~~~~~~~~~~~~~~~~~~~~~
+
+The command 
+
+  nmagpp --range 0 --vtk test.vtk bar
+
+will take the dataset with ``id``\ =0 in the ``bar_dat.h5`` file and convert it
+to a (binary) vtk file with name ``test.vtk``. For vtk files, the
+default is to convert all fields. However, if a field (or a list of fields) is specified
+using the ``--field`` option, then only this field is converted. This
+may be useful if disk space or conversion time is an issue.
+
+We can convert multiple time steps into a set of vtk files with one
+command. For example, to convert for all saved configurations all
+fields into vtk files, use::
+
+  nmagpp --vtk alltest.vtk bar
+
+This will create files ``alltest-000000.vtk``, ``alltest-000010.vtk``,
+``alltest-000020.vtk``, ``alltest-000030.vtk``, ``alltest-000040.vtk``,
+``alltest-000050.vtk``, and ``alltest-000060.vtk``.
+
+The conversion to vtk can be combined with the ``--range`` command.
+(See  :ref:`Range of data to be processed`). For example, to convert every
+second saved configuration (i.e. ids 0, 20, 40) into vtk files, we could use::
+
+  nmagpp --range "range(0,60,20)" --vtk x.vtk bar
+
+The string "range(0,60,20)" is a Python expression and will evaluate
+to [0,20,40] (because it is the list of integers starting from 0,
+going up to [but not including] 60, in steps of 20). This will create
+files ``x-000000.vtk``, ``x-000020.vtk`` and ``x-000040.vtk``.
+
+.. _Other features:
+
+Other features
+~~~~~~~~~~~~~~
+
+Use:
+
+  nmagpp --help
+
+to get an overview of other features of nmag, and further details.
+
+.. _nmeshpp:
+
+nmeshpp
+-------
+
+The ``nmeshpp`` program is the NMESHPreProcesser and NMESHPostProcessor. 
+It provides quick access to some statistical information
+about nmesh meshes. The basic usage is
+
+  ``nmeshpp [OPTIONS] INPUTFILE [OUTPUTFILE]``
+
+where ``INPUT`` is the name of a nmesh file (either in ascii or hdf5
+format), ``OUTPUTFILE`` is the name of the file to be written to (if
+required; this depends on the ``OPTIONS``) and OPTIONS can be one or
+several of the options listed in the following subsections. We use the
+mesh file :download:`bar30_30_100.nmesh.h5 <example2/bar30_30_100.nmesh.h5>` from :ref:`Example 2 <example 2>` to
+illustrate the usage of :ref:`nmeshpp`.
+
+.. _General information (``--info``):
+
+General information (``--info``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The command::
+
+  nmeshpp --info bar30_30_100.nmesh.h5
+
+produces the following output::
+
+  ====== Info output: ========================================================
+  3-dimensional mesh
+  18671 volume elements (3d)
+   3438 surface elements (2d)
+   4086 points
+      1 simplex regions ([1])
+      2 point regions ([-1, 1])
+      2 region volumes ([0.0, 89999.999999999782])
+   1721 boundary points (-> BEM size<=  22MB)
+      0 periodic points (mirage=0, total=0)
+  a0: average=3.543451, std=0.581220, min=1.953689, max=5.708395
+
+Starting from the top of the output, we are given the information that
+this is a three-dimensional mesh, with its number of *volume elements*
+(i.e. tetrahedra in 3d), *surface elements* (i.e. surface triangles) and
+*points*.  
+
+We are also given a list of *simplex regions* (which is just [1]
+here). If we had more than one region defined (say two disconnected
+spheres that are to be associated with different material), then we
+would have two entries here. The numbers given in this list are the
+identifiers of the regions: in this example there is only one region
+and it has the identifier 1.
+
+The *point regions* is a list of all regions in which points are
+located. This includes of course region 1. Region -1 represents the
+vacuum around the meshed region. The points that are located on the
+surface of the bar are located both in the bar (region 1) and in the
+vacuum (region -1). Other negative region numbers (-2, -3) can be used
+to discern different pieces of a boundary. (While this feature is at
+present not used by |Nmag|, the underlying |nsim| framework provides
+capabilities to e.g. associate Dirichlet boundary conditions to a
+1/-1 boundary and von Neumann boundary conditions to a 1/-2 boundary.)
+
+The *region volumes* provide the geometrical volume of the regions. By
+convention, the vacuum has volume 0. In this example, the bar volume
+is meant to be 30x30x100=90000. The deviation from this due to limited
+numerical precision (and of the order of 1e-10).
+
+The *boundary points* are the number of nodes located at the surface
+of the bar. This number is important if using the hybrid finite
+element/boundary element method to compute the demagnetisation field,
+as the boundary element matrix size will be proportional to the square
+of the number of boundary points. The size of the boundary element
+matrix is given as well (see :ref:`memory requirements of boundary element matrix`).
+
+The *periodic points* are the number of points that have *mirage
+images* in the mesh. There will always be zero periodic points (and
+thus zero mirage images) unless we are dealing with a periodic mesh 
+(see :ref:`nmeshmirror` and :ref:`Example: Spin-waves in periodic system <spin-waves example>`).
+
+Finally, we are given some information about the statistics of the
+edge lengths *a0* in the mesh: the average value, the standard
+deviation, the maximum and minimum value. This is important as in
+micromagnetics the angle of the magnetisation must not vary strongly
+from one node to the next. In practice, the edge length a0 should
+therefore be (significantly) smaller than the exchange length (see
+:ref:`What size of the cells (FD) and tetrahedra (FE) should I choose?`)
+
+.. _Memory requirements of boundary element matrix:
+
+Memory requirements of boundary element matrix
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The boundary element matrix is densely populated matrix with s rows
+and s columns, where s is the number of surface nodes in the
+mesh. (Strictly, it is only the number of surface nodes that enclose a
+ferromagnetic material.) Assuming we use 8 bytes to store one floating
+point number, we can thus estimate the memory required to store this
+matrix. In the example above, we have 1721 boundary points, and thus
+1721*1721=2961841 matrix entries. Each entry requires 8 byte, so the
+total memory requirement is 23694728 bytes, or approximately 23139
+kilobytes or 23 megabytes.
+
+The ``nmeshpp -i`` command can be used to quickly check how big the
+BEM matrix is. A computation is only feasible if the RAM of the
+computer can hold the boundary element matrix. (When carrying out a
+distributed calculation, it is sufficient if the total RAM of all
+machines can hold the matrix.) 
+
+.. _Inspecting the quality of a mesh:
+
+Inspecting the quality of a mesh
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The quality of a mesh can be defined in various ways. In
+micromagnetics, we usually want tetrahedra that have edges of nearly
+identical length (i.e. we do not want the tetrahedra to be flat).
+
+``nmeshpp`` uses the ratio of the radius of the in-sphere (the sphere
+that can just fit into a tetrahedron so that it touches the sides) to
+radius of the circumsphere (the sphere passing through the four corners),
+multiplied by the number of dimensions. This number is 1.0 for a
+perfect tetrahedron with identical edge lengths, and 0 for a
+completely flat (effectively 2-dimensional) tetrahedron.
+
+The command::
+
+ nmeshpp -q bar30_30_100.nmesh.h5 
+
+computes a histogram of the distribution of this quality parameter for
+the bar mesh, and produces this output::
+
+  ====== Quality output: ======================================================
+  [qual interval] counts = probability
+  [ 0.000- 0.100]      0 = 0.00% 
+  [ 0.100- 0.200]      0 = 0.00% 
+  [ 0.200- 0.300]      0 = 0.00% 
+  [ 0.300- 0.400]      0 = 0.00% 
+  [ 0.400- 0.500]      1 = 0.01% *
+  [ 0.500- 0.600]     42 = 0.22% *
+  [ 0.600- 0.700]    364 = 1.95% **
+  [ 0.700- 0.800]   2420 =12.96% ************
+  [ 0.800- 0.900]   8252 =44.20% ****************************************
+  [ 0.900- 1.000]   7592 =40.66% *************************************
+  
+
+.. _Histogram of edge lengths:
+
+Histogram of edge lengths
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The command::
+
+  nmeshpp -a bar30_30_100.nmesh.h5 
+
+computes a histogram of the edge length distribution of the mesh::
+
+  ====== a0 output: ===========================================================
+  [a0   interval] counts = probability
+  [ 1.954- 2.329]    234 = 0.63% **
+  [ 2.329- 2.705]   1424 = 3.81% *******
+  [ 2.705- 3.080]   7921 =21.17% *************************************
+  [ 3.080- 3.456]   8790 =23.50% ****************************************
+  [ 3.456- 3.831]   7573 =20.24% ***********************************
+  [ 3.831- 4.207]   5884 =15.73% ***************************
+  [ 4.207- 4.582]   3769 =10.08% ******************
+  [ 4.582- 4.957]   1385 = 3.70% *******
+  [ 4.957- 5.333]    365 = 0.98% **
+  [ 5.333- 5.708]     63 = 0.17% *
+  
+  average   a0: <a0>   = 3.543451
+  stand dev a0: <a0^2> = 0.581220^2
+  min and max :        =(1.953689,5.708395)
+
+.. _Convert nmesh.h5 to nmesh file (and back):
+
+Convert nmesh.h5 to nmesh file (and back)
+-----------------------------------------
+
+The command::
+
+  nmeshpp -c mesh.nmesh.h5 mesh.nmesh
+
+converts a the mesh ``mesh.nmesh.h5`` (in h5 format) to the ``mesh.nmesh`` (in ascii format). Works also in the reverse way. ``nmeshpp`` will save as ``h5`` file if the last extension of the file to write is ``.h5``.
+
+.. _nmeshmirror:
+
+nmeshmirror
+~~~~~~~~~~~
+
+The ``nmeshmirror`` tool can create periodic meshes out of a non-periodic mesh. The geometry described by the non-periodic mesh has to
+be a cuboid. This can be mirrored along one (or more) of the planes
+defined by the sides of the cuboid.
+
+The general usage is ::
+
+   nmeshmirror meshfile error1 error2 directions newfile remove
+   
+where:
+
+- ``meshfile`` is the original (non-periodic) ASCII nmesh file
+
+- ``error1`` is the maximum distance between two points in
+  order to consider them coincident (case of points on mirroring planes)
+  
+- ``error2`` is the maximum distance between a point and the surface
+  opposite to the one used as mirroring plane in order to consider the
+  point periodic 
+
+- ``directions`` is a list of values 0,1 or -1, corresponding to the
+  direction(s) over which the mesh is mirrored: 1 corresponds to
+  mirroring along the positive given axis, -1 along the negative given
+  axis and 0 corresponds to no mirroring along the given axis.
+
+  For a three dimensional mesh, there are three options to mirror the
+  mesh (along the x, y and z direction). In that case, the
+  ``directions`` would be a list of three integers, for example
+  ``0,1,0`` to mirror the input mesh on the xz plane that limits the
+  mesh in the y direction.
+
+- ``newfile`` is the name of the ASCII file with the new periodic mesh
+
+- ``remove`` is an optional argument which takes the values 0 and 1
+  and removes the periodic points from the final mesh when is set to 1.
+  The default value is 0.
+
+Calling ``orig.nmesh`` the ASCII file of a 3D non-periodic mesh, an example
+of the use of nmeshmirror is the following, where the mesh is mirrored
+along the positive x-axis and the negative z-axis:: 
+
+  nmeshmirror orig.nmesh 1e-6 1e-6 1,0,-1 periodic.nmesh
+
+resulting in a periodic mesh along the same axes.
+
+.. _nmeshsort:
+
+nmeshsort
+~~~~~~~~~
+
+The ``nmeshsort`` script sorts the nodes of a mesh along a given axis
+(not recommended when using parmetis with multiple-object meshes). We
+expect this to be most relevant to developers.
+
+The general usage is ::
+
+   nmeshsort meshfile axis newfile
+   
+where:
+
+- ``meshfile`` is the original ASCII nmesh file
+
+- ``axis`` is the axis over which the sorting takes place
+
+- ``newfile`` is the name of the ASCII file with the new periodic mesh
+
+Calling ``orig.nmesh`` the ASCII file of a 3D mesh, an example
+of the use of nmeshsort is the following, where the mesh is sorted
+along the z-axis:: 
+
+  nmeshsort orig.nmesh 2 sorted.nmesh
+
+.. _nmeshimport:
+
+nmeshimport
+-----------
+
+The :ref:`nmeshimport` command can be used to read other mesh formats and write them into the nmesh format that can be read by |nmag|.
+
+The ``nmeshimport`` tool can convert `Netgen`_, Gambit and `Gmsh`_ files
+into nmesh files. 
+
+The general usage is::
+
+  nmeshimport OPTIONS INPUTFILE NMESHFILE
+
+The OPTION to import from `Netgen`_ is ``--netgen``. The (contributed)
+code for importing from a Gambit mesh file is ``--gambit``.
+The OPTION to import from `Gmsh`_ is ``--gmsh``. 
+
+Usage example: assuming we have a file ``mymesh.neutral`` created with
+`Netgen`_ and would like to convert it to ``mymesh.nmesh.h5``, we could
+use this command::
+
+  nmeshimport --netgen mymesh.neutral mymesh.nmesh.h5
+
+Use::
+
+  nmeshimport --help 
+
+to see all available features.
+
+.. _nsim:
+
+nsim
+----
+
+This is the main executable. It superficially appears to be a Python
+interpreter, but has extended functionality. In particular, it has
+support for parallel execution (using MPI), and contains extensions
+accessible in the additional built-in ``ocaml`` module which provides
+the additional functionality of the |nsim| multiphysics
+system. (|Nmag| is a Python library on top of |nsim|, which itself is
+implemented in Objective Caml.)
+
+.. _nsimversion:
+
+nsimversion
+-----------
+
+A script that provides some information about the version of the
+software. If you need to report a bug/problem, please include the
+output of this program.

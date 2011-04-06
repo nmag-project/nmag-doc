@@ -1,30 +1,32 @@
-.. _`Hysteresis loop for thin disk example`:
+.. _example hysteresis disk:
 
 Example: Hysteresis loop for thin disk
 --------------------------------------
 
 This example computes the hysteresis loop of a flat disc magnetised
 along a direction orthogonal to the main axis. In comparison to the
-previous `Stoner-Wohlfarth example`_, it demonstrates the use of a
+previous :ref:`Stoner-Wohlfarth example`, it demonstrates the use of a
 more complex sequence of applied fields.
 
 We use a disc 20 nm thick and 200 nm in diameter for this example (the
-mesh is contained in `nanodot1.nmesh.h5 <../example_hysteresis_disk/nanodot1.nmesh.h5>`__ 
-which is created from `the_nanodot.geo <../example_hysteresis_disk/the_nanodot.geo>`__ with Netgen_):
+mesh is contained in :download:`nanodot1.nmesh.h5 </example_hysteresis_disk/nanodot1.nmesh.h5>` 
+which is created from :download:`the_nanodot.geo </example_hysteresis_disk/the_nanodot.geo>` with `Netgen`_):
 
-.. image:: ../example_hysteresis_disk/nanodot1_mesh.png
+.. image:: /example_hysteresis_disk/nanodot1_mesh.png
   :align: center
+  :width: 515
+  :height: 346
 
 To compute the hysteresis loop for the disc, we use the script
-`nanodot1.py <../example_hysteresis_disk/nanodot1.py>`__:
+:download:`nanodot1.py </example_hysteresis_disk/nanodot1.py>`:
 
-.. include:: ../example_hysteresis_disk/nanodot1.py
+.. include:: /example_hysteresis_disk/nanodot1.py
   :literal:
 
 We assume that the previous example have been sufficiently instructive
 to explain the basic steps such as importing nmag, creating a
 simulation object, defining the material and leading the mesh. Here,
-we focus on the hysteresis_ command:
+we focus on the :ref:`hysteresis` command:
 
 We would like to apply fields ranging from ``[1e6, 0, 0] A/m`` to
 ``[100e3, 0, 0] A/m`` in steps of ``100e3 A/m``. Then, from ``[95e3,
@@ -37,15 +39,15 @@ step size of ``100e3 A/m`` again to go from ``[-100e3, 0, 0] A/m`` to
 ``[-1e6, 0, 0] A/m``. At this point, we would like to reverse the whole
 sequence (to sweep the field back to the initial value).
 
-The information we need for the hysteresis_ command includes:
+The information we need for the :ref:`hysteresis` command includes:
 
 1. a direction for the applied field (here just ``[1,0,0]``),
 
 2. a list of magnitudes of the field (this is the ``norm_list``) that
    will be interpreted, and then multiplied with the direction vector,
 
-   As in the `Example: Simple hysteresis loop`_ and in the
-   `Stoner-Wohlfarth example`_, we employ a special notation for
+   As in the :ref:`Example: Simple hysteresis loop <simple hysteresis example>` and in the
+   :ref:`Stoner-Wohlfarth example`, we employ a special notation for
    ranges of field strengths understood by ``nmag.vector_set``.  The
    expression::
 
@@ -72,7 +74,7 @@ The corresponding command is::
                         units=1e6*SI('A/m')
                       )
 
-which computes a list of vectors ``Hs``. The hysteresis_ command takes
+which computes a list of vectors ``Hs``. The :ref:`hysteresis` command takes
 this list of applied fields ``Hs`` as one input parameter, and will
 compute the hysteresis loop for these fields::
 
@@ -84,8 +86,9 @@ Again, the second parameter (``save``) is used to tell the hysteresis
 command what data to save, and how often. We request that the
 *averages* of the fields, the *fields* and the *restart* data 
 should be saved *at* those points in time where we reach *convergence*. 
-(See also `restart example`_).
+(See also :ref:`restart example`).
 
+.. _Thin disk hysteresis loop:
 
 Thin disk hysteresis loop
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -94,41 +97,45 @@ Once the calculation has finished, we can plot the hysteresis loop,
 i.e. the graph of the magnetisation computed along the direction of
 the applied field as a function of the applied field strength.
 
-We use the ncol_ command to extract the data into a text file `plot.dat <../example_hysteresis_disk/plot.dat>`__::
+We use the :ref:`ncol` command to extract the data into a text file :download:`plot.dat </example_hysteresis_disk/plot.dat>`::
 
  $ ncol nanodot1 H_ext_0 m_Py_0 > plot.dat
 
 This file starts as follows:
 
-.. include:: ../example_hysteresis_disk/plot_head.txt
+.. include:: /example_hysteresis_disk/plot_head.txt
   :literal:
 
-We use Gnuplot_ to plot the hysteresis loop::
+We use `Gnuplot`_ to plot the hysteresis loop::
 
   $ gnuplot make_plot.gnu
 
-using the gnuplot script `make_plot.gnu <../example_hysteresis_disk/make_plot.gnu>`__:
+using the gnuplot script :download:`make_plot.gnu </example_hysteresis_disk/make_plot.gnu>`:
 
-.. include:: ../example_hysteresis_disk/make_plot.gnu
+.. include:: /example_hysteresis_disk/make_plot.gnu
   :literal:
 
 The resulting graph is:
 
-.. image:: ../example_hysteresis_disk/nanodot_hyst.png
+.. image:: /example_hysteresis_disk/nanodot_hyst.png
   :align: center
+  :width: 717
+  :height: 508
 
-and the comparison with the Magpar_ data, obtained with the
-script `make_comparison_plot.gnu <../example_hysteresis_disk/make_comparison_plot.gnu>`__:
+and the comparison with the `Magpar`_ data, obtained with the
+script :download:`make_comparison_plot.gnu </example_hysteresis_disk/make_comparison_plot.gnu>`:
 
-.. include:: ../example_hysteresis_disk/make_comparison_plot.gnu
+.. include:: /example_hysteresis_disk/make_comparison_plot.gnu
   :literal:
 
-is shown here (note that the Magpar_ computation only shows half of
+is shown here (note that the `Magpar`_ computation only shows half of
 the hysteresis loop.):
 
-.. image:: ../example_hysteresis_disk/nanodot_comparison_hyst.png
+.. image:: /example_hysteresis_disk/nanodot_comparison_hyst.png
   :align: center
+  :width: 730
+  :height: 508
 
-Here we can see a slight difference between |nmag| and Magpar_ in the
+Here we can see a slight difference between |nmag| and `Magpar`_ in the
 location of the switching point, probably due to different tolerances
 in both programs when determining time integrator convergence.

@@ -177,6 +177,7 @@ def dyn_doc_module(f, modulename, moduleobjectstylelist):
 
         headerline = len(objectrootname)*headerstyle
 
+        f.write('.. _%s:\n\n' % objectrootname)
         f.write('%s\n' % objectrootname)
         f.write('%s\n' % headerline)
         f.write('\n')

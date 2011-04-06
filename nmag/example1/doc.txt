@@ -1,6 +1,4 @@
-.. _`Example 1`:
-
-.. _`Example demag field in uniformly magnetised sphere`:
+.. _example 1:
 
 Example: Demag field in uniformly magnetised sphere
 ---------------------------------------------------
@@ -11,25 +9,23 @@ result is known analytically: the demag field vector has to be equal
 to minus one-third of the magnetisation vector, everywhere.
 
 When using finite element calculations, a crucial (and non-trivial)
-part of the work is the `finite element mesh generation`_. We provide
-a very small mesh for this example (`sphere1.nmesh.h5
-<../example1/sphere1.nmesh.h5>`__) which was generated with Netgen_
-(from this `geometry file <../example1/sphere1.geo>`__). This gives us
+part of the work is the :ref:`finite element mesh generation <finite element mesh generation>`. We provide
+a very small mesh for this example (:download:`sphere1.nmesh.h5
+</example1/sphere1.nmesh.h5>`) which was generated with `Netgen`_
+(from this :download:`geometry file </example1/sphere1.geo>`). This gives us
 a sphere of radius 10nm.
 
-.. image:: ../example1/spheremesh.png
+.. image:: /example1/spheremesh.png
    :align: center
+   :width: 325
+   :height: 327
 
+We can then use the following |nmag| script :download:`sphere1.py </example1/sphere1.py>`:
 
-
-
-
-We can then use the following |nmag| script `sphere1.py <../example1/sphere1.py>`__:
-
-  .. include:: ../example1/sphere1.py
+  .. include:: sphere1.py
     :literal:
 
-To execute this script, we have to give its name to the nsim_
+To execute this script, we have to give its name to the :ref:`nsim`
 executable, for example (on linux)::
 
   $ nsim sphere1.py
@@ -40,12 +36,13 @@ simulations may have to run for a long time and so, there should be a
 safeguard against accidental destruction of data.
 
 In order to re-run a simulation, removing all old output data files,
-the extra option --clean should be given, as in::
+the extra option ``--clean`` should be given, as in::
 
   $ nsim sphere1.py --clean
 
-
 Let us discuss the ``sphere1.py`` script step by step.
+
+.. _Importing nmag:
 
 Importing nmag
 ~~~~~~~~~~~~~~
@@ -69,6 +66,8 @@ provide information about our physical system.
 
  sim = nmag.Simulation()
 
+.. _Defining (magnetic) materials:
+
 Defining (magnetic) materials
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -82,15 +81,15 @@ coupling strength.
 ::
 
  Py = nmag.MagMaterial(name = 'Py',
-                       Ms = SI(1e6, 'A/m',
+                       Ms = SI(1e6, 'A/m'),
                        exchange_coupling = SI(13.0e-12, 'J/m'))
 
 The name of the material is important, as we may want to simulate
 systems made up of multiple different materials, and the material name
-will be used as a postfix to the name of some `Fields and Subfields`_.
+will be used as a postfix to the name of some :ref:`Fields and subfields`.
 The output files will also use that name to label output data. Names
 must be alphanumeric (i.e. formed exclusively out of the characters in
-the set 0-9\_a-zA-Z) here.
+the set ``0-9\_a-zA-Z``) here.
 
 Rather than representing dimensionful physical quantities as numbers,
 nmag uses a special object class, the "SI object". The underlying
@@ -108,6 +107,8 @@ in micromagnetism) in Joules per meter (``exchange_coupling =
 SI(13.0e-12, "J/m")``). (Note that these are not the true physical
 parameters of PermAlloy, but have been chosen ad hoc for the sake 
 of providing a simple example!)
+
+.. _Loading the mesh:
 
 Loading the mesh
 ~~~~~~~~~~~~~~~~
@@ -132,22 +133,24 @@ simplices that have the region id 1 in the mesh file).
 as when printing the simulation object).]
 
 The second part of the tuple is the ``MagMaterial`` object that has
-been created in `Defining (magnetic) materials`_ and bound to the
+been created in :ref:`Defining (magnetic) materials` and bound to the
 variable ``Py``. This object determines the material properties of the
 material in this domain; in this example, we have specified the
 properties of PermAlloy.
 
-The third argument to load_mesh_ is an `SI object`_ which defines what
+The third argument to :ref:`load_mesh` is an :ref:`SI object` which defines what
 physical distance should be associated with the length 1.0 as given in
 the mesh file. In this example, the mesh has been created in
 nanometers, i.e. the distance 1.0 in the mesh file should correspond
 to 1 nanometer in the real world. We thus use a SI object representing
 1 nm.
 
+.. _Setting the initial magnetisation:
+
 Setting the initial magnetisation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To set the initial magnetisation, we use the set_m_ method.
+To set the initial magnetisation, we use the :ref:`set_m` method.
 
 ::
 
@@ -167,16 +170,18 @@ automatically. This is convenient for, say, setting an initial
 magnetisation in the x-y-plane with a 45 degree angle towards 
 the x axis by specifying ``[1,1,0]``).
 
+.. _Setting the external field:
+
 Setting the external field
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We can set the external field using the set_H_ext_ command 
+We can set the external field using the :ref:`set_H_ext` command 
 
 ::
 
  sim.set_H_ext([0,0,0], SI('A/m'))
 
-In contrast to set_m_, this method takes two arguments. The first
+In contrast to :ref:`set_m`, this method takes two arguments. The first
 defines numerical values for the direction and magnitude of the
 external field. The second determines the meaning of these numerical
 values using an SI object. Suppose we would like an external field of
@@ -185,8 +190,9 @@ values using an SI object. Suppose we would like an external field of
 ``sim.set_H_ext([0,1,0],SI(1e6,"A/m"))``.
 
 The default value for the external field is [0,0,0] A/m, so for this
-example, we could have omitted the set_H_ext_ command altogether.
+example, we could have omitted the :ref:`set_H_ext` command altogether.
 
+.. _Extracting and saving data:
 
 Extracting and saving data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -202,6 +208,8 @@ We have three different ways of extracting data from the simulation:
 
 In this basic example, we demonstrate the use of all three methods:
 
+.. _Saving averaged data:
+
 Saving averaged data
 ++++++++++++++++++++
 
@@ -209,25 +217,26 @@ Saving averaged data
 
  sim.save_data()
 
-The save_data_ method writes (spatial) averages of all fields (see
-`Fields and subfields`_) into a text file (which will be named
+The :ref:`save_data` method writes (spatial) averages of all fields (see
+:ref:`Fields and subfields`) into a text file (which will be named
 ``sphere1_dat.ndt``, see below). This file is best analysed using the
-ncol_ tool but can also just be read with a text editor. The format
+:ref:`ncol` tool but can also just be read with a text editor. The format
 follows OOMMF's ``odt`` file format: every row corresponds to one
-snapshot of the system (see save_data_).
+snapshot of the system (see :ref:`save_data`).
 
 The function can also be called with parameters to save spatially
-resolved field data (see `Saving spatially resolved data`_).
+resolved field data (see :ref:`Saving spatially resolved data`).
 
 The first and second line in the data file are headers that explain
 (by column) the physical quantities (and their dimensions).
 
-The ncol_ tool allows to extract particular columns easily so that
+The :ref:`ncol` tool allows to extract particular columns easily so that
 these can be plotted later (useful for hysteresis loop studies). In
 this example we have only one "timestep": there only is one row of
 data in this file. We will therefore discuss this in more detail in a
 subsequent example.
 
+.. _Extracting arbitrary data from the running program:
 
 Extracting arbitrary data from the running program
 ++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -238,10 +247,9 @@ The line
 
  H_demag = sim.probe_subfield_siv( 'H_demag', [x,0,0] )
 
-obtains the demagnetisation field (see `Fields and subfields in
-nmag`_) at position (x,0,0). The suffix "_siv" to this function means
+obtains the demagnetisation field (see :ref:`Fields and subfields in
+nmag`) at position (x,0,0). The suffix "_siv" to this function means
 that both positions and return values will be given as SI values.
-
 
 The for-loop in the program (which iterates ``x`` in the range from
 -10*1e-9 to 10*1e-9 in steps of 1e-9) produces the following output ::
@@ -268,7 +276,6 @@ The for-loop in the program (which iterates ``x`` in the range from
   x = 9e-09 : H_demag =  [-330500.20126762061, -68.175725285038382, 162.46166752217249]
   x = 1e-08 : H_demag =  [-330517.86675206106, -24.351273685146875, 214.40344001233677]
 
-
 At position -1e-8, there is no field defined (this point lies just
 outside our sphere-mesh) and therefore the value ``None`` is returned.
 
@@ -280,11 +287,10 @@ be expected for a perfectly round sphere).
 We mention for completeness that most fields (such as magnetisation,
 exchange field, anisotropy field etc) are only defined within the
 region(s) occupied by magnetic material. However, there is a special
-function probe_H_demag_siv_ to probe the demagnetisation field
+function :ref:`probe_H_demag_siv` to probe the demagnetisation field
 anywhere in space.
 
-
-
+.. _Saving spatially resolved data:
 
 Saving spatially resolved data
 ++++++++++++++++++++++++++++++
@@ -295,23 +301,23 @@ The command
 
  sim.save_data(fields='all')
 
-will save full spatially resolved data on all fields (see `Fields and
-subfields`_) for the current configuration into a file with name
+will save full spatially resolved data on all fields (see :ref:`Fields and
+subfields`) for the current configuration into a file with name
 ``sphere1_dat.h5``. (It will also save the spatially averaged values
-as described in `Saving averaged data`_.) Whenever the save_data_
+as described in :ref:`Saving averaged data`.) Whenever the :ref:`save_data`
 function is called, it will write the averaged field values into the
-ndt_ file. This name is, by default, based on the name of the
+:ref:`ndt` file. This name is, by default, based on the name of the
 simulation script, but can be overridden with an optional argument to
-the Simulation_ constructor. The data in this file are kept in some
-compressed binary format (built on the hdf5_ standard) and can be
-extracted and converted later using the nmagpp_ tool.
+the :ref:`Simulation` constructor. The data in this file are kept in some
+compressed binary format (built on the `hdf5`_ standard) and can be
+extracted and converted later using the :ref:`nmagpp` tool.
 
 For example, we can extract the magnetisation field from this file
 with the command::
 
   $ nmagpp --dump sphere1
 
-However, here we are interested in creating a vtk_ from the saved data
+However, here we are interested in creating a :ref:`vtk` from the saved data
 file for visualisation. We use::
 
   $ nmagpp --vtk sphere1.vtk sphere1
@@ -319,18 +325,19 @@ file for visualisation. We use::
 where ``sphere1.vtk`` is the base name of the vtk file that is to be
 generated.
 
-In this manual, we use MayaVi_ as the visualisation tool for vtk files
-but there are others available (see vtk_).
+In this manual, we use :ref:`MayaVi` as the visualisation tool for vtk files
+but there are others available (see :ref:`vtk`).
 
 Starting MayaVi with the command ``mayavi -d sphere1-000000.vtk`` will load
-our simulation data. Using the pull-down menu Visualize -> Modules ->
-VelocityVector will then tell MayaVi to display the magnetisation
-vector field. (Likewise, we can use Visualize -> Modules -> Axes to
+our simulation data. Using the pull-down menu ``Visualize -> Modules ->
+VelocityVector`` will then tell MayaVi to display the magnetisation
+vector field. (Likewise, we can use ``Visualize -> Modules -> Axes`` to
 add a 3d coordinate system to the visualization):
 
-.. image:: ../example1/sphere1_h5_m.png
+.. image:: /example1/sphere1_h5_m.png
    :align: center
-
+   :width: 1033
+   :height: 910
 
 The magnetisation is pointing in positive x-direction because we
 initialised the magnetisation in this orientation by issuing the
@@ -351,8 +358,10 @@ the magnetisation. However, let's first create a colour-coded plot of
 the scalar magnetic potential, phi, from which the demag field is
 computed (by taking its negative gradient):
 
-.. image:: ../example1/sphere1_h5_phi.png
+.. image:: /example1/sphere1_h5_phi.png
    :align: center
+   :width: 1033
+   :height: 910
 
 We first need to select ``phi`` as the data source for 'scalar'
 visualisation modules: Through clicking on the ``Configure Data``
@@ -381,9 +390,10 @@ the following rules apply for vtk files:
 The next plot shows the demag field (the vectors) together with
 isosurfaces of the magnetic potential:
 
-.. image:: ../example1/sphere1_h5_demag.png
+.. image:: /example1/sphere1_h5_demag.png
    :align: center
-
+   :width: 1033
+   :height: 910
 
 It can be seen that the isosurfaces are completely flat planes
 (i.e. the potential is changing only along x) and the demagnetisation

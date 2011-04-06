@@ -1,0 +1,110 @@
+.. _Command reference:
+
+Command reference
+=================
+
+.. include:: dyn/nmag.txt
+
+.. _Command line options:
+
+Command line options
+--------------------
+
+|Nmag| supports a number of command line options to configure its behaviour. 
+
+Suppose the simulation script is called ``X.py``, then these OPTIONS can be specified like this::
+
+  nsim X.py OPTIONS
+
+``X.py`` needs to contain at least the line ``import nmag`` as this will process the command line options.
+
+The available options are:
+
+:--clean: 
+
+  to override any existing ``_dat.h5`` and ``_dat.ndt`` files. If this
+  option is not provided and the data files exist already, then |nmag|
+  will interrupt the execution without having modified the data files
+  on the disk.
+
+  Example::
+
+    nsim X.py --clean
+
+:--loglevel:
+  
+  this switch determines the amount of information that is being send
+  to stdout (usually the screen) and also to the file ``X_log.log``.
+
+  The available levels are in increasing order of detail:
+
+  :error:
+
+    print no messages apart from errors
+
+  :warning:
+ 
+    print warnings
+
+  :info:
+
+    print a moderate amount of information (default)
+
+  :info2:
+
+    print slightly more information 
+
+  :debug:
+
+    print a lot of information (typically for developer and debugging use)
+
+  Example::
+
+    nsim X.py --loglevel info2
+
+  or::
+
+    nsim X.py --loglevel debug 
+
+:--slavelog:
+
+  Log message from slave nodes (when running under MPI) are usually
+  supressed. This switch activates them. Printing these messages will
+  reduce the MPI performance somewhat as the messages are printed to
+  stdout on each slave, and then have to be transferred through the
+  network to the master process.
+
+  Note that any log-messages from the nodes will only go to stdout
+  (whereas log messages from the master will also go into the log
+  file, see :ref:`File names for log files`.)
+
+  Messages from slave nodes are preceeded by ``S0X`` where X is the
+  rank of the node. I.e. log messages from slave node with rank 2,
+  would start with ``S02``.
+
+  Example::
+
+    nsim X.py --slavelog
+
+:--restart:
+
+  If a calculation of a hysteresis loop is interrupted (power cut,
+  computer crash, exceeding allocated run time on cluster, etc), then
+  the calculation can be carried out starting from the moment when the
+  last restart file was saved (see :ref:`Restart example <restart example>`).
+
+  This continuation is activated with the ``--restart`` switch.
+
+  Example::
+
+    nsim X.py --restart
+
+  Note that this functionality is only available for the hysteresis loop.
+
+The command line options can be combined, for example::
+
+  nsim X.py --clean --loglevel debug
+
+There are a few other switches (mostly for debugging) which can be seen using::
+
+    nsim X.py --help

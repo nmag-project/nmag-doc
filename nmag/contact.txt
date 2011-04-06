@@ -1,0 +1,9 @@
+.. _contact:
+
+Contact
+=======
+
+The nmag developer team can be contacted at
+``nmag@soton.ac.uk``.
+
+Questions about the usage of nmag can also be send to the :ref:`nmag-users` mailing list.

@@ -1,0 +1,312 @@
+Here are some mails with notes on computation of dispersion relations.
+There are some comments from me (Matteo) and what I learnt (mainly from Exeter)
+and Atul and his experience in his own research field.
+=======
+
+Hi Atul, (Matteo)
+
+thanks again for your reply below.
+
+Matteo, I think we have now to sets of useful notes (Atul's below, and your comments that you did sent to Anil before). I suppose we should merge them at some point tobecome part of a future manual or something like that.  Can you keep both emails in a safe place?
+
+Cheers,
+
+Hans
+
+On Fri, 11 Mar 2011, Bhaskar A. wrote:
+
+> Hi Hans
+>
+> Matteo and I had a chat about the dispersion curves - it iseems to me to be what in the DFT community is known as 'Aliasing' of the Fourier transforms. It is due to the sampling frequency being too low, i.e. the signal (the discrete data that you are Fourier transforming) has frequency contents beyond (i.e. >) the 'Nyquist frequency' which is half the sampling frequency. The DFT 'folds back' at the Nyquist point and 'corrupts' the < f_Nyq region transforms. It is a bit of an art to sort this out - there are various options:
+>
+> 1. Sample fast enough (i.e. reduce \delta t).
+> 2. Dont excite higher frequency (by controlling the bandwidth of the input signal, i.e. the swept sine in your case)
+> 3. Digitally filtering the discrete data through a 'low-pass' digital filter with a cut-off  slighty <  or slightly > than the f_Nyq. But you have to be sure that you are not losing your physically intersting modes!
+> 4. Use a window carefully.
+>
+> To me it looks like (based on the nad sketches) that 'ghost propagation modes' are artefacts of slow sampling, it may be something else, but the hunch.
+>
+> All this is true in the spoatial domain too. Replace frequency by wavenumber, time resolution by spatial respolution, etc.  Again you will need to spatially 'place sensors' close enough - experimentallists often struggle with this!
+>
+> I know someone in Cambridge who knows lot more about this way of calculating dispersion relations than I do -  so I may just check with him and will inform you.
+>
+> Aliasing is also frequently encounterd in image processing, speech processing, etc. May be a useful link below:
+>
+> Wiki:
+>
+> http://en.wikipedia.org/wiki/Aliasing
+>
+> A gentle intro (note the mechanical vibration bit in the link address!):
+>
+> http://www.cage.curtin.edu.au/mechanical/info/vibrations/tut3.htm
+>
+>
+> Nyquist-Shannon sampling theorem: or why this happens and why the magical factor of 1/2:
+>
+> http://cnx.org/content/m10791/latest/
+>
+> The 'stroboscopic effect', the 'wagonwheel effect' are all realted things (have you seen films where the wheel appears to move in the opposite direction of a wagon wheel in motion?)
+>
+> Cheers
+> Atul
+> ________________________________________
+> From: Matteo Franchin [franchin@soton.ac.uk]
+> Sent: 10 March 2011 11:14
+> To: Bhaskar A.
+> Cc: Fangohr H.
+> Subject: Re: [dynamag] visit to India
+>
+> Hi Atul,
+> Sure. Shall we make it around 10 am?
+> Or let me know when it suits you best.
+> Best wishes,
+> Matteo
+>
+> On 10 Mar 2011, at 07:17, Bhaskar A. wrote:
+>
+>> Matteo
+>>
+>> Shall we talk about this tomorrow?
+>>
+>> Atul
+>>
+>>
+>> ________________________________
+>> From: Fangohr H.
+>> Sent: 09 March 2011 13:48
+>> To: Franchin M.; Bhaskar A.
+>> Cc: Fangohr H.
+>> Subject: Re: [dynamag] visit to India
+>>
+>> Hi Atul,
+>>
+>> below, Matteo describes to a student in India how to compute the
+>> dispersion curves. I think Matteo is on the right track, but you
+>> have probably more experience with questions of computing such
+>> transforms, application of various window functions etc. So I
+>> thought I'd just run this by you to check that we are not doing
+>> anything stupid.
+>>
+>>
+>> Best wishes,
+>>
+>> Hans
+>>
+>>
+>> On 9 Mar 2011, at 12:53, Matteo Franchin wrote:
+>>
+>> Hi Guru,
+>> As far as I can see, you get data with artifacts and try hard to
+>> filter them out.
+>> What I do is the opposite: I try hard not to get artifacts in the
+>> first place. This way I don't need to filter anything. In
+>> particular, I'm not using any window function.
+>> The idea is that you need to apply a pulse which excites just the
+>> right frequencies (you need to use a sinc in time and space for
+>> this). Then you need to sample the data in time and space, such
+>> that you get the wanted frequency and k ranges. Note that the mesh
+>> should also be fine enough to resolve the ks appropriately. In
+>> summary,
+>>
+>> - you should decide what range of omega and k you want to explore
+>> (omega_max, k_max), this will tell you exactly the delta_t and
+>> delta_x for sampling the magnetisation.
+>> - you need to ensure that your mesh size is compatible with your
+>> delta_x: doesn't make sense to sample 1000 points lying all inside
+>> the same tetrahedron in the mesh!
+>> - you then need to set up your pulse in a way which is compatible
+>> with your omega_max, k_max
+>> - you run the simulation. At this point you may see that you need
+>> to run it for longer or shorter time, depending on the resolution
+>> you want to achieve (delta_omega depends on t_max). This is the
+>> same for space.You may not want to necessarily sample all your
+>> wire. The wire is long not because we need a very low resolution
+>> delta_x, but rather because we don't want to have reflections from
+>> borders...
+>>
+>> This is why I spent quite some time to get the pulse/sampling
+>> right. Indeed, you end up running your simulation several times,
+>> unless you are willing to invest some time at the beginning to
+>> accurately check that all the details of your simulation are right
+>> (compute what should be the right frequency for the sinc, the right
+>> sampling in time and the right mesh resolution). For std problem 1,
+>> I didn't do this. I just started running simulations blindly, as I
+>> had other things to do at the same time. I therefore found myself
+>> having to redo it many times, until I got it right.
+>> In the tarball attached in Redmine, you can see that there are
+>> parameters for the sinc, and they are calculated starting from a
+>> frequency/k value. If you sample such that your frequency range is
+>> between 0 and 100 GHz, you should also change your sinc, otherwise
+>> you'll excite higher modes, which cannot be represented unless you
+>> do a finer sampling in time (which corresponds to go to higher
+>> frequencies).
+>> I hope I managed to explain in a decent way. Let me know if you
+>> have any comments or suggestions.
+>> Matteo
+>>
+>>
+>> On 9 Mar 2011, at 12:24, Guru Venkat wrote:
+>>
+>> Dear all,
+>>
+>> Please note that there is a mistake in the document that I had
+>> previously sent out. I have mentioned that the Hanning window was
+>> applied only in time. That is not the case. I have applied it in
+>> space also i.e. I have applied a 2-D(in time and space)  Hanning
+>> window. I attach the rectified document(with another correction) in
+>> this mail.
+>>
+>> Regards,
+>> Guru
+>>
+>> On Wed, Mar 9, 2011 at 5:26 PM, Guru Venkat
+>> <guruvenkat7@gmail.com<mailto:guruvenkat7@gmail.com>> wrote:
+>> Dear all,
+>>
+>> I am attaching a document describing the dispersion curves,
+>> obtained after simulating DYNAMAG Problem 1,  for the case of a 5
+>> micron wire and then post-processing the data with a Hanning window
+>> function. Please note that this is for the case of a single point ,
+>> only temporally varying, excitation.
+>>
+>> Please give your views regarding it. They will be very helpful.
+>>
+>> Regards,
+>>
+>> Guru
+>>
+>>
+>> On Wed, Mar 9, 2011 at 5:02 PM, Matteo Franchin
+>> <franchin@soton.ac.uk<mailto:franchin@soton.ac.uk>> wrote:
+>> Hi Anil, Guru,
+>> At the moment, I'm not working on problem 1. All I have done so far
+>> is in the tarball attached to Redmine.
+>> It took me a long time to get the pulse and the data sampling
+>> right. I think this is the real problem in this kind of
+>> simulations. I was running some of these simulations in parallel.
+>> This reduced the BEM setup time quite a bit. Using HLib is also
+>> possible. It would be nice to get some data on MPI scaling. This is
+>> always useful to understand where we are.  For this kind of
+>> simulations, however, we are doing many steps on a reduced mesh
+>> size, so it may be hard to get good MPI scaling, unless the problem
+>> is made bigger (5, 10 microns wires). If Guru is willing to try
+>> using MPI on the cluster, then he will need to get an idea of the
+>> scaling anyway. So, please send us feedback on that. If you have
+>> any problems, let us know. We are happy to help and discuss results.
+>> Cheers,
+>> Matteo
+>>
+>>
+>>
+>>
+>> On 9 Mar 2011, at 10:59, Anil Prabhakar wrote:
+>>
+>> Guru is going to start running problem 1 on our cluster.....just to
+>> learn how to get good dispersion curves out. But, I was thinking that
+>> if you are handling problem 1 now, or even otherwise, did you want a
+>> specific set of cpus vs nodes comparison done to understand
+>> performance metrics?
+>>
+>> Guru,
+>> Please send out them the dispersion curves for problem 1, with the
+>> single point excitation.
+>>
+>> Anil
+>>
+>> On Tue, Mar 8, 2011 at 5:26 PM, Matteo Franchin
+>> <franchin@soton.ac.uk<mailto:franchin@soton.ac.uk>> wrote:
+>> Hi Anil,
+>> Thank you very much indeed for booking the accommodation. I
+>> appreciate the
+>> air conditioning, as I'm sure it can ease my life there :) I'll
+>> also bring a
+>> good amount of hankies and tissues to dry the sweat in my face :)
+>> Currently, I'm in the process of submitting all documents (I
+>> already sent
+>> them by emai to the company dealing with the process).
+>> Unfortunately, I
+>> still need the letter of invitation from Anjan. He should send it
+>> soon via
+>> email (as we don't need the originals).
+>> Last time it took about 20 days for getting the VISA. Hopefully,
+>> this is the
+>> amount of time we'll have to wait before getting an answer.
+>> I hope all will go right,
+>> Matteo
+>>
+>>
+>> On 8 Mar 2011, at 06:48, Anil Prabhakar wrote:
+>>
+>> Matteo,
+>>
+>> Your accommodation is all set. Let me know when visa gets approved,
+>> and Guru and I will start working out an agenda.
+>>
+>> Anil
+>>
+>>
+>> ---------- Forwarded message ----------
+>> From: Taramani Guest House
+>> <taramani@iitm.ac.in<mailto:taramani@iitm.ac.in>>
+>> Date: Tue, Mar 8, 2011 at 11:52 AM
+>> Subject: RE: request a booking
+>> To: Anil Prabhakar <anilpr@ee.iitm.ac.in<mailto:anilpr@ee.iitm.ac.in>>
+>>
+>>
+>> Dear Sir,
+>>
+>> One a/c room is reserved for Dr. Matteo Franchin, Univ of
+>> Southampton, UK from 10th to 17th April 2011 at TGH.
+>>
+>> With regards,
+>>
+>> Yours Sincerely,
+>> R. Balakumar
+>> Taramani Guest House
+>> Indian Institute of Technology Madras
+>> Chennai - 600 036
+>> Contact Number
+>> Phone No. 0091-44-22578449
+>> E-Mail: taramani@iitm.ac.in<mailto:taramani@iitm.ac.in>
+>>
+>> On Tue, Feb 22, 2011 at 6:37 PM, Anil Prabhakar
+>> <anilpr@ee.iitm.ac.in<mailto:anilpr@ee.iitm.ac.in>>
+>> wrote:
+>>
+>> Kindly reserve an AC suite for Dr. Matteo Franchin, Univ of
+>> Southampton, UK for 7 nights. He will check in at 5am on 10th April
+>> and check out at 3pm on 17th April. The room will be paid for by our
+>> Indo-EU collaborative project ELE/0910/184/DSTX/ANIL
+>>
+>> Regards,
+>> Anil
+>> ---------------------------
+>> Prof. Anil Prabhakar
+>> Dept. of Elec. Engg., IIT-Madras
+>> Chennai 600036
+>> Ph# 044-22574425
+>>
+>>
+>>
+>>
+>>
+>>
+>>
+>> --
+>> Regards
+>> Guru Venkat
+>> Project Associate
+>> Indian Institute of Technology, MADRAS
+>>
+>>
+>>
+>>
+>> --
+>> Regards
+>> Guru Venkat
+>> Project Associate
+>> Indian Institute of Technology, MADRAS
+>>
+>> <dispersion_curves_with_data_windowing.pdf>
+>>
+>>

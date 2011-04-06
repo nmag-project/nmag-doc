@@ -1,40 +1,43 @@
-.. _`example 2D periodicity`:
+.. _example 2D periodicity:
 
 Example: 2D periodicity
 -----------------------
 
 This example is another application of the macro-geometry feature,
 where we now deal with a 2D "thin film" system. The unit cell is a
-30x10x10 nm^3 prism 
+``30x10x10 nm^3`` prism 
 
-.. image:: ../example_2Dperiodicity/mesh.png
+.. image:: /example_2Dperiodicity/mesh.png
    :align: center
+   :width: 559
+   :height: 290
 
 where we take 10 copies in x- and 40 copies in y-direction to create
 the macro geometry.
 
-The script `no_periodic.py <../example_2Dperiodicity/no_periodic.py>`__ simulates behaviour of
+The script :download:`no_periodic.py </example_2Dperiodicity/no_periodic.py>` simulates behaviour of
 just the unit cell of size 30x10x10 nm^3 (without any periodic
 copies):
 
-.. include:: ../example_2Dperiodicity/no_periodic.py
+.. include:: /example_2Dperiodicity/no_periodic.py
   :literal:
 
 and the relaxation curves are obtained via:
 
-.. include:: ../example_2Dperiodicity/no_periodic.gnu
+.. include:: /example_2Dperiodicity/no_periodic.gnu
   :literal:
 
 which creates the following plot:
 
-.. image:: ../example_2Dperiodicity/no_periodic.png
+.. image:: /example_2Dperiodicity/no_periodic.png
    :align: center
+   :width: 750
+   :height: 525
 
 From this plot we can see that with using only the unit cell the
 magnetisation aligns along the x-axis at equilibrium.
 
-
-We now move to the macro geometry of a thin film with dimensions 400x300x10nm^3 which is realised in `periodic2.py <../example_2Dperiodicity/periodic2.py>`__.
+We now move to the macro geometry of a thin film with dimensions 400x300x10nm^3 which is realised in :download:`periodic2.py </example_2Dperiodicity/periodic2.py>`.
 
 .. comment:
 
@@ -47,11 +50,11 @@ We now move to the macro geometry of a thin film with dimensions 400x300x10nm^3 
   sample, there are some situations where one may want to place this in
   a different position. For the sake of providing an example, we put our
   unit cell on the (-1,-1, 0) point of the lattice as shown in
-  `periodic2.py <../example_2Dperiodicity/periodic2.py>`__ and let the
+  :download:`periodic2.py </example_2Dperiodicity/periodic2.py>` and let the
   system relax.
 
   
-.. include:: ../example_2Dperiodicity/periodic2.py
+.. include:: /example_2Dperiodicity/periodic2.py
   :literal:
 
 As in the previous example, we first define the three unit vectors of
@@ -88,8 +91,10 @@ equilibrium.
 
 The outcome is shown in the following figure:
 
-.. image:: ../example_2Dperiodicity/periodic2.png
+.. image:: /example_2Dperiodicity/periodic2.png
    :align: center
+   :width: 750
+   :height: 525
 
 where we notice that the final configuration is now with the
 magnetisation aligned along the (negative) y axis, and not along the x
@@ -101,7 +106,6 @@ copies along the z direction), so the longest side now is along the y
 direction. The demagnetisation energy of the macro geometry drives the
 alignment of the magnetisation with the y-direction.
 
+Other usage examples include this study [#BordignonEtAl]_ of an array of interacting triangular rings.
 
-Other usage examples include this study [#]_ of an array of interacting triangular rings.
-
-.. [#] Giuliano Bordignon, Thomas Fischbacher, Matteo Franchin, Jurgen P. Zimmermann, Peter A. J. de Groot, Hans Fangohr, *Numerical studies of demagnetizing effects in triangular ring arrays*, Journal of Applied Physics **103** 07D932 (2008), online at http://eprints.soton.ac.uk/50995/
+.. [#BordignonEtAl] Giuliano Bordignon, Thomas Fischbacher, Matteo Franchin, Jurgen P. Zimmermann, Peter A. J. de Groot, Hans Fangohr, *Numerical studies of demagnetizing effects in triangular ring arrays*, Journal of Applied Physics **103** 07D932 (2008), online at http://eprints.soton.ac.uk/50995/

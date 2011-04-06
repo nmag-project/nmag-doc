@@ -1,14 +1,16 @@
+.. _example current-driven magnetisation precession in nanopillars:
+
 Example: Current-driven magnetisation precession in nanopillars
 ---------------------------------------------------------------
 
 This is the second example we provide in order to illustrate the usage
 of the Zhang-Li extension to model spin-transfer-torque in |Nmag|.
-While in the `Current-driven motion of a vortex in a thin film`_ example we tried to present two scripts (one for initial relaxation, and one for the spin torque transfer simulation),
+While in the :ref:`Current-driven motion of a vortex in a thin film` example we tried to present two scripts (one for initial relaxation, and one for the spin torque transfer simulation),
 sacrificing usability for the sake of clarity, here we'll try to present
 a real-life script, using the power of the Python programming language
 as much as it is needed to achieve our goal.
 
-.. figure:: ../example_zhangli2/nanopillar.png
+.. figure:: /example_zhangli2/nanopillar.png
   :align: center
 
 We consider a ferromagnetic nanopillar in the shape of a cylinder.
@@ -30,18 +32,21 @@ described and studied in more detail in publications [#Franchin2008a]_ and [#Fra
 
 .. [#Franchin2008b] Matteo Franchin, Giuliano Bordignon, Peter A. J. de Groot, Thomas Fischbacher, Jurgen P. Zimmermann, Guido Meier, Hans Fangohr, *Spin-polarized currents in exchange spring systems*, Journal of Applied Physics **103**, 07A504 (2008), online at http://link.aip.org/link/?JAPIAU/103/07A504/1
 
+.. _Two simulations in one single script:
 
 Two simulations in one single script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The nanopillar is made of Permalloy and has the shape of a cylinder with
 radius of 10 nm and length 30 nm. The mesh is loaded from the file
-`l030.nmesh.h5 <../example_zhangli2/l030.nmesh.h5>`__
-which was created using Netgen_ from the file
-`l030.geo <../example_zhangli2/l030.geo>`__.
+:download:`l030.nmesh.h5 </example_zhangli2/l030.nmesh.h5>`
+which was created using `Netgen`_ from the file
+:download:`l030.geo </example_zhangli2/l030.geo>`.
 
-.. image:: ../example_zhangli2/mesh.png
+.. image:: /example_zhangli2/mesh.png
    :align: center
+   :width: 590
+   :height: 308
    
 
 The simulation is subdivided into two parts, similarly to the previous
@@ -60,8 +65,8 @@ density, the damping, etc and uses them to carry out a simulation. We
 then call this function twice: once for part I and once for part
 II. 
 
-The full listing of the script `stt_nanopillar.py
-<../example_zhangli2/stt_nanopillar.py>`__:
+The full listing of the script :download:`stt_nanopillar.py
+</example_zhangli2/stt_nanopillar.py>`:
 
 .. include:: stt_nanopillar.py
   :literal:
@@ -82,7 +87,6 @@ the length of the nanopillar is necessary in order to set a proper
 initial magnetisation for the relaxation. By making this a parameter
 at the top of the program, we can change it there (if we wan to study
 the same system for a different l), and just run the script again.
-
 
 We define the function ``run_simulation``: we teach Python how to run
 a simulation given some parameters, such as the initial magnetisation,
@@ -163,7 +167,7 @@ picoseconds.
 We then call the ``run_simulation`` function we defined above to relax
 the magnetisation. This function returns the simulation object
 ``sim``, which we use to save the magnetisation using the
-save_restart_file_ function.
+:ref:`save_restart_file` function.
 
 Once this is done, we delete the simulation object, releasing resources
 (memory) we have used for the simulation of part I.  Note that for
@@ -277,7 +281,9 @@ Finally, we set tolerances, the stopping criterion and launch the simulation::
   sim.relax([None], save=save, do=do)
   return sim
 
-The relax_ function carries out the simulation, taking into account the stopping criterion and ``save`` and ``do`` actions. Finally, the function returns the simulation object which it created.
+The :ref:`relax` function carries out the simulation, taking into account the stopping criterion and ``save`` and ``do`` actions. Finally, the function returns the simulation object which it created.
+
+.. _Results: precession of the magnetisation:
 
 Results: precession of the magnetisation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -292,7 +298,7 @@ The relaxed magnetisation can be extracted and saved into a vtk file using
 the command ``nmagpp relaxation --vtk=m.vtk``. MayaVi can then be used
 to obtain the following picture:
 
-.. figure:: ../example_zhangli2/m-end.png
+.. figure:: /example_zhangli2/m-end.png
   :align: center
   :alt: zhangli2-1
 
@@ -309,7 +315,7 @@ We can use the following gnuplot script:
 
 and obtain the following graph:
 
-.. figure:: ../example_zhangli2/m_of_t.png
+.. figure:: /example_zhangli2/m_of_t.png
   :align: center
   :alt: zhangli2-2
 
@@ -318,4 +324,4 @@ that the magnetisation rotates around the nanopillar axis with a frequency
 which increases to approach its maximum value.
 
 A more detailed discussion of results and interpretation is provided
-in the publications [#Franchin2008a]_ and [#Franchin2008b]_ mentioned in section `Example: Current-driven magnetisation precession in nanopillars`_.
+in the publications [#Franchin2008a]_ and [#Franchin2008b]_ mentioned in section :ref:`Example: Current-driven magnetisation precession in nanopillars <example current-driven magnetisation precession in nanopillars>`.

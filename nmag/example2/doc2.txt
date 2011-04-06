@@ -1,11 +1,13 @@
+.. _example post processing of saved field data:
+
 Example: post processing of saved field data
 --------------------------------------------
 
 Suppose we have saved spatially resolved fields (as, for example, in
-`example 2`_), and we would like to read those from the data file to
+:ref:`example 2`), and we would like to read those from the data file to
 process the data further.
 
-We can use the nmagpp_ tool if it provides the required functionality.
+We can use the :ref:`nmagpp` tool if it provides the required functionality.
 
 Alternatively, we can write a Python script that:
 
@@ -14,16 +16,16 @@ Alternatively, we can write a Python script that:
 2. carries out the required post processing and/or saves the data in
    (another) format.
 
-The program `read_h5.py <../example2/read_h5.py>`__
+The program :download:`read_h5.py </example2/read_h5.py>`
 demonstrates how to read the saved configuration with id=0 of the ``m_Py``
 subfield, and to print this to the screen.
 
 .. include:: read_h5.py
   :literal:
 
-The functions get_subfield_from_h5file_,
-get_subfield_positions_from_h5file_ and
-get_subfield_sites_from_h5file_ allow in principle to retrieve all the
+The functions :ref:`get_subfield_from_h5file`,
+:ref:`get_subfield_positions_from_h5file` and
+:ref:`get_subfield_sites_from_h5file` allow in principle to retrieve all the
 field data from the h5 files and stores this in the variables ``m``,
 ``pos``, and ``site``, respectively.
 
@@ -32,7 +34,7 @@ The program, when run like this::
 
   $ nsim read_h5.py
 
-in the `example 2`_ directory, produces output starting as follows (assuming the ``bar_dat.h5`` file exists)::
+in the :ref:`example 2` directory, produces output starting as follows (assuming the ``bar_dat.h5`` file exists)::
 
   [0] [ 0.  0.  0.] [ 0.70710677  0.          0.70710677]
   [1] [  3.00000000e-09   0.00000000e+00   0.00000000e+00] [ 0.70710677  0.          0.70710677]
@@ -48,12 +50,12 @@ in the `example 2`_ directory, produces output starting as follows (assuming the
   [11] [  3.00000000e-08   3.00000000e-08   1.00000000e-07] [ 0.70710677  0.          0.70710677]
   [12] [  3.00000000e-08   2.70000000e-08   1.00000000e-07] [ 0.70710677  0.          0.70710677]
 
-We can see that the site_ index is (here) just an integer, the position
+We can see that the :ref:`site` index is (here) just an integer, the position
 (in nanometre) is shown as a triplet of three scalars, and the normalised
 magnetisation is also a vector with three components.
 
 The data (in the arrays ``m``, ``site`` and ``position`` in this
-example) can be manipulated as explained in the numpy_ documentation,
+example) can be manipulated as explained in the :ref:`numpy` documentation,
 because it is of type ``numpy array``. Numpy provides a powerful matrix
 processing environment.
 

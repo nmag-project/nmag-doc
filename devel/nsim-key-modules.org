@@ -1,0 +1,169 @@
+
+* Nsim code - most relevant directories/submodules under src/ -- current as of 06.04.2011
+
+** pycaml							 :standalone:
+
+   Ocaml/Python interface (could/should be separated off and published
+   as an own module).
+
+** snippets 							 :standalone:
+
+   Generally useful auxiliary functions (many of which also could go
+   into ocaml core libraries), e.g. deg_rad, round_to_n_digits,
+   hashtbl_arbitrary_element, etc.
+
+** pyfem3
+
+   Interface code that publishes ocaml nsim-related functions to
+   python using pycaml.
+
+** ccpla
+
+   "Centrally coordinated parallel linear algebra"
+
+   Choreography for sequences of linear algebra operations, triggered
+   by master node.
+
+   Key problems solved:
+
+   - distributed resource management (ultimately driven by Ocaml GC
+     and Python reference counting).
+
+** ddpla
+
+   "Dependency driven parallel linear algebra"
+
+   To supersede ccpla.
+
+   Key problems solved:
+
+   - Keeping information about up-to-date-ness and refresh strategy of
+     distributed linear algebra resources (e.g. field vectors) with
+     the actual field vectors, rather than needing central coordination.
+
+   - Extensibility: can register linear algebra operations at run
+     time, e.g. from Python code.
+
+** fastfields							 :standalone:
+
+   Conceptually resembles / takes on some of the functions of
+   libmatheval.
+
+   Idea: users may want to specify equations (e.g. equations of
+   motion), either in formal symbolic tensor notation, or as C code.
+
+   fastfields allows execution of run time user specified (symbolic or
+   C) code uniformly across all (distributed) mesh nodes, giving
+   access to the physical (tensor) field components via access macro
+   definitions M(j), X(j,k,l) (for rank-3 tensor), etc.
+
+   Uses lazy compilation and dynamic linking via libdl.
+
+   Used for (typically non-linear) local equations.
+
+** fem
+
+   Finite element core of the system: translating abstract
+   specifications of differential operators to distributed sparse
+   matrices / populating sparse matrices.
+
+** bem3d/hlib
+
+   Calculating the "boundary element matrix".
+
+   When doing micromagnetic simulations of disconnected bodies, there
+   is no need to mesh the space between bodies (if one includes
+   appropriate surface cell / surface cell interactions).
+
+   bem3d is about populating and using the (dense!) surface/surface
+   interaction matrix.
+
+   hlib interfaces to the (non-free!) libhlib code for hierarchic
+   matrix compression (memory/run time complexity reduction!)
+
+** mesh
+
+   Originally: mesh generation, loading/saving meshes, simple mesh
+   algorithms (i.e. locating the cell that contains a given point in
+   space).
+
+   Now: mesh generation features not used.
+
+** mpi_petsc							 :standalone:
+
+   Ocaml interface to MPI and petsc
+
+   based on X.Leroy's "camlmpi", extended with interface to libpetsc.
+
+   Also: contains an interface to libparmetis (mesh partitioning).
+
+** nsim
+
+   Main "simulation compiler" code.
+
+   Introduces a "physics engine" object (monolithic).
+
+   Operations (once a physics engine has been set up):
+
+   - Reading fields
+
+   - Writing "primary" fields
+
+   - Time evolution (numerical ODE solving)
+
+** nsim_grammars
+
+   - Grammars for:
+
+     - differential operators
+
+     - equations of motion
+
+     - physical dimensions ("1 kg/m^2")
+       (Q: is this presently being used?)
+
+     There should be ONE unified grammar for speficying defining
+     equations of a field theory problem.
+
+** nsim_ddpla / nsim_fem
+
+   - "In progress" sub-modules / actively being developed, not
+     supposed to interfere with working code, but eventually to
+     supersede present modules nsim, fem.
+
+     Problem: more work may have been done (by Matteo) on nsim, fem
+     since last edit (quite long ago) (by Thomas) on these modules.
+
+** sundials_sp							 :standalone:
+
+   - Interface to "libsundials" ODE solver. (Basically CVODE code.)
+
+     Note: parallelism is implemented via linking to one of two
+     different implementations of the (sundials-provided) "NVector"
+     data type: libsundials_nvecserial.so or 
+     libsundials_nvecparallel.so.
+
+
+* External Modules
+
+  - Python / libpython (2.5 or 2.6 or later, likely not 3.x)
+
+  - ocaml (3.09+), ocaml-findlib, ocamlmakefile
+
+  - petsc
+
+  - mpi (LAM or MPICH or OpenMPI)
+
+  - parmetis
+
+  - sundials
+
+  - libdl, gcc (at run time)
+
+  - libhdf5 (data export - used only from Python level: python-libhdf5)
+
+  - "Cruft"
+
+    - libqhull (mesher)
+
+    - ocaml-gsl (Ocaml interface to libgsl; mesher?)

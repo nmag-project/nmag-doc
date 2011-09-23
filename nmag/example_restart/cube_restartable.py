@@ -24,4 +24,4 @@ Hs = nmag.vector_set(direction=[1.0, 0, 0.0001],
                      units=0.001*si.Tesla/si.mu0)
 from nmag import every, at
 sim.hysteresis(Hs, save=[('averages', 'fields', at('stage_end')),
-                         ('restart', at('stage_end') | every(1000, 'step'))])
+                         ('restart', at('stage_end') | every('step', 1000))])

@@ -260,10 +260,10 @@ of time has been simulated::
 
   sim.relax(save=[('fields', at('convergence') | every('time', SI(1.0e-9, "s"))),
                   ('averages', every('time', SI(0.05e-9, "s")) | at('stage_end'))],
-            do = [('exit', at("time", SI(10e-9, "s")))])
+            do = [('exit', at('time', SI(10e-9, "s")))])
 
 We run the simulation for just 10 nanoseconds by forcing an exit with
-``('exit', at("time", SI(10e-9, "s")))``.  We also save the fields
+``('exit', at('time', SI(10e-9, "s")))``.  We also save the fields
 every nanosecond and save the averages more often, every 50
 picoseconds. The relax method will simulate a vortex "hit" by a spin
 polarised current and will save the averages so that we can see how

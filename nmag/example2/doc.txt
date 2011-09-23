@@ -447,7 +447,7 @@ The syntax used here breaks down into the following parts:
       has been defined earlier in our example program to represent a pico-second.
 
     * We can provide further keywords to the ``every`` object (for example 
-      to save the data every ``10`` iteration steps we can use ``every(10,'step')``).
+      to save the data every ``10`` iteration steps we can use ``every('step', 10)``).
 
 Internally, the :ref:`relax` command uses the :ref:`hysteresis` command, so the documentation of 
 :ref:`hysteresis` should be consulted for a more detailed explanation of parameters.

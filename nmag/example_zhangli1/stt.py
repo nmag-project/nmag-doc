@@ -25,4 +25,4 @@ sim.set_params(stopping_dm_dt=0.0) # * WE * decide when the simulation should st
 
 sim.relax(save=[('fields', at('convergence') | every('time', SI(1.0e-9, "s"))),
                 ('averages', every('time', SI(0.05e-9, "s")) | at('stage_end'))],
-          do = [('exit', at("time", SI(10e-9, "s")))])
+          do = [('exit', at('time', SI(10e-9, "s")))])

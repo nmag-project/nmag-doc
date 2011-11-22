@@ -21,48 +21,6 @@ logging.getLogger('').setLevel(logging.DEBUG)
 
 from inspecthelp import pdef
 
-
-
-def not_space_index(a):
-    """
-    Returns the index of a at which the first char appears
-    which is not a space.
-    If there is no space, the value 0 is returned.
-
-    :Parameters:
-      ``a`` : string
-
-    :Returns:
-      ``pos`` : int or None
-        The return value is None if the line is either empty, i.e. ''
-        or if the line only conists of spaces.
-    """
-    pos = 0
-    while pos < len(a):
-        if a[pos] == " ":
-            pos += 1
-        else:
-            break
-
-    if pos == len(a):
-        return None
-    else:
-        return pos
-
-def remove_left_spaces_from_line(line,nspace):
-    #print "About to remove '%s'" % 
-    if '\t' in line[0:nspace]:
-        msg = "There is a tab in this line:\n'%s'\n" % line+\
-              "I  cowardly refuse to delete this and suggest that\n"+\
-              "you replace it with spaces in the editor.\n"
-        msg +=" (In emacs, just delete the tab, and press tab again\n"+\
-              "  and spaces will be inserted automatically.)"
-        
-        msg +="(If I carried on, I would delete '%s'" % line[0:nspace]
-        raise ValueError,msg
-    
-    return line[nspace:]
-
 def remove_left_space(list_of_strings):
     """
     Given a list of strings, this will remove any leading space on the
@@ -87,36 +45,31 @@ def remove_left_space(list_of_strings):
     :Returns:
       list of strings
         The processed list of strings
+    """
 
-        """
     lines = list_of_strings #just shorthand variable name
     if len(lines) == 0:
         return lines
+
     elif len(lines) == 1:
-        return [remove_left_spaces_from_line(lines[0],not_space_index(lines[0]))]
+        return [lines[0].lstrip()]
 
-    #otherwise, we have 2 or more lines. Find shortest space for all these:
-    min_space = 424242
-    for i in range(1,len(lines)):
-        i = not_space_index(lines[i])
+    # Otherwise, we have 2 or more lines. Find shortest space for all these:
+    min_space = min(len(line) - len(line.lstrip(" "))
+                    for line in lines[1:]
+                    if len(line.strip()) > 0)
 
-        if i:
-            if i < min_space:
-                min_space = i
+    # And remove from all lines
+    newlines = map(lambda line: line[min_space:], lines)
+    if len(lines[0].strip()) > 0:
+        newlines.insert(0, lines[0])
 
-    #and remove from all lines
-    newlines = []
-
-    #deal with first line
-    if not_space_index( lines[0] ) == len(lines[0]): #full of spaces
-        pass
-    else:
-        newlines.append( lines[0] )
-
-    #remove spaces for all other lines
-    for i in range(1,len(lines)):
-        newlines.append(remove_left_spaces_from_line(lines[i],min_space))
-
+    # Check there are no tabs
+    for line in newlines:
+        if line.startswith("\t"):
+            raise ValueError("There is a tab in this line: '%s'. " % line +
+                             "I cowardly refuse to delete this and suggest "
+                             "that you replace it with spaces in the editor.")
     return newlines
         
         

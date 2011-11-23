@@ -6,3 +6,8 @@ And the following other packages (useful for generating the formulas):
 
 texlive-latex-extra
 dvipng
+
+For generating the PDF you may need (this is for Ubuntu):
+
+texlive-fonts-recommended
+

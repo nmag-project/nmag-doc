@@ -31,6 +31,7 @@ NMAG User Manual (|nmagverstr|)
    :height: 189
 
 .. globalindex::
+   :maxdepth: 3
 
 .. toctree::
    :maxdepth: 3

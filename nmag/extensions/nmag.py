@@ -7,40 +7,41 @@ class globalindex(nodes.General, nodes.Element):
     pass
 
 def visit_globalindex_node(self, node):
-    self.body.append(node['my_content'])
+    self.body.append(node['content'])
 
 def depart_globalindex_node(self, node):
     pass
 
 class GlobalIndexDirective(Directive):
-    has_content = True
     required_arguments = 0
-    optional_arguments = 0
+    optional_arguments = 1
     final_argument_whitespace = True
     option_spec = \
       {'maxdepth': directives.nonnegative_int,
-       'collapse': directives.flag}
+       'collapse': directives.flag,
+       'titlesonly': directives.flag}
 
     def run(self):
         node = globalindex('')
         node['maxdepth'] = self.options.get('maxdepth', 2)
         node['collapse'] = 'collapse' in self.options
-        print node['my_content']
-        raw_input()
+        node['titlesonly'] = 'titlesonly' in self.options
         return [node]
 
 def process_globalindex_nodes(app, doctree, fromdocname):
     builder = app.builder
-    if builder.name != 'singlehtml':
+    if builder.name != SingleFileHTMLBuilder.name:
         for node in doctree.traverse(globalindex):
             node.parent.remove(node)
 
     else:
         docname = builder.config.master_doc
         for node in doctree.traverse(globalindex):
-            kwargs = dict(maxdepth=2, collapse=False)
+            kwargs = dict(maxdepth=node['maxdepth'],
+                          collapse=node['collapse'],
+                          titles_only=node['titlesonly'])
             rendered_toctree = builder._get_local_toctree(docname, **kwargs)
-            node['my_content'] = rendered_toctree
+            node['content'] = rendered_toctree
 
 def setup(app):
     app.add_node(globalindex,

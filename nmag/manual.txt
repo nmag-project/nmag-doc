@@ -30,6 +30,8 @@ NMAG User Manual (|nmagverstr|)
    :width: 500
    :height: 189
 
+.. globalindex::
+
 .. toctree::
    :maxdepth: 3
    :numbered:
@@ -46,6 +48,11 @@ NMAG User Manual (|nmagverstr|)
    contact.txt
    tutorial/doc.txt
    acknowledgements.txt
+
+.. comment::
+
+   .. raw:: html
+      :file: genindex.html
 
 .. include:: dyn/nmagverstr.txt
 

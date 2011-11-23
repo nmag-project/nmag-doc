@@ -1,0 +1,8 @@
+To build this documentation you should install Sphinx, for example:
+
+sudo easy_install sphinx
+
+And the following other packages (useful for generating the formulas):
+
+texlive-latex-extra
+dvipng

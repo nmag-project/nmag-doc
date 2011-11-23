@@ -61,8 +61,6 @@ def remove_left_space(list_of_strings):
 
     # And remove from all lines
     newlines = map(lambda line: line[min_space:], lines)
-    if len(lines[0].strip()) > 0:
-        newlines.insert(0, lines[0])
 
     # Check there are no tabs
     for line in newlines:

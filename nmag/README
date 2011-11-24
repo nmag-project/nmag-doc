@@ -11,3 +11,9 @@ For generating the PDF you may need (this is for Ubuntu):
 
 texlive-fonts-recommended
 
+
+On Ubuntu 11.10, the packages are
+
+python-sphinx dvipng texlive-latex-extra
+
+

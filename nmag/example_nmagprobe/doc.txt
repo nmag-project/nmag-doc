@@ -69,19 +69,21 @@ The system under investigation is a cylindrical nanopillar of radius r=3 nm
 and length l=100 nm. The mesh file ``cylinder.nmesh.h5`` is obtained (using
 `Netgen`_).
 
-.. figure:: ../example_nmagprobe/cylinder.png
+.. figure:: /example_nmagprobe/cylinder.png
   :align: center
   :alt: magnonics-1
 
-The geometry file given to `Netgen`_ `cylinder.geo <../example_nmagprobe/cylinder.geo>`:ref:`_` is shown below:
+The geometry file given to `Netgen`_
+:download:`cylinder.geo </example_nmagprobe/cylinder.geo>`
+is shown below:
 
-.. include:: cylinder.geo
+.. include:: /example_nmagprobe/cylinder.geo
   :literal:
 
 The cylinder is made of Permalloy and as specified in the file
-`thesystem.py <../example_nmagprobe/thesystem.py>`:ref:`_` shown below:
+:download:`thesystem.py </example_nmagprobe/thesystem.py>` shown below:
 
-.. include:: thesystem.py
+.. include:: /example_nmagprobe/thesystem.py
   :literal:
 
 The file defines a few entities which are used in both the two parts of the
@@ -103,10 +105,11 @@ to be run by itself, but rather to be used in part I and II.
 Part I: ``relaxation.py``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The source for the file `relaxation.py <../example_nmagprobe/relaxation.py>`:ref:`_`
+The source for the file 
+:download:`relaxation.py </example_nmagprobe/relaxation.py>`
 is shown below:
 
-.. include:: relaxation.py
+.. include:: /example_nmagprobe/relaxation.py
   :literal:
 
 The first two lines are used to import entities defined elsewhere.
@@ -142,10 +145,10 @@ the name specified in ``thesystem.py``.
 Part II: ``dynamics.py``
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The source for the file `dynamics.py <../example_nmagprobe/dynamics.py>`:ref:`_`
+The source for the file :download:`dynamics.py </example_nmagprobe/dynamics.py>`
 is shown below:
 
-.. include:: dynamics.py
+.. include:: /example_nmagprobe/dynamics.py
   :literal:
 
 The simulation starts again importing a few entities from the file 
@@ -300,18 +303,18 @@ of the magnetisation variation as a function of time and space,
 and ``rec-space.dat``, containing the Fourier transform of such a quantity.
 
 To plot the data in the two files we use the `Gnuplot`_ script
-`plot.gnp <../example_nmagprobe/plot.gnp>`:ref:`_` :
+:download:`plot.gnp </example_nmagprobe/plot.gnp>`:
 
 .. include:: plot.gnp
   :literal:
 
 Here is the result after running the script with Gnuplot.
 
-.. figure:: ../example_nmagprobe/real-space.png
+.. figure:: /example_nmagprobe/real-space.png
   :align: center
   :alt: magnonics-1
 
-.. figure:: ../example_nmagprobe/rec-space.png
+.. figure:: /example_nmagprobe/rec-space.png
   :align: center
   :alt: magnonics-2
 

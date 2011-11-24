@@ -55,6 +55,8 @@ detail and should cover most of the usual applications.
 
    example_phi_BEM_hlib/doc.txt
 
+   example_nmagprobe/doc.txt
+
    example_tolerances/doc.txt
 
    example_mpi1/doc.txt

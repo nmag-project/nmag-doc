@@ -66,7 +66,7 @@ release = '0.1.0-dev'
 #today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-exclude_patterns = ['dyn/svnversion.txt', 'dyn/nmagverstr.txt', 'example_nmagprobe/*',
+exclude_patterns = ['dyn/svnversion.txt', 'dyn/nmagverstr.txt',
                     'example_hysteresis_disk/plot_head.txt', 'example2/data_M.txt',
                     'example_2Dperiodicity/plot.txt', 'example_cubic_anis/cube_hext_vs_m.txt',
                     'example_cubic_anis/oommf/cube_hext_vs_m.txt', 'example_parameters/data_*.txt',

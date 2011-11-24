@@ -50,7 +50,7 @@ NMAG User Manual (|nmagverstr|)
    tutorial/doc.txt
    acknowledgements.txt
 
-.. comment::
+.. comment:
 
    .. raw:: html
       :file: genindex.html

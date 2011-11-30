@@ -126,6 +126,28 @@ A list of options can be obtained with::
 
   ncol --help
 
+Available options include::
+
+  -h, --help            show this help message and exit
+  --scale="{col1:factor1,col2:factor2,col3:factor3}"
+                        scale col1 by factor1, col2 by factor 2 etc
+  --last-of="column"    Select only the rows where 'column' changes.
+  -l                    Select only the last row for each stage (i.e.
+                        typically the relaxed state)
+  --mod="field"         Compute the magnitude of given field, i.e. 
+                        '--mod H_demag' computes
+                        sqrt(H_demag_0^2+H_demag_1^2+H_demag_2^2). More than
+                        one field can be provided (comma separated) but there
+                        must be no spaces between the fields. (I.e. '--mod
+                        m_Py,H_ext'). These modulus entries will be printed
+                        last (after any other COLS that have been provided),
+                        and in the order given in the '--mod' switch.
+  --odt                 Expect to process odt file (as produced by OOMMF, see
+                        http://math.nist.gov/oommf/ and http://math.nist.gov/o
+                        ommf/doc/userguide12a3/userguide/Data_Table_File_Forma
+                        t_ODT.html).
+
+
 .. comment:
   [Note for developers] In principle we could have used the 
   iteration counter of the
@@ -669,5 +691,15 @@ nsimversion
 -----------
 
 A script that provides some information about the version of the
-software. If you need to report a bug/problem, please include the
+software. 
+
+If you need to report a bug/problem, please include the
 output of this program.
+
+From release 0.2 onwards, please use::
+
+  nsim --version
+
+instead.
+
+

@@ -54,6 +54,12 @@ We can examine the mesh using :ref:`nmeshpp` to obtain information about
 mesh quality, the statistical distribution of edge lengths, the
 overall number of points and elements etc.
 
+
+If you like to script the mesh generation starting from a Netgen geometry file and ending with the nmesh file, you could use (for the example above), the following shell commands::
+
+  netgen -geofile=bar30_30_100.geo -meshfiletype="Neutral Format" -meshfile=bar30_30_100.neutral -batchmode
+  nmeshimport --netgen bar30_30_100.neutral bar30_30_100.nmesh.h5
+
 .. _The simulation:
 
 The simulation

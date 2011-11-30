@@ -1,6 +1,3 @@
-import sys
-sys.argv.append('--clean')
-
 import nmag
 from nmag import SI
 

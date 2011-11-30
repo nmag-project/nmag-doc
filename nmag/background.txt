@@ -8,6 +8,18 @@ package, some explanation of the philosophy behind it (which may
 explain some of the user interface choices that have been made) and
 explanation of some terms that are relevant.
 
+
+Architecture overview
+---------------------
+
+.. image:: images/nmag-architecture500.png
+   :align: center
+   :width: 500
+   :height: 515
+
+The |Nmag| environment that is described in this manual is shown as the blue box labelled ``Nmag Simulation Script``. This is importing the ``nmag`` library -- which is a Python library. This in turn, is built on the `Nsim library`_ Python module. The |Nsim| Python module uses compiled code which is written in Objective Caml. At this level the execution can be parallel and this is also used to link together existing libraries (yellow boxes).
+
+
 .. _nsim library:
 
 The |Nsim| library
@@ -17,6 +29,11 @@ The |Nsim| library
 capabilities to a general purpose finite element multi-physics field
 theory library called |Nsim|. Therefore, many of the concepts used by
 |Nmag| are inherited from |Nsim|.
+
+This manual documents the high-level |Nmag| userinterface, it does not
+document |Nsim|. Some of the internal details of |Nsim| are explained
+in http://arxiv.org/abs/arXiv:0907.1587.
+
 
 .. _Fields and subfields:
 

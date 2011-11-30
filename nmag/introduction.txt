@@ -12,10 +12,10 @@ Python_ programming language.
 |Nmag| Philosophy
 -----------------
 
-The majority of specialized simulation codes used in research today
-consists of a highly specialized core application which initially was
+Many specialized simulation codes used in research today
+consist of a highly specialized core application which initially was
 written to simulate the behaviour of some very specific
-system. Usually, the core application then evolved into a more broadly
+system. Often, the core application then evolved into a more broadly
 applicable tool through the introduction of additional
 parameters. Some simulation codes reach a point where it becomes
 evident that they need an amount of flexibility that can only be
@@ -96,31 +96,56 @@ the :ref:`mini tutorial micromagnetic modelling`.
 Development status
 ------------------
 
-|Nmag| is a relatively young piece of software. It almost certainly
-contains many bugs and we encourage users to report these to the
-:ref:`nmag team <contact>`, so they can be document and fixed.
+.. comment:
 
-It is also very likely that parts of the user interface will change
-over time.  We will try to make changes backward compatible where this
-is feasible and acceptable.
+  |Nmag| is a relatively young piece of software. It almost certainly
+  contains bugs and we encourage users to report these to the :ref:`nmag
+  team <contact>`, so they can be document and fixed; assuming the
+  resources for this are available.
 
-Some features do exist that have not been documented in the manual
-yet. This may be (i) because the nmag team has not found the time yet
-to create the documentation. However, it is also possible that (ii) we
-are still testing how a feature and its interface *feels* when being
-used, and we hesitate to document an interface if we consider it
-likely that it might be changed in the near future. Finally, (iii) we
-will not rush to publish any new functionality if we are not aware of
-any users who would be interested in this feature. For this reason, we
-do encourage users to contact the :ref:`nmag team <contact>` to suggest features
-that would be relevant to them. We are also interested in generic
-feedback (good and bad; ideally constructive).
+  It is also very likely that parts of the user interface will change
+  over time.  We will try to make changes backward compatible where this
+  is feasible and acceptable.
 
-While we have only limited resources for the development and
-maintenance of the code and will therefore not be able to react
-immediately (or at all) to requests and suggestions, it is important
-that we maintain an up-to-date understanding of the requirements of
-the community.
+
+  Some features do exist that have not been documented in the manual
+  yet. This may be (i) because the nmag team has not found the time yet
+  to create the documentation. However, it is also possible that (ii) we
+  are still testing how a feature and its interface *feels* when being
+  used, and we hesitate to document an interface if we consider it
+  likely that it might be changed in the near future. Finally, (iii) we
+  will not rush to publish any new functionality if we are not aware of
+  any users who would be interested in this feature. For this reason, we
+  do encourage users to contact the :ref:`nmag team <contact>` to suggest features
+  that would be relevant to them. We are also interested in generic
+  feedback (good and bad; ideally constructive).
+
+  While we have only limited resources for the development and
+  maintenance of the code and will therefore not be able to react
+  immediately (or at all) to requests and suggestions, it is important
+  that we maintain an up-to-date understanding of the requirements of
+  the community.
+
+The first Nmag release was late in 2007, and many bugs have been fixed
+since then. Having said that, without doubt there are bugs left in the
+system, and there is a long list of wishes for extra features,
+changes, improvements. 
+
+Currently, there is no significant amount of funding or man power
+available to support Nmag users or develop it further. The software should
+thus be seen to be provided as is.
+
+Should you use Nmag for your work, please cite 
+
+* Thomas Fischbacher, Matteo Franchin, Giuliano Bordignon, and Hans Fangohr, 
+  *A Systematic Approach to Multiphysics Extensions of Finite-Element-Based Micromagnetic Simulations: Nmag*, 
+  IEEE Transactions on Magnetics **43**, 6, 2896-2898 (2007), 
+  online: `preprint <http://eprints.soton.ac.uk/46725/1/Fisc_07.pdf>`__ and http://dx.doi.org/10.1109/TMAG.2007.893843
+
+to demonstrate the value of open-source infrastructure in the
+community. (We should also cite the corresponding recommended
+publications when using OOMMF, Magpar, Mumax, MicroMagnum etc).
+
 
 .. _Mailing list:
 
@@ -128,10 +153,12 @@ Mailing list
 ------------
 
 If you are using |nmag|, we recommend that you subscribe to at least
-one of these following two lists to be aware of any major bugs or
-improvements. If you have a question about how to use the software, we
-suggest you subscribe to :ref:`nmag-users`, and post it there. (If you
-prefer to contact only the developers, see :ref:`nmag team <contact>`.)
+one of these following two lists. If you have a question about how to use the software, we
+suggest you subscribe to :ref:`nmag-users`, and post it there. 
+
+.. comment::
+  (If you
+  prefer to contact only the developers, see :ref:`nmag team <contact>`.)
 
 .. _nmag-announce:
 
@@ -155,7 +182,7 @@ nmag-users
 ~~~~~~~~~~
 
 **nmag-users@lists.soton.ac.uk** is a mailing list to discuss the use of
-nmag. Any announcements to ``nmag-announce`` will also be sent to this
+nmag, and for users to support users. Any announcements to ``nmag-announce`` will also be sent to this
 mailing list.
 
 To subscribe to this list, send an email to
@@ -174,7 +201,7 @@ http://groups.google.com/group/nmag-users.
 Support
 -------
 
-Support will be provided within our limited resources. After
+Support will be provided within our limited resources (which may be None). After
 consulting the manual, please feel free to use the :ref:`mailing list`
 ``nmag-users@lists.soton.ac.uk`` to seek advice, or contact the
 :ref:`nmag team <contact>` directly.

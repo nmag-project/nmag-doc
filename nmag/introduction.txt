@@ -156,7 +156,7 @@ If you are using |nmag|, we recommend that you subscribe to at least
 one of these following two lists. If you have a question about how to use the software, we
 suggest you subscribe to :ref:`nmag-users`, and post it there. 
 
-.. comment::
+.. comment:
   (If you
   prefer to contact only the developers, see :ref:`nmag team <contact>`.)
 

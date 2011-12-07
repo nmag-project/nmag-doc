@@ -35,11 +35,13 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/*
 
-dyn/nmagverstr.txt:
-	echo ".. |nmagverstr| replace:: "`$(NSIM) dyn/nmagverstr.py` > dyn/nmagverstr.txt
-	echo ".. |nmagverinfo| replace:: "`$(NSIM) dyn/nmagverstr.py --info` >> dyn/nmagverstr.txt
+dyn/nmagverstr.txt: dyn/nmagverstr.txt.in
+	$(NSIM) subst.py $< $@
 
-dynamic: dyn/nmagverstr.txt
+conf.py: conf.py.in
+	$(NSIM) subst.py $< $@
+
+dynamic: dyn/nmagverstr.txt conf.py
 	cd dyn; ../$(NSIM) make_dyn.py; cd ..
 	cp $(NSIM_PYTHONPATH)/nsim/si_units/si.py dyn/si.py
 

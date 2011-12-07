@@ -46,7 +46,7 @@ dynamic: dyn/nmagverstr.txt
 # Developers can force update of manual with proper version number
 # with this (non-default) target.
 dev-dynamic: 
-	rm dyn/nmagverstr.txt
+	rm -f dyn/nmagverstr.txt
 	make dynamic
 
 update: dynamic

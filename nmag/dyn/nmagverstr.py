@@ -5,7 +5,7 @@ from nsim.version import version_str, release_date, vcinfo
 
 if "--info" in sys.argv:
     rd = (" released on %s" % release_date) if release_date else ""
-    vc = (" (%s)" % vcinfo) if vcinfo else ""
+    vc = (" (%s)" % (vcinfo.split()[1])) if vcinfo else ""
     print version_str + vc + rd
 
 else:

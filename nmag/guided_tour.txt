@@ -35,6 +35,8 @@ detail and should cover most of the usual applications.
 
    example_restart/doc.txt
 
+   example_changing_space_time_field/doc.txt
+
    example_two_materials/doc.txt
 
    example_larmor/doc.txt

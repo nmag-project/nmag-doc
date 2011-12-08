@@ -33,7 +33,8 @@ help:
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 
 clean:
-	-rm -rf $(BUILDDIR)/*
+	-rm -rf $(BUILDDIR)/* dyn/nmagverstr.txt conf.py \
+	  dyn/nmag.txt dyn/si.py
 
 dyn/nmagverstr.txt: dyn/nmagverstr.txt.in
 	$(NSIM) subst.py $< $@

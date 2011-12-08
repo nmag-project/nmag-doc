@@ -371,3 +371,222 @@ things:
   you impose a maximum time ``x`` to spend in the computation of a stage
   (you should make sure this makes sense in your case).
  
+
+How to visualise the difference between two fields defined over the same mesh
+-----------------------------------------------------------------------------
+
+First save the data into two **ASCII** VTK files. For example::
+
+  nmagpp --vtk=m.vtk --vtkascii --fields=m simulation_name
+
+Note the option ``"--vtkascii"`` to force the creation of a ASCII file. 
+Let's say this command created the two files ``m-000000.vtk`` and ``m-000001.vtk``.
+You can now use the library ``pyvtk`` to load the two files, compute the difference and save it back to a third file::
+
+  import numpy, pyvtk
+  a = pyvtk.VtkData("m-000000.vtk")
+  b = pyvtk.VtkData("m-000001.vtk")
+  va = a.point_data.data[0].vectors
+  vb = b.point_data.data[0].vectors
+  for i in range(len(va)):
+      va[i] = list(numpy.array(va[i]) - numpy.array(vb[i]))
+  a.tofile("difference.vtk")
+
+Save this text to a file named ``diff.py`` and run it as::
+
+  python diff.py
+
+You'll get a third file with name ``difference.vtk`` containing the difference of the two fields.
+
+If you are repeating this operation many times, it may become annoying to open again and again the ``diff.py`` file to change the names of the input files. You can then modify the script as follows::
+
+  import sys, numpy, pyvtk
+  a = pyvtk.VtkData(sys.argv[1])
+  b = pyvtk.VtkData(sys.argv[2])
+  va = a.point_data.data[0].vectors
+  vb = b.point_data.data[0].vectors
+  for i in range(len(va)):
+      assert a.structure.points[i] == b.structure.points[i]
+      va[i] = list(numpy.array(va[i]) - numpy.array(vb[i]))
+  a.tofile(sys.argv[3])
+
+The name of the files are taken from the command line. You can then compute the difference using::
+
+  python diff.py a.vtk b.vtk a_minus_b.vtk 
+
+Notice that in the last version of the script we also added the line::
+
+  assert a.structure.points[i] == b.structure.points[i]
+
+which does just check that the two files are using the same set of points (i.e. the same mesh).
+
+
+How to re-sample data from a saved h5 file
+------------------------------------------
+
+(Available in Nmag-0.2.0)
+
+You can load an h5 file like this ::
+
+  import ocaml
+  from nmag.h5probe import Fields
+  handler = Fields("infile.h5")
+  field = handler.set_field_data("m", "Py", 0)
+
+And probe one of its fields::
+
+  position = [0, 1, 2] # In mesh units (typically is nanometres)
+  value = ocaml.probe_field(field, "m_Py", position)[0][1]
+
+This way you can create two arrays: ``rs`` containing an array of points and ``vs`` containing the corresponding values.
+You can then use pyvtk to generate a VTK file from these::
+
+  import pyvtk
+  
+  grid = pyvtk.UnstructuredGrid(rs)
+  data = pyvtk.PointData(pyvtk.Vectors(vs))
+  v = pyvtk.VtkData(grid, data)
+  v.tofile("outfile.vtk")
+
+Here is a full example, which probes the magnetisation in the outer skin of a cylinder, in sections which are not equally spaced.
+Notice the usage of the function ``float_set`` to specify where the sampling should be denser (originally, here is where a domain wall was).
+The script should be used as ``nsim probe.py infile.h5 outfile.vtk``::
+
+  import math
+  import sys
+  
+  import pyvtk
+  
+  import ocaml
+  from nmag.h5probe import Fields
+  from nmag import float_set
+  
+  # First we probe the field in the required points
+  handler = Fields(sys.argv[1])
+  field = handler.set_field_data("m", "Py", 0)
+  
+  xs = float_set([-150.0, -145.0, [], -15.0, -12.5, [], 15.0, 20.0, [], 50.0])
+  angles = float_set([0, [20], 2*math.pi])
+  R, R2 = (4.9, 5.1)
+  
+  rs = []
+  vs = []
+  for x in xs:
+    for angle in angles:
+      r = [x, R*math.cos(angle), R*math.sin(angle)]
+      rs.append([x, R2*math.cos(angle), R2*math.sin(angle)])
+      vs.append(ocaml.probe_field(field, "m_Py", r)[0][1])
+  
+  # Now we output the values to a VTK file
+  grid = pyvtk.UnstructuredGrid(rs)
+  data = pyvtk.PointData(pyvtk.Vectors(vs))
+  v = pyvtk.VtkData(grid, data)
+  v.tofile(sys.argv[2])
+
+
+
+Notes on using GMSH to create a family of related meshes
+--------------------------------------------------------
+
+If you want to create many meshes using Gmsh, you may first generate a
+mesh manually.  Then you can create a Python script which uses this
+mesh as a template to quickly create a mesh for a different set of
+parameters.  Below is such a script which shows how to do so. The mesh
+file (geo) has been enclosed between quotes ``"""`` and some of the
+values for the points coordinates have been substituted with strings
+that the Python script substitutes with real values.
+
+Note that we use ``Mesh.CharacteristicLengthFactor = 5.0;`` to control
+the discretisation of the mesh. We also use ``Physical Volume(1) =
+{1};`` to make sure that the mesh region is labeled starting from
+region number 1::
+
+  mesh = """
+  cl1 = 1;
+  Point(1) = {$x2$, 0, 0, cl1};
+  Point(2) = {$x2$, $x2$, 0, cl1};
+  Point(3) = {0, $x2$, 0, cl1};
+  Point(4) = {0, $x1$, 0, cl1};
+  Point(5) = {$x1$, 0, 0, cl1};
+  Point(6) = {$x0$, $x0$, 0, cl1};
+  Point(7) = {$x0$, $x1$, 0, cl1};
+  Point(8) = {$x1$, $x0$, 0, cl1};
+  Point(9) = {$x2$, 0, $y1$, cl1};
+  Point(10) = {$x1$, 0, $y1$, cl1};
+  Point(14) = {$x1$, $x0$, $y1$, cl1};
+  Point(18) = {$x0$, $x0$, $y1$, cl1};
+  Point(19) = {$x0$, $x1$, $y1$, cl1};
+  Point(23) = {0, $x1$, $y1$, cl1};
+  Point(27) = {0, $x2$, $y1$, cl1};
+  Point(31) = {$x2$, $x2$, $y1$, cl1};
+  Line(1) = {1, 5};
+  Line(2) = {5, 8};
+  Circle(3) = {8, 6, 7};
+  Line(4) = {7, 4};
+  Line(5) = {4, 3};
+  Line(6) = {3, 2};
+  Line(7) = {2, 1};
+  Line(11) = {9, 10};
+  Line(12) = {10, 14};
+  Circle(13) = {14, 18, 19};
+  Line(14) = {19, 23};
+  Line(15) = {23, 27};
+  Line(16) = {27, 31};
+  Line(17) = {31, 9};
+  Line(19) = {1, 9};
+  Line(20) = {5, 10};
+  Line(24) = {8, 14};
+  Line(28) = {7, 19};
+  Line(32) = {4, 23};
+  Line(36) = {3, 27};
+  Line(40) = {2, 31};
+  Line Loop(9) = {1, 2, 3, 4, 5, 6, 7};
+  Plane Surface(9) = {9};
+  Line Loop(21) = {1, 20, -11, -19};
+  Ruled Surface(21) = {21};
+  Line Loop(25) = {2, 24, -12, -20};
+  Ruled Surface(25) = {25};
+  Line Loop(29) = {3, 28, -13, -24};
+  Ruled Surface(29) = {29};
+  Line Loop(33) = {4, 32, -14, -28};
+  Ruled Surface(33) = {33};
+  Line Loop(37) = {5, 36, -15, -32};
+  Ruled Surface(37) = {37};
+  Line Loop(41) = {6, 40, -16, -36};
+  Ruled Surface(41) = {41};
+  Line Loop(45) = {7, 19, -17, -40};
+  Ruled Surface(45) = {45};
+  Line Loop(46) = {11, 12, 13, 14, 15, 16, 17};
+  Plane Surface(46) = {46};
+  Surface Loop(1) = {9, 46, 21, 25, 29, 33, 37, 41, 45};
+  
+  Volume(1) = {1};
+  
+  Physical Volume(1) = {1};
+  
+  Mesh.CharacteristicLengthFactor = $discret$;
+  """
+
+  def create_mesh(filename,
+                  inner_size=100.0,
+                  curvature=5.0,
+                  width=10.0,
+                  thickness=20.0,
+                  discretisation=2.5):
+    global mesh
+    s = str(mesh)
+    x = 0.5*inner_size
+    variables = [("x0", x - curvature),
+                 ("x1", x),
+                 ("x2", x + 0.5*width),
+                 ("y1", thickness),
+                 ("discret", discretisation)]
+    for variable_name, variable_value in variables:
+      s = s.replace("$%s$" % variable_name, str(variable_value))
+    
+    f = open(filename, "w")
+    f.write(s)
+    f.close()
+  
+  create_mesh("dots.geo")
+

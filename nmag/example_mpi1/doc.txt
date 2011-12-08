@@ -351,7 +351,7 @@ we continue the run with another number of CPUs, the mesh data will
 not be correct anymore which will lead to errors when extracting the
 data from the ``_dat.h5`` file.) 
 
-Note also that there is currently no warning issued if a user ventures
+Note also that there is currently no warning issued (in Nmag 0.1) if a user ventures
 into such a simulation.
 
 .. comment:

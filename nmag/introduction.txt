@@ -7,6 +7,15 @@ Introduction
 package with an user interface based on the 
 Python_ programming language.
 
+If you use Nmag in your published work, please cite: 
+
+* Thomas Fischbacher, Matteo Franchin, Giuliano Bordignon, and Hans
+  Fangohr.  *A Systematic Approach to Multiphysics Extensions of
+  Finite-Element-Based Micromagnetic Simulations: Nmag*, in IEEE
+  Transactions on Magnetics, **43**, 6, 2896-2898 (2007). (Available `online <http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=4202717>`__)
+
+
+
 .. _|Nmag| Philosophy:
 
 |Nmag| Philosophy

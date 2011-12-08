@@ -1,0 +1,6 @@
+.. _More than one magnetic material, exchange coupled:
+
+More than one magnetic material, exchange coupled
+-------------------------------------------------
+
+To be written. 

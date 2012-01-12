@@ -4,7 +4,7 @@ Example: Cubic Anisotropy
 -------------------------
 
 In this example we will study the behaviour of a 10 x 10 x 10 nm iron
-cube with cubic anisotropy in an external field.
+cube with :ref:`cubic_anisotropy` in an external field.
 
 .. _Cubic anisotropy simulation script:
 

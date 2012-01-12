@@ -2,7 +2,7 @@ from thesystem import simulate_nanowire, m0_filename, ps, nm
 from nmag.common import *
 
 # Details about the pulse
-pulse_boundary = -50.0e-9 + 0.5e-9 # float in nm
+pulse_boundary = -300.0e-9 + 0.5e-9 # float in nm
 pulse_direction = [0, 1, 0]
 pulse_amplitude = SI(1e5, 'A/m')
 pulse_duration = 1*ps

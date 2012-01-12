@@ -35,7 +35,7 @@ dynamics:
 
 nmagprobe:
 	$(NMAGPROBE) --verbose dynamics_dat.h5 --field=m_Py \
-	  --time=0,100e-12,101 --space=-50,50,201/0/0 --ref-time=0.0 \
+	  --time=0,100e-12,101 --space=-300,300,201/0/0 --ref-time=0.0 \
 	  --scalar-mode=component,1 --out=real-space.dat \
 	  --ft-axes=0,1 --ft-out=norm --ft-out=rec-space.dat
 

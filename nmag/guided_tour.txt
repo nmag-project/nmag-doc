@@ -4,7 +4,8 @@ Guided Tour
 ===========
 
 We present a number of worked out examples that are explained in
-detail and should cover most of the usual applications.
+detail and should cover most of the usual applications. (You may also
+want to check the :ref:`Frequently Asked Questions`.)
 
 .. toctree::
    :maxdepth: 3
@@ -35,6 +36,8 @@ detail and should cover most of the usual applications.
 
    example_restart/doc.txt
 
+   example_changing_space_time_field/doc.txt
+
    example_two_materials/doc.txt
 
    example_larmor/doc.txt
@@ -61,16 +64,11 @@ detail and should cover most of the usual applications.
 
    example_mpi1/doc.txt
 
+   example_excoupling/doc.txt
+
+
 .. comment
    example_timestepper_params/doc.txt
 
 .. comment
    example_thermal_cube/doc.txt
-
-
-.. _More than one magnetic material, exchange coupled:
-
-More than one magnetic material, exchange coupled
--------------------------------------------------
-
-To be written.

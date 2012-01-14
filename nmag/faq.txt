@@ -124,7 +124,8 @@ Laplace operator matrix). Conceptually, it is easy to add support for
 this but due to limited manpower, it has not happened yet.
 
 In short: once the setup stage is over, nmag is about as fast as
-magpar. Magpar's setup time, however, is much smaller.
+magpar. Magpar's setup time, however, is much smaller. 
+Magpar is also more efficient in memory usage.
 
 .. _How do I start a time-consuming nmag run in the background?:
 
@@ -196,15 +197,13 @@ Yes. See :ref:`Example: Parallel execution (MPI) <example parallel execution (MP
 How should I cite nmag?
 -----------------------
 
-For the time being, please cite: 
+Please cite: 
 
 * Thomas Fischbacher, Matteo Franchin, Giuliano Bordignon, and Hans
   Fangohr.  *A Systematic Approach to Multiphysics Extensions of
   Finite-Element-Based Micromagnetic Simulations: Nmag*, in IEEE
   Transactions on Magnetics, **43**, 6, 2896-2898 (2007). (Available `online <http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=4202717>`__)
   
-A more substantial publication is in preparation.
-
 .. _Why can you not use the step as a unique identifier?:
 
 Why can you not use the step as a unique identifier?
@@ -253,3 +252,341 @@ Data and log files will all start with the simulation name, followed
 by some specific appended string and specific file extensions. It is
 thus safe to run simulations with different names in the same
 directory.
+
+
+
+Can I save data to an arbitrary directory?
+------------------------------------------
+
+Do you really need to do so?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First, consider whether you really need to save data in a different
+directory. Remember that you can run many simulation with one single
+script just using a different simulation name, like::
+
+  ...
+  s1 = Simulation('one')
+  ...
+  s2 = Simulation('two')
+  ...
+
+
+When you save the data for simulation ``one`` you get files like
+``one_dat.h5`` and ``one_dat.ndt``, while when dealing with simulation ``two`` you get ``two_dat.h5`` and ``two_dat.nd5``. There is no interference
+between the two simulations (and in particular it is necessary to save thedata in different directories.)
+
+How to save data to a different directory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you run a simulation script which saves data from a simulation,
+the files are saved by default in the current working directory.  In
+order to change this and save data into a directory called ``./mydir/``
+you should start your script in the following way::
+
+
+  import nmag
+  import nsim.features
+  fts = nsim.features.Features()
+  fts.set('etc', 'savedir', './mydir/')
+  ...
+  ...
+
+
+Alternatively, you can change the current working directory at the
+beginning of the file with ordinary Python code::
+
+  
+  import os
+  initial_dir = os.path.abspath(os.path.curdir)
+  os.chdir('./mydir')
+  ...
+  ...
+  os.chdir(initial_dir)
+
+If the directory you want to write to does not exist then (in both the
+two example) you may have to create it first, with something like:
+
+  the_dir = './mydir'
+  import os
+  if not os.path.exists(the_dir):
+    os.mkdir(the_dir)
+
+
+
+How to check the convergence of a simulation
+--------------------------------------------
+
+
+How long it takes to run a simulation? This depends very much on what
+you are simulating and under what conditions (applied field, current,
+etc). Sometimes, however, your simulation may not be ending as quickly as
+you expected and you may want to check what is happening. It may be,
+indeed, that the simulation is not converging, which means that it may
+actually never end. One thing you can do in such a case is to take a
+look at the file ``*_progress.txt``, where ``*`` stands for the simulation
+name (given to the ``Simulation`` class when creating the simulation
+oject). For example, if you created your simulation object with a line
+such as::
+
+  s = nmag.Simulation('one')
+
+Then you may be looking for a file with name ``one_progress.txt``. If
+you used simply ``s = nmag.Simulation()`` and your file is named
+``two.py`` then you should look for a file with name
+``two_progress.txt``. This file contains statistics about the time
+integrator. You'll first get the current time, step number, etc. Then
+you'll get a list of rows each containing four columns, such as::
+
+  123 0.456 0.123 None
+
+Column 1 is the step reached, an integer number which always
+increases. The file shows convergence statistics for the last few
+steps (it doesn't contain statistics for all the steps, since this
+would make it quickly very big). Column 2 contains the current value
+of max || dM/dt ||. Column 3 contains the stopping value of
+dM/dt. Convergence is reached when column 2 < column 3 for at least
+two times. If the simulations is going well, then you should see that
+column 2 contains numbers which are not oscillating rapidly and are
+rather decreasing or increasing "smoothly". This is what typically
+should happen, even if it can be that your simulation has really a
+bizarre dynamics which really oscillates in a frenetic way, so one
+should be careful when analysing the data. The fourth column contains
+an evaluation of the quality of the convergence according to what we
+just said. This number should be close to one when the convergence is
+smooth and close to zero when it is oscillating dramatically.
+
+What to do in case of convergence problems
+------------------------------------------
+
+If your simulation has really a convergence problem, you can do two
+things: 
+
+* improve the tolerances ``ts_abs_err`` and ``ts_rel_err``
+  (decrease these numbers) by using the method ``set_params`` of the
+  ``Simulation`` object; 
+
+* use a ``do=[('next_stage', at('stage_time',SI(x, 's')))]`` as an 
+  argument to the ``hysteresis`` method. This way
+  you impose a maximum time ``x`` to spend in the computation of a stage
+  (you should make sure this makes sense in your case).
+ 
+
+How to visualise the difference between two fields defined over the same mesh
+-----------------------------------------------------------------------------
+
+First save the data into two **ASCII** VTK files. For example::
+
+  nmagpp --vtk=m.vtk --vtkascii --fields=m simulation_name
+
+Note the option ``"--vtkascii"`` to force the creation of a ASCII file. 
+Let's say this command created the two files ``m-000000.vtk`` and ``m-000001.vtk``.
+You can now use the library ``pyvtk`` to load the two files, compute the difference and save it back to a third file::
+
+  import numpy, pyvtk
+  a = pyvtk.VtkData("m-000000.vtk")
+  b = pyvtk.VtkData("m-000001.vtk")
+  va = a.point_data.data[0].vectors
+  vb = b.point_data.data[0].vectors
+  for i in range(len(va)):
+      va[i] = list(numpy.array(va[i]) - numpy.array(vb[i]))
+  a.tofile("difference.vtk")
+
+Save this text to a file named ``diff.py`` and run it as::
+
+  python diff.py
+
+You'll get a third file with name ``difference.vtk`` containing the difference of the two fields.
+
+If you are repeating this operation many times, it may become annoying to open again and again the ``diff.py`` file to change the names of the input files. You can then modify the script as follows::
+
+  import sys, numpy, pyvtk
+  a = pyvtk.VtkData(sys.argv[1])
+  b = pyvtk.VtkData(sys.argv[2])
+  va = a.point_data.data[0].vectors
+  vb = b.point_data.data[0].vectors
+  for i in range(len(va)):
+      assert a.structure.points[i] == b.structure.points[i]
+      va[i] = list(numpy.array(va[i]) - numpy.array(vb[i]))
+  a.tofile(sys.argv[3])
+
+The name of the files are taken from the command line. You can then compute the difference using::
+
+  python diff.py a.vtk b.vtk a_minus_b.vtk 
+
+Notice that in the last version of the script we also added the line::
+
+  assert a.structure.points[i] == b.structure.points[i]
+
+which does just check that the two files are using the same set of points (i.e. the same mesh).
+
+
+How to re-sample data from a saved h5 file
+------------------------------------------
+
+(Available in Nmag-0.2.0)
+
+You can load an h5 file like this ::
+
+  import ocaml
+  from nmag.h5probe import Fields
+  handler = Fields("infile.h5")
+  field = handler.set_field_data("m", "Py", 0)
+
+And probe one of its fields::
+
+  position = [0, 1, 2] # In mesh units (typically is nanometres)
+  value = ocaml.probe_field(field, "m_Py", position)[0][1]
+
+This way you can create two arrays: ``rs`` containing an array of points and ``vs`` containing the corresponding values.
+You can then use pyvtk to generate a VTK file from these::
+
+  import pyvtk
+  
+  grid = pyvtk.UnstructuredGrid(rs)
+  data = pyvtk.PointData(pyvtk.Vectors(vs))
+  v = pyvtk.VtkData(grid, data)
+  v.tofile("outfile.vtk")
+
+Here is a full example, which probes the magnetisation in the outer skin of a cylinder, in sections which are not equally spaced.
+Notice the usage of the function ``float_set`` to specify where the sampling should be denser (originally, here is where a domain wall was).
+The script should be used as ``nsim probe.py infile.h5 outfile.vtk``::
+
+  import math
+  import sys
+  
+  import pyvtk
+  
+  import ocaml
+  from nmag.h5probe import Fields
+  from nmag import float_set
+  
+  # First we probe the field in the required points
+  handler = Fields(sys.argv[1])
+  field = handler.set_field_data("m", "Py", 0)
+  
+  xs = float_set([-150.0, -145.0, [], -15.0, -12.5, [], 15.0, 20.0, [], 50.0])
+  angles = float_set([0, [20], 2*math.pi])
+  R, R2 = (4.9, 5.1)
+  
+  rs = []
+  vs = []
+  for x in xs:
+    for angle in angles:
+      r = [x, R*math.cos(angle), R*math.sin(angle)]
+      rs.append([x, R2*math.cos(angle), R2*math.sin(angle)])
+      vs.append(ocaml.probe_field(field, "m_Py", r)[0][1])
+  
+  # Now we output the values to a VTK file
+  grid = pyvtk.UnstructuredGrid(rs)
+  data = pyvtk.PointData(pyvtk.Vectors(vs))
+  v = pyvtk.VtkData(grid, data)
+  v.tofile(sys.argv[2])
+
+
+
+Notes on using GMSH to create a family of related meshes
+--------------------------------------------------------
+
+If you want to create many meshes using Gmsh, you may first generate a
+mesh manually.  Then you can create a Python script which uses this
+mesh as a template to quickly create a mesh for a different set of
+parameters.  Below is such a script which shows how to do so. The mesh
+file (geo) has been enclosed between quotes ``"""`` and some of the
+values for the points coordinates have been substituted with strings
+that the Python script substitutes with real values.
+
+Note that we use ``Mesh.CharacteristicLengthFactor = 5.0;`` to control
+the discretisation of the mesh. We also use ``Physical Volume(1) =
+{1};`` to make sure that the mesh region is labeled starting from
+region number 1::
+
+  mesh = """
+  cl1 = 1;
+  Point(1) = {$x2$, 0, 0, cl1};
+  Point(2) = {$x2$, $x2$, 0, cl1};
+  Point(3) = {0, $x2$, 0, cl1};
+  Point(4) = {0, $x1$, 0, cl1};
+  Point(5) = {$x1$, 0, 0, cl1};
+  Point(6) = {$x0$, $x0$, 0, cl1};
+  Point(7) = {$x0$, $x1$, 0, cl1};
+  Point(8) = {$x1$, $x0$, 0, cl1};
+  Point(9) = {$x2$, 0, $y1$, cl1};
+  Point(10) = {$x1$, 0, $y1$, cl1};
+  Point(14) = {$x1$, $x0$, $y1$, cl1};
+  Point(18) = {$x0$, $x0$, $y1$, cl1};
+  Point(19) = {$x0$, $x1$, $y1$, cl1};
+  Point(23) = {0, $x1$, $y1$, cl1};
+  Point(27) = {0, $x2$, $y1$, cl1};
+  Point(31) = {$x2$, $x2$, $y1$, cl1};
+  Line(1) = {1, 5};
+  Line(2) = {5, 8};
+  Circle(3) = {8, 6, 7};
+  Line(4) = {7, 4};
+  Line(5) = {4, 3};
+  Line(6) = {3, 2};
+  Line(7) = {2, 1};
+  Line(11) = {9, 10};
+  Line(12) = {10, 14};
+  Circle(13) = {14, 18, 19};
+  Line(14) = {19, 23};
+  Line(15) = {23, 27};
+  Line(16) = {27, 31};
+  Line(17) = {31, 9};
+  Line(19) = {1, 9};
+  Line(20) = {5, 10};
+  Line(24) = {8, 14};
+  Line(28) = {7, 19};
+  Line(32) = {4, 23};
+  Line(36) = {3, 27};
+  Line(40) = {2, 31};
+  Line Loop(9) = {1, 2, 3, 4, 5, 6, 7};
+  Plane Surface(9) = {9};
+  Line Loop(21) = {1, 20, -11, -19};
+  Ruled Surface(21) = {21};
+  Line Loop(25) = {2, 24, -12, -20};
+  Ruled Surface(25) = {25};
+  Line Loop(29) = {3, 28, -13, -24};
+  Ruled Surface(29) = {29};
+  Line Loop(33) = {4, 32, -14, -28};
+  Ruled Surface(33) = {33};
+  Line Loop(37) = {5, 36, -15, -32};
+  Ruled Surface(37) = {37};
+  Line Loop(41) = {6, 40, -16, -36};
+  Ruled Surface(41) = {41};
+  Line Loop(45) = {7, 19, -17, -40};
+  Ruled Surface(45) = {45};
+  Line Loop(46) = {11, 12, 13, 14, 15, 16, 17};
+  Plane Surface(46) = {46};
+  Surface Loop(1) = {9, 46, 21, 25, 29, 33, 37, 41, 45};
+  
+  Volume(1) = {1};
+  
+  Physical Volume(1) = {1};
+  
+  Mesh.CharacteristicLengthFactor = $discret$;
+  """
+
+  def create_mesh(filename,
+                  inner_size=100.0,
+                  curvature=5.0,
+                  width=10.0,
+                  thickness=20.0,
+                  discretisation=2.5):
+    global mesh
+    s = str(mesh)
+    x = 0.5*inner_size
+    variables = [("x0", x - curvature),
+                 ("x1", x),
+                 ("x2", x + 0.5*width),
+                 ("y1", thickness),
+                 ("discret", discretisation)]
+    for variable_name, variable_value in variables:
+      s = s.replace("$%s$" % variable_name, str(variable_value))
+    
+    f = open(filename, "w")
+    f.write(s)
+    f.close()
+  
+  create_mesh("dots.geo")
+

@@ -25,8 +25,7 @@ field as follows::
 
   sim = nmag.Simulation(do_demag=False)
 
-We then create the material ``Co`` used for the bar, cobalt in this case, which exhibits uniaxial
-anisotropy in z direction with phenomenological anisotropy constant
+We then create the material ``Co`` used for the bar, cobalt in this case, which exhibits :ref:`uniaxial_anisotropy` in z direction with phenomenological anisotropy constant
 ``K1 = SI(520e3, "J/m^3")``::
 
   Co = nmag.MagMaterial(name="Co",

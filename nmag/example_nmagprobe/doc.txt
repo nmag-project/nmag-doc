@@ -66,8 +66,8 @@ The system: ``thesystem.py``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The system under investigation is a cylindrical nanopillar of radius r=3 nm
-and length l=100 nm. The mesh file ``cylinder.nmesh.h5`` is obtained (using
-`Netgen`_).
+and length l=600 nm. The mesh file ``cylinder.nmesh.h5`` is obtained (using
+`Netgen`_). (The figure shows a cylinder that is 100nm long.)
 
 .. figure:: /example_nmagprobe/cylinder.png
   :align: center
@@ -158,7 +158,7 @@ The next few lines define some variables which are used to define the
 geometry and duration of the magnetic field pulse::
 
   # Details about the pulse
-  pulse_boundary = -50.0e-9 + 0.5e-9 # float in nm
+  pulse_boundary = -300.0e-9 + 0.5e-9 # float in nm
   pulse_direction = [0, 1, 0]
   pulse_amplitude = SI(1e5, 'A/m')
   pulse_duration = 1*ps
@@ -250,7 +250,7 @@ The values extracted are then Fourier transformed.
 The command we use is the following::
 
   nmagprobe --verbose dynamics_dat.h5 --field=m_Py \
-    --time=0,100e-12,101 --space=-50,50,201/0/0 --ref-time=0.0 \
+    --time=0,100e-12,101 --space=-300,300,201/0/0 --ref-time=0.0 \
     --scalar-mode=component,1 --out=real-space.dat \
     --ft-axes=0,1 --ft-out=norm --ft-out=rec-space.dat
 
@@ -260,7 +260,7 @@ from the file ``dynamics_dat.h5``.
 * We probe the field over a cubic lattice in space and time.
   The lattice is four dimensional and consists of the points
   (t, x, y, z) with t=0, 1 ps, 2 ps, ..., 100 ps (101 values),
-  x=-50 nm, 49.5 nm, 49 nm, ..., 50 nm (201 values)
+  x=-300 nm, -297 nm, -294 nm, ..., 300 nm (201 values)
   and y=z=0.
   The lattice is fully determined by the options ``--time`` and ``--space``.
   In particular, the option ``--time=0,100e-12,101`` states that the lattice
@@ -279,7 +279,8 @@ from the file ``dynamics_dat.h5``.
 * ``--scalar-mode=component,1`` induces ``nmagprobe`` to extract the y
   component of dm and to use it as a scalar when writing the output
   and when doing the fourier transform (to extract the x component one
-  should use ``--scalar-mode=component,0``);
+  should use ``--scalar-mode=component,0``); We could also write
+  ``--scalar-mode=component,y`` and ``--scalar-mode=component,x``.
 
 * ``--out=real-space.dat`` induces ``nmagprobe`` to save to file the data
   selected by the options discussed so far. In particular, the file
@@ -289,7 +290,8 @@ from the file ``dynamics_dat.h5``.
   such as `Gnuplot`_;
 
 * ``--ft-axes=0,1`` specifies that the selected data should be Fourier
-  transformed along the axis 0 (time) and 1 (x-space);
+  transformed along the axis 0 (time) and 1 (x-space). This can also
+  be written as ``--ft-axes=t,x``.
 
 * ``--ft-out=norm`` induces ``nmagprobe`` to compute the norm of the complex
   numbers coming from the Fourier-transform. These are the values which

@@ -19,6 +19,10 @@ We first present an example in the following section and then go into
 the details of the command line interface and how the distortion
 process works.
 
+The appropriate reference for this mesh distoration is Albert *et al* [#Albert2012]_,
+where the method is described and used to study domain walll motion in
+the presence of edge roughness.
+
 .. _Example:
 
 Example
@@ -54,6 +58,8 @@ is shown):
    :align: center
    :width: 500
    :height: 200
+
+This figure shows a smooth nanowire (top), and then the same mesh after having been distorted using the nmesh command shown above. The figure is taken from [#Albert2012]_.
 
 .. [#examesh] The mesh file for the nanowire was produced using the ``examesh`` tool, which is included in the nmag distribution in the directory ``utils/cubicmesh/`` (note that it needs to be compiled before it can be used - just ``cd`` into this directory and type ``make``). The exact command used to produce the mesh file was ``examesh nanowire_800x20x5.nmesh,800:450,20:15,5:3``.
 
@@ -94,12 +100,13 @@ sides of the mesh are distorted differently). The intermediate parts
 of the mesh are stretched to fit nicely between the new distorted
 sides.
 
-The whole procedure is illustrated in the following picture. It shows
-a top view (i.e., along the z-axis) of the rear part of the nanowire
-from the previous section. The left hand side shows the original mesh,
-the right hand side shows the mesh after distortion with the function
-``g``, which is depicted in the middle. Note that the contour of the
-distorted mesh follows the outline of ``g``.
+The whole procedure is illustrated in the following picture (see
+[#Albert2012]_). It shows a top view (i.e., along the z-axis) of the
+rear part of the nanowire from the previous section. The left hand
+side shows the original mesh, the right hand side shows the mesh after
+distortion with the function ``g``, which is depicted in the
+middle. Note that the contour of the distorted mesh follows the
+outline of ``g``.
 
 .. image:: /mesh_distortion/steps_illustrated.png
    :align: center
@@ -149,3 +156,6 @@ which was already mentioned above. The second can be adjusted using
 displace the nodes in z-direction and if the amount of displacement
 should be a function of their y-coordinates, the command line
 arguments would be ``--front-rear-axis Z --distort-along-axis Y``.
+
+.. [#Albert2012] Maximilian Albert, Matteo Franchin, Thomas Fischbacher, Guido Meier, and Hans Fangohr, *Domain wall motion in perpendicular anisotropy nanowires with edge roughness*, `J. Phys.: Condens. Matter 24 , 024219 (14 pages) (2012) <http://iopscience.iop.org/0953-8984/24/2/024219>`__ (`preprint pdf <http://www.soton.ac.uk/~fangohr/publications/postprint/Albert_etal_JPhysCondMat_2011.pdf>`__)
+

@@ -305,7 +305,7 @@ beginning of the file with ordinary Python code::
   os.chdir(initial_dir)
 
 If the directory you want to write to does not exist then (in both the
-two example) you may have to create it first, with something like:
+two example) you may have to create it first, with something like::
 
   the_dir = './mydir'
   import os

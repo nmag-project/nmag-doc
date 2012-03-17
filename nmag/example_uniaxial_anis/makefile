@@ -1,7 +1,7 @@
 run: simulate media
 
 simulate:
-	../../../../bin/nsim bar.py --clean
+	../../../src/bin/nsim bar.py --clean
 
 media:
 	gnuplot bar_mag_x.gnu

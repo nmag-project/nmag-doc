@@ -10,9 +10,9 @@
 
 ===============================
 
-.. _NMAG User Manual (|nmagverstr|):
+.. _NMAG User Manual (v0.2):
 
-NMAG User Manual (|nmagverstr|)
+NMAG User Manual (v0.2)
 ===============================
 
 :Authors: Hans Fangohr, Thomas Fischbacher, Matteo Franchin, Giuliano Bordignon, Jacek Generowicz, Andreas Knittel, Michael Walter, Maximilian Albert

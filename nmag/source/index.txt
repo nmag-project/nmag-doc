@@ -19,9 +19,7 @@ NMAG User Manual (v0.2)
 
 :Licence: `GNU General Public License (GPL) version 2 <http://www.gnu.org/licenses/gpl2.txt>`_
 
-:Version: |nmagverinfo| 
-
-:Date: Manual generated on |date| at |time|.
+:Version: 0.2
 
 :Home page: http://nmag.soton.ac.uk
 

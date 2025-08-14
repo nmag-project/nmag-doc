@@ -1,0 +1,18 @@
+services:
+
+  docs-base:
+    build:
+      dockerfile_inline: |
+        FROM alpine
+        RUN apk add --no-cache make py3-sphinx py3-sphinx_rtd_theme texlive
+    image: docs-base
+    pull_policy: never
+
+  nmag-docs:
+    image: docs-base
+    depends_on: [docs-base]
+    pull_policy: never
+    working_dir: /app
+    command: make html
+    volumes:
+      - ./nmag:/app

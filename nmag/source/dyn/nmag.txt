@@ -1,0 +1,1672 @@
+.. _MagMaterial:
+
+MagMaterial
+-----------
+
+Module:
+	``nmag``
+
+Object:
+	``MagMaterial``
+Class constructor information:
+	::
+
+	  
+	      (self,
+	      name,
+	      Ms=SI(0.86e6, "A/m"),
+	      llg_damping=SI(0.5),
+	      llg_gamma_G=SI(2.210173e5, "m/A s"),
+	      exchange_coupling=SI(1.3e-11, "J/m"),
+	      anisotropy=None,
+	      anisotropy_order=None,
+	      do_precession=True)
+	      
+
+
+
+
+:Parameters:
+  `name` : string
+    The name of the material. This will be used in the names of
+    material dependent fields and subfields. Must be alphanumeric
+    (i.e. contain only the characters 0-9\_a-zA-Z)
+    Examples: ``'Py'``, ``'Fe_1'``,  ``'Fe_2'``
+
+  `Ms` : SI Object
+    The saturation magnetisation of the material (in Ampere per
+    meter).
+
+    Example (and default (PermAlloy) value): ``SI(0.86e6,"A/m")``
+
+  `llg_gamma_G` : SI Object
+    The constant in front of the precession term in the LLG equation:
+
+      dM/dt = -llg_gamma_G * M x H + llg_damping * M x dM/dt
+
+    It is often called gyromagnetic ratio, even if usually, in physics,
+    the gyromagnetic ratio of a particle is the ratio between its magnetic
+    dipole moment and its angular momentum (and has units A*s/kg).
+    It is then an improper nomenclature, but it occurs frequently in the
+    literature.
+
+    Example (and default value): ``SI(2.210173e5, "m/A s")``.
+
+  `llg_damping` : SI Object
+    The damping parameter (often called alpha). Optimum damping
+    for 1.0, realistic values are of the order of 0.01. The
+    default value (as in OOMMF) is 0.5.
+
+    Example (and default value): ``SI(0.5,"")``
+
+  `exchange_coupling` : SI Object
+    The coupling strength for the exchange interaction in Joule
+    per meter.
+
+    Example (and default value): ``SI(1.3e-11, "J/m")``
+
+  `anisotropy` : PredefinedAnisotropy Object  or function(vector) -> SI Object
+    Either a predefined anisotropy (such as returned by
+    uniaxial_anisotropy_ or cubic_anisotropy_), or a custom
+    function (which must be polynomial in the components of ``m``)
+    ``a(m)`` that computes anisotropy energy density
+    as a function of the (normalised) magnetisation direction ``m``.
+
+    If you specify a custom anisotropy function, you also
+    need to pass the order of the polynomial in the ``anisotropy_order``
+    parameter.
+
+    Default value is ``None``, that is, no anisotropy term
+    is used.
+
+  `anisotropy_order` : int
+    If a custom polynomial anisotropy function ``a(m)`` is specified, the order
+    of the polynomial must be given in this parameter. This is not required
+    for pre-defined uniaxial_anisotropy_ or cubic_anisotropy_ anisotropy
+    functions.
+
+    Default value is ``None``.
+
+  `do_precession` : True or False
+    Boolean that can switch off the precessional term in the LLG
+    equation. This is useful to improve convergence speed
+    when studying metastable configurations.
+
+  `properties`: list of strings (default: ["magnetic","material"])
+    A list of additional properties this material will be associated with.
+    Normally, users do not have to change this, but it is used internally
+    when setting up discretized operators.
+
+    Example (and default value): ``True``
+
+
+
+.. _uniaxial_anisotropy:
+
+uniaxial_anisotropy
+~~~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``uniaxial_anisotropy``
+Arguments:
+	``(axis, K1, K2=0)``
+
+
+Returns a predefined anisotropy modelling an uniaxial anisotropy energy density term::
+
+  E_anis = - K1 * <axis, m>^2 - K2 * <axis, m>^4
+
+(where `m` is the (normalised) magnetization.)
+
+:Parameters:
+
+  `axis` : vector (=list)
+    Easy axis (or hard axis, if K1 < 0; will be normalised).
+
+  `K1` : SI Object
+    Second-order phenomenological anisotropy constant (as used in the equation above).
+
+  `K2` : SI Object
+    Fourth-order phenomenological anisotropy constant (as used in the equation above).
+
+    Default value is ``0``.
+
+
+.. _cubic_anisotropy:
+
+cubic_anisotropy
+~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``cubic_anisotropy``
+Arguments:
+	``(axis1, axis2, K1, K2=0, K3=0)``
+
+
+Returns a predefined anisotropy modelling a cubic anisotropy energy density term::
+
+  E_anis = K1 * (<axis1,m>^2 <axis2,m>^2 + <axis1,m>^2 <axis3,m>^2 + <axis2,m>^2 <axis3,m>^2)
+         + K2 * (<axis1,m>^2 <axis2,m>^2 <axis3,m>^2)
+         + K3 * (<axis1,m>^4 <axis2,m>^4 + <axis1,m>^4 <axis3,m>^4 + <axis2,m>^4 <axis3,m>^4)
+
+(where `m` is the (normalised) magnetisation.)
+
+:Parameters:
+
+  `axis1` : vector (=list)
+    First cubic anisotropy axis (will be normalised).
+
+  `axis2` : vector (=list)
+    Second cubic anisotropy axis (will be orthonormalised with regards to `axis1`).
+
+  `K1` : SI Object
+    Fourth-order phenomenological anisotropy constant (as used in the equation above).
+
+  `K2` : SI Object
+    Sixth-order phenomenological anisotropy constant (as used in the equation above).
+
+    Default value is ``0``.
+
+  `K3` : SI Object
+    Eigth-order phenomenological anisotropy constant (as used in the equation above).
+
+    Default value is ``0``.
+
+
+.. _Simulation:
+
+Simulation
+----------
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation``
+Class constructor information:
+	``(self, name=None, phi_BEM=None, periodic_bc=None, do_demag=True, do_anisotropy_jacobian=False, temperature=None, thermal_delta_t=None, user_seed_T=0, timestepper_max_order=2, timestepper_krylov_max=300, ksp_tolerances={}, adjust_tolerances=False, use_pvode=True, lam_debugfile=None)``
+
+
+
+:Parameters:
+
+  `name` : string
+    Name of the simulation object; this is used e.g. for prefixing
+    filenames created by nmag.
+
+    Default value is the name of the current script (sans extension).
+
+  `do_demag` : bool
+    Pass ``False`` to disable the demagnetisation field.
+
+  `do_anisotropy_jacobian` : bool
+    Pass ``True`` to enable the inclusion of derivatives from the
+    anisotropy into the Jacobian. (Complicated anisotropy terms may blow
+    up memory requirements for the Jacobian.)
+
+    Default value is ``True``.
+
+  `temperature` : SI Object
+    Simulated temperature (unless equal to None, stochastic thermal
+    fluctuations will be enabled).
+
+    Currently not supported (since July 2008)
+
+  `thermal_delta_t` : SI Object
+    Time step to use when stochastic thermal fluctuations are enabled.
+
+    Currently not supported (since July 2008)
+
+  `timestepper_max_order` : int
+    Maximum order for the time integrator (we use the BDF method).
+
+    Default value is 2.
+
+  `timestepper_krylov_max` : int
+    Maximum dimension of the Krylov subspace to be used in the time
+    integrator.
+
+    Default (recommended) value is 300.
+
+  `ksp_tolerances`: dictionary
+    Keys to this dictionary are:
+    DBC.rtol DBC.atol DBC.dtol DBC.maxits
+    NBC.rtol NBC.atol NBC.dtol NBC.maxits
+
+    Values are the petsc KSP-solver tolerances for the Dirichlet and
+    von Neumann Laplace solvers used internally to compute the magnetic
+    scalar potential from magnetic charge density.
+
+
+.. _advance_time:
+
+advance_time
+~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.advance_time``
+Arguments:
+	``(self, target_time, max_it=-1, exact_tstop=None)``
+
+
+This method carries out the time integration of the
+Landau-Lifshitz and Gilbert equation.
+
+:Parameters:
+
+  `target_time` : SI Object
+    The simulation will run until this time is reached. If the target_time is
+    zero, this will simply update all fields.
+
+  `max_it` : integer
+    The maximum number of iterations (steps) to be carried out
+    in this time integration call. If set to ``-1``, then there is no limit.
+
+  `exact_tstop` : boolean
+    When exact_tstop is True, the time integration is advanced exactly
+    up to the given target_time. When False, the time integration ends
+    "close" to the target_time. The latter option can result in better
+    performance, since the time integrator is free to choose time
+    steps which are as wide as possible. When exact_tstop is not
+    given, or is None, the default value for this option will be used.
+    The default value can be set using the method set_params, which
+    should hence be used to control the behaviour of the hysteresis
+    and relax methods.
+
+
+.. _get_subfield:
+
+get_subfield
+~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.get_subfield``
+Arguments:
+	``(self, subfieldname, units=None)``
+
+
+Given a subfieldname, this will return a numpy-array
+containing all the data (one element for each site).
+
+:Parameters:
+  `subfieldname` : string
+    The name of the subfield, for example ``m_Py`` or ``H_demag``.
+
+  `units` : SI object
+
+    Optional parameter. If it is provided, then the entity is
+    expressed in these units. If it is not provided, then the
+    correct SI dimensions for this subfield are looked up, and
+    :ref:`SI-value <SI object>`\ s are returned.
+
+    If you would like to see simulation units in the output,
+    then use ``SI(1)``.
+
+    In short: if you omit the second parameter, you will
+    obtain SI values.
+
+:Returns:
+  `data` : numpy-array
+
+
+
+.. _get_subfield_positions:
+
+get_subfield_positions
+~~~~~~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.get_subfield_positions``
+Arguments:
+	``(self, subfieldname, pos_units=SI(1,['m',1.0]))``
+
+
+This function provides the positions of the sites for data
+obtained with get_subfield_.
+
+:Parameters:
+  `subfieldname` : string
+    The name of the subfield, for example ``m_Py`` or ``H_demag``.
+
+  `pos_units` : SI Object
+    Specifies the physical dimension in which positions are to be expressed.
+    Default is ``SI(1,'m')``, which means to return site positions in meters.
+
+    To obtain site positions in nanometers, use ``SI(1e-9,'m')``.
+
+:Returns:
+  `pos` : numpy-array
+    Array containing a position (i.e. 3 floating point
+    numbers) for every site.
+
+
+
+
+.. _get_subfield_sites:
+
+get_subfield_sites
+~~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.get_subfield_sites``
+Arguments:
+	``(self, subfieldname)``
+
+
+This function provides the node indices of the sites for data
+obtained with get_subfield_.
+
+:Parameters:
+  `subfieldname` : string
+    The name of the subfield, for example ``m_Py`` or ``H_demag``.
+
+:Returns:
+  `data` : numpy-array
+    Array containing a list of integers for every site. The
+    integers within each list are node indices of the
+    mesh. There will be only one integer per site in first
+    order basis function calculations (which is the usual case
+    in micromagnetics)
+
+
+
+.. _get_subfield_average:
+
+get_subfield_average
+~~~~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.get_subfield_average``
+Arguments:
+	``(self, field_name, subfield_name=None)``
+
+the average of the subfield ``subfield_name`` of
+the field ``fieldname`` as an SI object (or a list of [list
+of [list of [...]]] SI objects in the field is a vector, 2nd rank tensor etc.
+
+:Parameters:
+  `field_name` : string
+    name of the field
+
+  `subfield_name` : string
+    name of the subfield
+
+See also get_subfield_average_siv_.
+
+
+.. _get_subfield_average_siv:
+
+get_subfield_average_siv
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.get_subfield_average_siv``
+Arguments:
+	``(self, field_name, subfield_name=None)``
+
+the average of the subfield ``subfield_name`` of
+the field ``fieldname`` as a single floating point number (or
+a list if it is a vector, or a list of list for matrices etc).
+
+The number is expressed in SI units (hence the suffix _siv
+which stands for si value).
+
+:Parameters:
+  `field_name` : string
+    name of the field
+
+  `subfield_name` : string
+    name of the subfield
+
+Example::
+
+  ave_M = sim.get_subfield_average_siv("M","Py")
+
+will obtain the average magnetisation of the subfield M_Py of field M, for example
+``ave_M = [100000.00,0.,0.]``
+
+
+
+.. _probe_subfield:
+
+probe_subfield
+~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.probe_subfield``
+Arguments:
+	``(self, subfieldname, pos, unit=None)``
+
+ven subfield name and position (SI object), return data (as SI object).
+
+Note that ``get_subfield_siv`` has the same functionality but
+takes a list of floats for the position (instead of an SI
+object) and returns (a list of) float(s) which is just the
+:ref:`SI-value <SI object>` of that physical entity.
+
+If the subfield is not defined at that part of space, ``None``
+is returned.
+
+If the subfield does generally not exist, then a ``KeyError`` exception
+is thrown.
+
+:Parameters:
+  `subfieldname` : string
+    The name of the subfield
+
+  `pos` : SI object
+    The position for which the data should be returned
+
+  `unit` : SI object
+    If you request the value for a subfield of a field that is
+    part of |nmag| (i.e. fields M, m, H_demag, etc), then you do
+    not need to provide this object.
+
+    If you request data of any other (multi-physics) fields,
+    then this function needs to know the SI dimensions of that
+    field (for the correct conversion from simulation units to
+    SI units).
+
+    If incorrect dimensions are provided, the returned data is
+    likely to be wrongly scaled.
+
+:Returns:
+  `data` : [list [of list[ of ...]]] SI objects
+    The returned object is an SI object for scalar subfields,
+    a list of SI objects for vector fields, a list of list of
+    SI objects for (rank 2) tensor fields, etc.
+
+
+
+.. _probe_subfield_siv:
+
+probe_subfield_siv
+~~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.probe_subfield_siv``
+Arguments:
+	``(self, subfieldname, pos, unit=None)``
+
+
+The same behaviour as ``get_subfield`` but the ``pos`` and return
+data are :ref:`SI-value <SI object>`\ s (not SI objects).
+
+If the subfield is not defined at that part of space, ``None``
+is returned.
+
+If the subfield does generally not exist, then a ``KeyError``
+exception is thrown.
+
+The input (position) and returned data is expressed in SI
+units but of type float.
+
+:Parameters:
+  `subfieldname` : string
+    The name of the subfield
+
+  `pos` : list of floats
+    The position for which the data should be returned (in meters)
+
+  `unit` : SI object
+    If you request the value for a subfield of a field that is part of nmag (i.e.
+    fields M, m, H_demag, etc), then you do not need to provide this object.
+
+    If you request data of any other (multi-physics) fields,
+    then this function needs to know the SI dimensions of that
+    field (for the correct conversion from simulation units to
+    SI units).
+
+    If incorrect dimensions are provided, the returned data is
+    likely to be wrongly scaled.
+
+:Returns:
+  `data` : [list [of list[ of ...]]] float
+    The returned object is a float for scalar subfields,
+    a list of floats for vector fields, a list of list of
+    floats for (rank 2) tensor fields, etc.
+
+
+
+.. _probe_H_demag_siv:
+
+probe_H_demag_siv
+~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.probe_H_demag_siv``
+Arguments:
+	``(self, pos, pos_unit=SI(1,['m',1.0]), epsilon=1e-07)``
+
+ME: this function returns a wrong value for points outside
+the mesh. For a sphere uniformly magnetised along +x, the x component
+of the demag field outside should be positive, while it is negative.
+
+Compute the demag field at given position. Works inside
+and outside of magnetic materials. Note that most fields can only
+be probed where they are defined. This function computes the demag
+field at the given position on the fly, based on the boundary element
+method.
+
+Note that for large distances away from the magnetic material, we expect
+this not to be very accurate. Furthermore, there is an awkward technical
+problem whenever the probe point lies in-plane with any of the surface
+triangles. These awkward limitations are strongly linked to the method
+used to compute the scalar potential internally and are intrinsically
+difficult to avoid. They will go away in the future when potential
+computations will be performed with Hlib.
+
+Also, this function should (at present) not be used to probe the
+demag field for periodic structures.
+
+:Parameters:
+  `pos` : list of floats
+    The SI numbers described the position in meters. A command like
+    ``probe_H_demag_siv([0,0,1e-9])`` would thus probe the demag field one
+    nanometer away (in z-direction) from the origin.
+
+  `pos_unit` : SI object
+    Optional argument that defaults to SI("m"). The full SI position is
+    computed as pos*pos_unit. The above example could therefore be written as
+    ``probe_H_demag_siv([0,0,1],pos_unit=SI(1e-9,"m"))``.
+
+  `epsilon` : float
+    This parameter is used internally to compute the demag
+    field via central differences from the magnetic
+    potential if the observer point is in the exterior ("vacuum")
+    region. It is the distance between the two points at
+    which each of the field components is being computed
+    (because the field is the negative gradient of the
+    potential). The default value of 1e-7 should be sensible
+    if normal simulation units are used (i.e. the mesh was
+    provided with coordinates in the range 1-1000).
+    Typically, this parameter should be ignored. Note that this number is
+    measured in simulation units.
+
+:Returns:
+  A list of floats containing the demag field in SI units (i.e. A/m) at the
+  specified position.
+
+
+
+.. _hysteresis:
+
+hysteresis
+~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.hysteresis``
+Arguments:
+	::
+
+	  
+	  (
+	  self,
+	  H_ext_list,
+	  save=[('averages', 'fields', at('stage_end'))],
+	  do=[],
+	  convergence_check=every('step', 5)
+	  )
+	  
+
+
+
+This method executes a simulation where the applied field
+is set in sequence to the values specified in ``H_ext_list``.
+The time integration proceeds with the same applied field
+until convergence is reached. At this point the field is changed
+to the next one in ``H_ext_list`` and the method ``reinitialise()``
+is called to proceed with the simulation.
+The user can specify when to save data using the optional
+argument ``save``.
+
+This allows to carry out hysteresis loop computations
+and write the results to disk.
+
+Technically we say that this function performs a multi-stage
+simulation. In our terminology, a stage is a part of the simulation
+where the field does not change. Therefore, every value
+for the applied field specified in ``H_ext_list`` corresponds
+to a different stage. Stages are numbered starting from 1,
+which corresponds to ``H_ext_list[0]``. In general during
+stage number ``i`` the applied field is ``H_ext_list[i-1]``.
+
+:Parameters:
+  `H_ext_list` : list of values for the applied field
+    It is something like ``[H1, H2, H3, ...]``, where
+    ``Hi`` is the triple of components of the applied field,
+    i.e. SI objects having units of "A/m";
+
+  `save` : list of pairs ``(thing_to_save, when)``
+    ``thing_to_save`` is either a string or a function provided
+    by the user and ``when`` is an instance of the class ``When``,
+    i.e. an object which contains the specification of when
+    "the thing" has to be saved.
+
+    Possible string values for ``thing_to_save`` are:
+
+      - ``"averages"``: to save the averages of all the fields
+        together with other information (such as the stage number,
+        the time reached, etc.). This is done calling the method
+        ``save_data()``. Refer to its documentation
+        for further details;
+      - ``"fields"``: to save all the fields. The method
+        ``save_data(fields='all')`` is called for this purpose;
+      - ``"restart"``: to save the current magnetisation configuration
+        and all the information needed to restart the simulation.
+
+  `do` : list of pairs ``(thing_to_do, when)``
+    is very similar to the ``save`` argument, but is usually used
+    for other purposes.
+    ``thing_to_do`` is either a string or a function provided
+    by the user and ``when`` is an instance of the class ``When``.
+
+    Possible string values for ``thing_to_do`` are:
+
+      - ``"next_stage"``: induces the hysteresis method to advance
+        to the next stage;
+      - ``"exit"``: induces the hysteresis method to exit,
+        even if the hysteresis computation has not still reached
+        its end.
+
+    The user can provide his own function to save data.
+    For example, the following three lines::
+
+      def my_fun(sim):
+        sim.save_data()
+      sim.hysteresis(..., save=[(my_fun, every('step', 10))])
+
+    are equivalent to::
+
+      sim.hysteresis(..., save=[('averages', every('step', 10))])
+
+    To specify when something has to be saved the module ``when``
+    is used. The functions ``at`` and ``every``, provided by
+    this module, can refer to the following time variables:
+
+      - ``step``: the step number from the beginning of the simulation;
+      - ``stage_step``: the step number from the beginning of
+        the current stage;
+      - ``time``: the simulation time passed from the beginning
+        of the simulation (measured in SI_ objects);
+      - ``stage_time``: the simulation time passed from the beginning
+        of the current stage;
+      - ``stage``: the number of the current stage;
+      - ``convergence``: a boolean value which is ``True``
+        if the convergence criterion is satisfied.
+        Use in this way ``at('convergence')``
+
+    Remember that you can combine time specifications using
+    the operator | (or) and & (and)::
+
+      every('stage', 2) & at('convergence') --> only at convergence
+                                                of odd stages
+      every('step', 10) | at('convergence') --> at convergence
+                                                and every 10 steps.
+
+    Some usage examples::
+
+      # Save fields (which implicitly will save the averages as well)
+      # when the magnetisation stops changing for each applied field
+      # (i.e. save at convergence):
+      sim.hysteresis(..., save=[('fields', at('convergence'))])
+
+      # Averages will be saved every 10 steps, fields (and
+      # implicitely averages) will be saved at convergence.
+      sim.hysteresis(..., save=[('averages', every('step', 10)),
+                                ('fields', at('convergence'))])
+
+      # Each stage will not last more than 10 ps, even
+      # if the magnetisation is not relaxed yet.
+      sim.hysteresis(..., do=[('next_stage', at('stage_time', SI(1e-11, "s")))])
+
+      # Exit hysteresis loop simulation if the total number of
+      # steps exceeds 1e6, save fields every 100 steps and at
+      # convergence before that:
+      sim.hysteresis(..., save=[('fields', every('step', 100) |
+                                at('convergence'))],
+                           do =[('exit', at('step', 1e6))])
+
+      # Save averages every 0.1 ns (useful for fourier transform)
+      # leave after 20 ns (using the related relax_ command)
+      sim.relax(save=[('averages', every('time', SI(1e-10, 's')))],
+                do  =[('exit', at('time', SI(20e-9, 's')))])
+
+      # Save averages every nanosecond, and fields every 100 ns.
+      sim.relax(save=[('averages',every('time', SI(1e-9, 's'))),
+                      ('fields',  every('time', SI(100e-9,'s')))])
+
+      # Save averages every nanosecond, and fields every 100 ns,
+      # save restart file every 1000 steps
+      sim.relax(save=[('averages',every('time', SI(1e-9, 's'))),
+                      ('fields',  every('time', SI(100e-9, 's'))),
+                      ('restart', every('step', 1000))])
+
+    If ``save`` is not given, averages and fields will be saved whenever
+    the stage ends (this is the default behaviour).
+
+
+.. _load_mesh:
+
+load_mesh
+~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.load_mesh``
+Arguments:
+	``(self, filename, region_names_and_mag_mats, unit_length, do_reorder=False, manual_distribution=None)``
+
+
+:Parameters:
+
+  `filename` : string
+    The file that contains the mesh in nmesh format (ascii or hdf5)
+
+  `region_names_and_mag_mats` : list of 2-tuples
+    A list of 2-tuples containing the region names and the
+    magnetic materials associated to each region. For example,
+    having two spheres (called ``region_A`` and ``region B``)
+    with materials A and B in the mesh, the argument would be
+    [("region_A", A),("region_B",B)] where
+    A and B must have been defined previously as ``nmag.MagMaterial``.
+
+    Having two Materials X and Y both defined in region A (as in a magnetic
+    two-component alloy), we would use [("region_A",[X,Y])].
+
+  `unit_length` : SI object
+    The SI object defines what a length of 1.0 in the mesh file
+    corresponds to in reality. If the length 1.0 in the mesh corresponds to
+    a nanometer, then this SI object would be given as SI(1e-9,"m")
+
+  `do_reorder` : bool
+    If set to True, metis will be called to reorder the mesh
+    (aiming to bring together node ids that correspond to node
+    locations that are spatially close to each other). If this
+    doesn't make sense to you, you should probably leave the
+    default (which is ``False``).
+
+    Generally, we recommend to order a mesh using ``nmeshpp
+    --reordernodes mesh.nmesh orderedmesh.nmesh``, and *not to
+    use* this reodering option here, if you think you need to
+    order it.
+
+    If you know nmag really well (you are probably a member of
+    the core team) then read on.
+
+    The use of ``do_reorder`` *can* make sense if either your
+    mesh is not ordered already, or you provide a
+    ``manual_distribution`` of nodes.
+
+    The use of ``do_reorder`` makes no sense, if you run on more
+    than one CPU and leave the distribution of the nodes to
+    nmag (i.e. you use the default
+    ``manual_distribution==None``).
+
+  `manual_distribution` : list of integers
+    This list (if provided) describes how many nodes are to be
+    put onto which CPU under MPI-parallelized execution.  If
+    this is ``None`` (i.e. the default), then the distribution
+    is done automatically (through metis). This parameter
+    should generally not be used (unless you really know what
+    you are doing).
+
+:Returns:
+   `mesh` : mesh object
+
+
+
+.. _load_m_from_h5file:
+
+load_m_from_h5file
+~~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.load_m_from_h5file``
+Arguments:
+	``(self, filename, **kwargs)``
+
+magnetisation stored in ``filename`` to set the
+magnetisation of the simulation. (If more than one magnetisation
+configurations have been saved in the file, it will load the first
+one.)
+
+This can be used to retrieve the magnetisation saved in a restart file,
+and to set the current magnetisation of the simulation object to this
+magnetisation.
+
+This restart file could have been written explicitely (using the
+save_restart_file_ method), or implicitly by providing a 'restart'
+action to the hysteresis_/relax_ commands.
+
+To simply continue a hysteresis/relax simulation using the
+``--restart`` option, there is no need to use this function. It should
+only be used if lower-level manipulation is required (see for example
+:ref:`Current-driven motion of a vortex in a thin film <Current-driven
+motion of a vortex in a thin film>`).
+
+
+
+.. _save_restart_file:
+
+save_restart_file
+~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.save_restart_file``
+Arguments:
+	``(self, filename=None, fieldnames=['m'], all=False)``
+
+rent magnetic configuration into file that can be used for
+restarting.
+
+This function saves the current magnetisation, the time and
+all what is needed to restart the simulation exactly from
+the point it was invoked.
+
+:Parameters:
+
+  `filename` : string
+
+    The file into which the restart file is written. Defaults
+    RUNID_restart.h5.
+
+  `fieldnames`: list
+    The fieldnames to be saved. Defaults to ['m']
+
+  `all`:bool
+    If true, then all fields will be saved.
+
+This function is used by the hysteresis_ and relax_ commands
+to save a magnetic configuration from which a run can be
+continued (using --restart).
+
+Example:
+
+   A common usecase for this function maybe to write the
+   magnetic configuration that comes from a relaxation process
+   to a file. And to load that configuration as the initial
+   configuration for a subsequent (series of) simulation(s).
+
+   In this case, one may want to provide the filename explicitely.
+   For example::
+
+     sim.save_restart_file(filename="relaxed_configuration.h5")
+
+   One can then use the load_m_from_h5file_, to read this file
+   ``relaxed_configuration.h5`` and to use it to set the
+   magnetisation up in the subsequent simulation.
+
+
+
+.. _relax:
+
+relax
+~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.relax``
+Arguments:
+	``(self, H_applied=None, save=[('averages', 'fields', at(stage_end, True))], do=[], convergence_check=every(5, 'step'))``
+
+
+This method carries out the time integration of the LLG until
+the system reaches a (metastable) equilibrium.
+Internally, this uses the hysteresis_ loop command.
+
+:Parameters:
+  `H_applied` : list of SI objects
+    For a 3-d simulation, the SI-objects Hx, Hy and Hz would be
+    specified as ``[Hx,Hy,Hz]``.
+
+    Default value is ``None``, resulting in the currently applied external
+    field ``H_ext`` being used.
+
+  `save` : Schedule object
+    Allows to define what data to save at what events.
+    See documentation on the hysteresis_ method and
+    on the ``Schedule`` object.
+
+  `convergence_check` : every object The default value
+  (``every('step', 5)`` specifies that we ask the time
+  integrator to carry out 5 steps before we check for
+  convergence. If in doubt, ignore this feature.
+
+
+
+.. _save_data:
+
+save_data
+~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.save_data``
+Arguments:
+	``(self, fields=None, avoid_same_step=False)``
+
+
+Save the *averages* of all defined (subfields) into a ascii
+data file. The filename is composed of the simulation name
+and the extension ``_dat.ndt``. The
+extension ``ndt`` stands for Nmag Data Table (analog to OOMMFs
+``.odt`` extension for this kind of data file.
+
+If ``fields`` is provided, then it will also save the spatially resolved fields
+to a file with extensions ``_dat.h5``.
+
+:Parameters:
+  `fields` : None, 'all' or list of fieldnames
+
+    If None, then only spatially averaged data is saved into ``*ndt`` and ``*h5`` files.
+
+    If ``all`` (i.e. the string containing 'all'), then all fields are saved.
+
+    If a list of fieldnames is given, then only the selected
+    fieldnames will be saved (i.e. ['m','H_demag']).
+
+  `avoid_same_step` : bool
+
+    If ``True``, then the data will only be saved if the
+    current ``clock['step']`` counter is different from the
+    step counter of the last saved configuration. If
+    ``False``, then the data will be saved in any
+    case. Default is ```False```. This is internally used by
+    the hysteresis command (which uses ``avoid_same_step ==
+    True``) to avoid saving the same data twice.
+
+    The only situation where the step counter may not have
+    changed from the last saved configuration is if the user
+    is modifying the magnetisation or external field manually
+    (otherwise the call of the time integrator to advance or
+    relax the system will automatically increase the step
+    counter).
+
+
+
+.. _set_m:
+
+set_m
+~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.set_m``
+Arguments:
+	``(self, values, subfieldname=None)``
+
+
+:Parameters:
+
+  `values` : vector (=list), function or numpy array.
+    The values to be set. See more detailed explanation below.
+
+This method sets the (normalised) magnetisation  (i.e. the ``m`` field)
+to a particular value (or pattern).
+
+It can be used in three different ways:
+
+1. Providing a constant vector
+
+   If given a vector, this function sets the ``m`` field to uniformly point in
+   the given direction, everywhere.
+
+   For example, to have the magnetisation point
+   in +x-direction, we could call the function like this::
+
+     sim.set_m([1,0,0])
+
+   To point in a 45 degree direction between the x- and y-axis,
+   we could use::
+
+     sim.set_m([1,1,0])
+
+   (The magnetisation will automatically be normalised.)
+
+
+2. Providing a function
+
+   If the magnetisation is meant to vary spatially, then a
+   function can be given to the ``set_m`` method as in this
+   example::
+
+     def my_magnetisation((x,y,z)):
+         # get access to pi, cos and sin
+         import math
+
+         # change angle of Mx and My by 10 degree when x varies by 1nm
+         angle = (x*1e9)*10./360*2*math.pi
+         Mx = math.cos(angle)
+         My = math.sin(angle)
+         Mz = 0
+
+         #return magnetisation vector for position (x,y,z)
+         return (Mx,My,Mz)
+
+     sim.set_m(my_magnetisation)
+
+   The function ``my_magnetisation`` returns the magnetisation vector
+   corresponding to the given 3d position in space.
+
+   This position ``(x,y,z)`` as given to the function is expressed in meters.
+
+3. Providing a numpy array.
+
+   If a numpy array is provided to set the values of the
+   subfield, then the shape of this array has to match the
+   shape of the subfield data. For example, if the subfield is
+   the magnetisation of material X, and this material is
+   defined on n mesh sites, then the array needs to have n
+   entries. Each of those has to be a 3-component array,
+   as the magnetisation vector has three components.
+
+   Note: the Simulation.get_subfield() function can be used to
+   obtain exactly such a numpy array for the relevant
+   subfield.
+
+   To read such a numpy array from a file, you can use the
+   get_subfield_from_h5file_ function. However, you have to be
+   sure that the node order in the mesh (that is stored in the
+   _dat.h5 file) is the same as the mesh you are currently
+   using in your simulation. This should certainly be the case
+   if (i) both runs [i.e. the saved and the current] are based
+   on the same mesh, and (ii) you only us one CPU [as using
+   more than one results in repartitioning and reordering of
+   the mesh]. We aim to not allow setting 'wrong' data here in
+   the future, but currently such checking is not
+   implemented. (fangohr 31/05/2008)
+
+
+
+.. _set_H_ext:
+
+set_H_ext
+~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.set_H_ext``
+Arguments:
+	``(self, values, unit=None)``
+
+
+
+:Parameters:
+
+  `values` : vector (=list), function or numpy array.
+    See set_m_ for an explanation of possible ``values``.
+
+  `unit` : SI Object
+
+    An SI Object that is used as a multiplier for the
+    ``values``. This unit has to be physically compatible with
+    Ampere per meter.
+
+    To set an applied field that is homogenous and points in
+    +x-direction, one can use::
+
+      sim.set_H_ext([1e6, 0, 0], SI("A/m"))
+
+      which is equivalent to::
+
+      sim.set_H_ext([1, 0, 0], SI(1e6, "A/m"))
+
+    However, we could also define the field in Oersted::
+
+      from nmag.si import Oe
+      sim.set_H_ext([100, 0, 0],Oe)
+
+    or in Tesla/mu0::
+
+      from nmag.si import Tesla, mu0
+      sim.set_H_ext([1, 0, 0], Tesla/mu0)
+
+
+
+.. _set_pinning:
+
+set_pinning
+~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.set_pinning``
+Arguments:
+	``(self, values)``
+
+
+:Parameters:
+  `values` : vector (=list), function or numpy array.
+
+This method sets the scalar pinning field which defines a
+local scale factor for ``dm/dt``.
+
+Default value is ``1.0``, use ``0.0`` to force ``dm/dt`` to
+zero, that is, to "pin" (fix) magnetisation at a certain
+position.
+
+Semantics of the `values` parameter match set_m_.
+
+
+.. _set_params:
+
+set_params
+~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.set_params``
+Arguments:
+	``(self, stopping_dm_dt=None, ts_rel_tol=None, ts_abs_tol=None, exact_tstop=None)``
+
+
+Set the parameters which control the accuracy and performance
+of the simulation.
+
+:Parameters:
+
+  `ts_rel_tol` : float
+    the relative error tolerance (default is 1e-6) for the timestepper
+
+  `ts_abs_tol` : float
+    the absolute error tolerance (default is 1e-6) for the timestepper
+
+  `stopping_dm_dt` : SI_ object
+    the value used in the hysteresis_ and relax_ functions to decide
+    whether convergence has been reached. If the largest value for dm/dt drops
+    below ``stopping_dm_dt``, then convergence has been reached.
+
+    The default value for ``stopping_dm_dt`` this is that the
+    magnetisation changes less than one degree per nanosecond,
+    i.e. ``stopping_dm_dt = SI(17453292.519943293,['s',-1])``.
+
+  `exact_tstop` : bool
+    the value of exact_tstop which is used by the advance_time method
+    when the optional argument is not given. This is also the value
+    used by the relax and hysteresis methods. See the documentation
+    of advance_time for further details.
+
+Note that this command has to be issued *after* having created
+an m-field with the set_m_ command.
+
+
+.. _get_subfield_from_h5file:
+
+get_subfield_from_h5file
+------------------------
+
+Module:
+	``nmag``
+
+Object:
+	``get_subfield_from_h5file``
+Arguments:
+	``(*args, **nargs)``
+
+Retrieve data from h5 file. Data are returned as an array of floating
+point number (in SI units).
+
+This function should be used with care, as the order of the entries in the
+returned array depends on the partitioning of the mesh used when saving the
+data.
+
+Analog to get_subfield_ (which returns subfield data for a subfield of a
+simulation object), but will retrieve data from saved ``_dat.h5`` file.
+
+Note that the entries of the returned array are ordered accordingly
+to the mesh used in this simulation object.
+    
+:Parameters:
+  `filename` : string
+    The full name of the ``_dat.h5`` data file.
+         
+  `subfieldname` : string
+    The name of the subfield to be retrieved.
+
+  `id` : integer
+    The ``id`` of the configuration to return (defaults to 0)
+
+  `row` : integer 
+    
+    If the ``id`` is not specified, the ``row`` can be used to address the data
+    row with index ``row``.
+            
+    For example, the magnetisation may have been saved at some point during the
+    simulation into a file (for example using the :ref:`Restart example
+    <Restart example>` functionality, or using the save_data_ method for the
+    first time to save the m-field (i.e. ``sim.save_data(fields=['m']``) into a
+    new file).
+
+    We can use ``row=0`` to read the first magnetisation configuration that has
+    been written into this file (and ``row=1`` to access the second etc).
+
+    :Returns:
+      numpy array
+
+
+.. _get_subfield_positions_from_h5file:
+
+get_subfield_positions_from_h5file
+----------------------------------
+
+Module:
+	``nmag``
+
+Object:
+	``get_subfield_positions_from_h5file``
+Arguments:
+	``(filename, subfieldname)``
+
+
+Analogous to get_subfield_positions_ (which returns the positions of
+nodes for a subfield of a simulation object), but will retrieve
+data from saved ``_dat.h5`` file.
+
+:Parameters:
+  `filename` : string
+     The full name of the ``_dat.h5`` data file.
+
+  `subfieldname` : string
+     The name of the subfield to be retrieved.
+
+:Returns:
+  numpy array
+    The positions are returned as :ref:`si-value <SI object>`\ s.
+
+
+.. _get_subfield_sites_from_h5file:
+
+get_subfield_sites_from_h5file
+------------------------------
+
+Module:
+	``nmag``
+
+Object:
+	``get_subfield_sites_from_h5file``
+Arguments:
+	``(filename, subfieldname)``
+
+
+Analogous to get_subfield_sites_ (which returns the site ids of
+nodes for a subfield of a simulation object), but will retrieve
+data from saved ``_dat.h5`` file.
+
+:Parameters:
+  `filename` : string
+     The full name of the ``_dat.h5`` data file.
+
+  `subfieldname` : string
+     The name of the subfield to be retrieved.
+
+:Returns:
+  numpy array
+    The ids are returned as :ref:`si-value <SI object>`\ s.
+
+
+
+.. _HMatrixSetup:
+
+HMatrixSetup
+------------
+
+Module:
+	``nmag``
+
+Object:
+	``HMatrixSetup``
+Class constructor information:
+	``(self, algorithm='HCA2', **kwargs)``
+
+ass collecting the parameters needed in order to set up an HMatrix
+with HLib within Nmag.
+
+The optional argument ``algorithm`` is by default set to "HCA2".
+At present no other values are supported.
+The user can then specify a number of parameters in order to fine-tune
+the setup of the HMatrix. ``**kwargs`` stands for one or more of the
+following parameters (see `Hlib <http://www.hlib.org>`__ documentation
+for detailed descriptions of the parameers):
+
+:Parameters of HCA II:
+
+    `eps_aca` : float
+      A heuristic parameter which influences the accuracy of HCA II.
+      By default this parameter is set to 1e-7
+
+    `poly_order` : int
+      A second parameter which influences the accuracy of the HCA II.
+      Its default setting is 4.
+
+:Parameter for recompression algorithm:
+
+    `eps` : float
+      This parameter determines the accuracy of the recompression
+      algorithm, which optimises a given hierarchical matrix.
+      The default value is 0.001.
+
+:Parameters influencing the tree structure:
+
+    `cluster_strategy` : string
+      algorithm to be used for creating the cluster tree. Available choices
+      are 'regular' (cluster constructed splitting the bounding box of the
+      surface in two smaller bounding boxes with half the size along x,
+      then y, z, x, and so on), 'geometric' (similar to 'regular' but the
+      splitting is done along longer dimension of the bounding box)
+      'regular_box' (behaves similarly to 'regular'), 'cardinality' (the
+      bounding box is split into two bounding boxes containing the same
+      number of points, cyclically along each dimension), 'pca' (clustering
+      based on principal directions), 'default' (uses the default).
+      The default clustering strategy is 'regular'.
+
+    `eta` : float
+      eta is a parameter which influences the so called admissibility
+      criterion. As explained above, a subblock of the boundary element
+      matrix basically  describes the dipole potential at a cluster of
+      surface nodes A generated by a different cluster B. The subblock
+      can only be approximated when both cluster are spatially well
+      separated. To have an objective measure of what 'well separated'
+      means, an admissibility criterion has been introduced. The smaller
+      the parameter eta is chosen, the more restrictive is the
+      admissibility criterion. The default value is 2.0.
+
+    `nmin` : int
+      In order to be able to adjust the coarseness of the tree structure
+      (a too fine tree structure would result in a higher amount of memory
+      required for the storage of the tree itself), a parameter nmin has
+      been introduced. It is the minimal number of lines or rows a
+      submatrix within a leave can have, and is by default set to 30.
+
+:Parameter for the numerical quadrature:
+
+    `quadorder` : int
+      The order of the Gaussian quadrature used to compute matrix entries
+      for the low-rank matrix blocks. For the matrix blocks, which are not
+      approximated, an analytical expression instead of numerical
+      integration is used. By default, quadorder is set to 3.
+
+
+
+.. _SI:
+
+SI
+--
+
+Module:
+	``nmag``
+
+Object:
+	``SI``
+Class constructor information:
+	``(self, value, dimensions=[])``
+
+
+Physical quantity in the SI units system.
+
+This class allows to associate SI-dimensions (such as meter,
+kilogram, Ampere, seconds, candela and mol) with a floating point
+number.
+
+The resulting object supports addition, subtraction, (which fails if
+the dimensions of the objects in a sum or difference disagree),
+multiplication and division.
+
+There are different ways to create objects:
+
+1. The most fundamental approach is to
+   provide a value and a list of pairs where each pair is
+   a character identifying the SI base unit and an integer that
+   provides its power.
+
+   Examples:
+
+   A. ``v = SI(10,['m',1,'s',-1])`` is the code to create an SI object v
+      that represents 10 m/s.
+
+   B. ``B = SI(0.6,['kg',1,'s',-2,'A',-1])`` is the code to create an SI
+      object T that represents  0.6 kg/(s^2 A) (i.e. 0.6 Tesla)
+
+2. A more convenient way is to first define all the base units
+   like this (these are already defined in the ``si`` submodule, so
+   instead of the following lines below, we could also just write:
+   ``from si import meter,second,Ampere``)::
+
+     meter = SI(1,'m') # alternative spelling: metre
+     second = SI(1,'s')
+     Ampere = SI(1,'A')
+
+   and then to use these SI objects to create more complex
+   expressions::
+
+     v = 10*meter/second
+     B = 0.6*kilogram/second**2/Ampere
+
+   Of course, short hand notations can be defined such as::
+
+     T = kilogram/second**2/Ampere
+     B = 0.6*Tesla
+
+3. Finally, there is another convenient way:
+
+   Instead of a SI dimension vector as in (1), it is possible to pass
+   a string specifying dimensions. Examples are:
+
+   "A/m", "V/m", "J/m^3", "m^2 s^(-2)", "m^-3 s^-1" etc.
+
+   The dimensions parser will understand (in addition to m, kg, s, A, K, mol, cd):
+   J, N, W, T, V, C, Ohm, H
+
+A very basic demonstration of the SI object in use::
+
+    >>> a = SI(1,'m')
+    >>> b = SI(1e-3,'m')
+    >>> print a+b
+    <SI: 1.001  m >
+    >>> print a*b
+    <SI: 0.001  m^2 >
+    >>> print a/b
+    >>> <SI: 1000  >           #Note that this is dimensionless
+                               #because we divided meters by meters
+
+
+
+.. _value:
+
+value
+~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``SI.value``
+Property information
+	``None``
+
+
+Read-only attribute to obtain (dimensionless) value of Physical Object
+
+:Returns:
+  `value` : float
+    The numerical value.
+
+Example:
+
+  >>> from nmag import SI
+  >>> H = SI(10, 'A/m')
+  >>> print H.value
+  10.0
+  >>> print H
+  <SI: 10  A / m >
+
+
+.. _units:
+
+units
+~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``SI.units``
+Property information
+	``None``
+
+Read-only attribute to obtain units of Physical Object (returned as list of pairs of dimension name and power)
+
+.. _in_units_of:
+
+in_units_of
+~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``SI.in_units_of``
+Arguments:
+	``(self, unit_quantity)``
+
+
+The object will be expressed in multiplies of
+'unit_quantity'. This is useful to convert from one
+measurement convention (such as m/s) to another one (such as
+km/h). The return value is just a float.
+
+The units of 'unit_quantity' have to be compatible with the
+units of the object itself (otherwise an exception is raised).
+
+A simple example::
+
+  >>> d = SI(10,'m')
+  >>> inch = SI(2.54e-2,'m')
+  >>> d.in_units_of(inch)
+  393.70078740157478
+
+Another example::
+
+  >>> m = SI(1,'m')
+  >>> s = SI(1,'s')
+  >>> velocity=2*m/s
+  >>> print velocity
+  <SI: 2  m / s >
+  >>> km = 1000*m
+  >>> h = 3600*s
+  >>> print velocity.in_units_of(km/h)
+  8.2
+
+:Parameters:
+  `unit_quantity` : SI Object
+    The SI object itself (i.e. ``self``) will be expressed in
+    multiplies of this ``unit_quantity``.  `
+
+:Returns:
+  float
+    This is the number that, multiplied by the ``unit_quantitity`` will
+    provide the SI quantity of the object itself.
+
+
+
+.. _is_compatible_with:
+
+is_compatible_with
+~~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``SI.is_compatible_with``
+Arguments:
+	``(self, physical_quantity)``
+
+
+Returns True when the given physical quantity is compatible with the object
+itself.
+
+Example::
+
+  >>> from nsim.si_units import SI
+  >>> m_per_sec = SI(1,'m')/SI(1,'s')
+  >>> km_per_hour = SI(1000,'m')/SI(3600,'s')
+  >>> Newton = SI(1,'kg')*SI(1,'m')/SI(1,'s')**2
+  >>> m_per_sec.is_compatible_with(Newton)
+  False
+  >>> m_per_sec.is_compatible_with(km_per_hour)
+  True
+
+
+
+.. _ipython:
+
+ipython
+-------
+
+Module:
+	``nmag``
+
+Object:
+	``ipython``
+Arguments:
+	``(globals=None, locals=None)``
+
+Interactive python prompt (see :ref:`Example: IPython <example IPython>`).
+

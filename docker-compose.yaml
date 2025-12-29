@@ -8,9 +8,16 @@ services:
     image: docs-base
     pull_policy: never
 
+  nmag-dyn:
+    image: nmag/nmag-12.04
+    working_dir: /app
+    command: su nmag -c 'nsim make_dyn.py'
+    volumes:
+      - ./nmag/source/dyn:/app
+
   nmag-docs:
     image: docs-base
-    depends_on: [docs-base]
+    depends_on: [docs-base, nmag-dyn]
     pull_policy: never
     working_dir: /app
     command: make html

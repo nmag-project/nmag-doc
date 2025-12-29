@@ -1,2 +1,4 @@
 *.swp
 nmag/build
+nmag/source/dyn/inspecthelp.pyc
+nmag/source/dyn/make_dyn_log.log

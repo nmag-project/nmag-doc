@@ -1176,6 +1176,29 @@ Arguments:
 
 
 
+.. _set_current_density:
+
+set_current_density
+~~~~~~~~~~~~~~~~~~~
+
+Module:
+	``nmag``
+
+Object:
+	``Simulation.set_current_density``
+Arguments:
+	``(self, values, unit=None)``
+
+
+:Parameters:
+  `values` : vector (=list), function or numpy array.
+
+This method sets the current density for the electric
+current which interacts with the local magnetisation.
+
+Semantics of the `values` parameter match set_m_.
+
+
 .. _set_pinning:
 
 set_pinning

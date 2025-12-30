@@ -213,7 +213,7 @@ if True:
                                  ('Simulation.set_current_density',l2),
                                  ('Simulation.set_pinning',l2),
                                  ('Simulation.set_params',l2),
-                                 ('get_subfield_from_h5file',l2),
+                                 ('get_subfield_from_h5file',l1),
                                  ('get_subfield_positions_from_h5file',l1),
                                  ('get_subfield_sites_from_h5file',l1),
                                  ('HMatrixSetup',l1),
